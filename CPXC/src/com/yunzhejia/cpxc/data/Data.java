@@ -14,17 +14,17 @@ public class Data {
 			data = source.getDataSet();
 			// setting class attribute if the data format does not provide this information
 			 // For example, the XRFF format saves the class attribute information as well
-			
-			for (int i = 0 ; i < data.numInstances(); i++){
-			 }
 			 if (data.classIndex() == -1)
 			   data.setClassIndex(data.numAttributes() - 1);
 			 System.out.println(data.classIndex());
 			 Classifier cl = new NaiveBayes();
 			 cl.buildClassifier(data);
+			 System.out.println(data.classIndex());
 			 for (int i = 0 ; i < data.numInstances(); i++){
 				 System.out.println(cl.classifyInstance(data.get(i)));
 			 }
+			 
+			 
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
