@@ -23,4 +23,11 @@ public class OutputUtils {
 		}
 		System.out.println();
 	}
+	
+	public static void print(int[] elements) {
+		for (int element:elements){
+			System.out.print(element+" ");
+		}
+		System.out.println();
+	}
 }

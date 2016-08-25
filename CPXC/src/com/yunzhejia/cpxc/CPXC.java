@@ -13,8 +13,6 @@ import weka.classifiers.AbstractClassifier;
 import weka.classifiers.Evaluation;
 import weka.core.Instance;
 import weka.core.Instances;
-import weka.filters.SupervisedFilter;
-import weka.filters.supervised.attribute.Discretize;
 
 public class CPXC extends AbstractClassifier{
 	/** type of base classifier*/
@@ -53,20 +51,22 @@ public class CPXC extends AbstractClassifier{
 		//step 2 divide D into LE and SE
 		divideData(data);
 		//step 3 perform binning & contrast pattern mining
-		binData(data);
+		Discretizer discretizer = new Discretizer();
+		discretizer.initialize(data);
+		
+		//pattern mining
+		minePatterns(data,discretizer);
 	}
 	
-	private void binData(Instances data) throws Exception{
-		Discretize discretizer = new Discretize();
-		discretizer.setInputFormat(data);
-		Instances discretizedData = Discretize.useFilter(data, discretizer);
-		
-		for (int i = 0; i < data.numAttributes(); i++){
-			System.out.println(data.attribute(i).name());
-			System.out.println(discretizer.getBinRangesString(i));
+	private void minePatterns(Instances data, Discretizer discretizer){
+		for(int i = 0; i < LE.numInstances(); i++){
+			Instance ins = LE.get(i);
+			System.out.println("0 " + discretizer.getDiscretizedInstance(ins));
 		}
-		System.out.println(discretizedData);
-		
+		for(int i = 0; i < SE.numInstances(); i++){
+			Instance ins = SE.get(i);
+			System.out.println("1 " + discretizer.getDiscretizedInstance(ins));
+		}
 	}
 	
 	private void divideData(Instances data) throws Exception{
