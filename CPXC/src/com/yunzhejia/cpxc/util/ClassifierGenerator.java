@@ -4,17 +4,21 @@ import java.io.Serializable;
 
 import weka.classifiers.AbstractClassifier;
 import weka.classifiers.bayes.NaiveBayes;
+import weka.classifiers.trees.J48;
 
 public class ClassifierGenerator implements Serializable{
 	private static final long serialVersionUID = -2578826239599092125L;
 
-	public enum ClassifierType {NAIVE_BAYES};
+	public enum ClassifierType {NAIVE_BAYES, DECISION_TREE};
 	
 	public static AbstractClassifier getClassifier(ClassifierType type){
 		AbstractClassifier classifier = null;
 		switch(type){
 			case NAIVE_BAYES:
 				classifier = new NaiveBayes();
+				break;
+			case DECISION_TREE:
+				classifier = new J48();
 				break;
 			default:
 				classifier = new NaiveBayes();

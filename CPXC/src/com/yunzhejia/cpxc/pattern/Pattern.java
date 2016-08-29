@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.UUID;
 
 import com.yunzhejia.cpxc.Discretizer;
+import com.yunzhejia.cpxc.LocalClassifier;
 
 import weka.core.Instance;
 import weka.core.Instances;
@@ -15,13 +16,14 @@ public class Pattern implements Serializable{
 	private String id;
 	private List<Integer> items;
 	private int support;
+	private LocalClassifier localClassifier = null;
 	
 	public Pattern(){
 		id = UUID.randomUUID().toString();
 		items = new ArrayList<Integer>();
 	}
 	
-	public boolean match(Instance ins, Discretizer discretizer){
+	public double match(Instance ins, Discretizer discretizer){
 		List<Integer> insItems = new ArrayList<Integer>();
 		for (int i = 0; i < ins.numAttributes(); i++){
 			if (i == ins.classIndex()){
@@ -36,7 +38,17 @@ public class Pattern implements Serializable{
 			insItems.add(item);
 		}
 		//System.out.println(items+" ins="+insItems+"  "+insItems.containsAll(items));
-		return insItems.containsAll(items);
+		return insItems.containsAll(items)?1:0;
+	}
+	
+	
+	
+	public void setLocalClassifier(LocalClassifier localClassifier) {
+		this.localClassifier = localClassifier;
+	}
+
+	public LocalClassifier getLocalClassifier(){
+		return localClassifier;
 	}
 	
 	public int getSupport(){
@@ -46,7 +58,7 @@ public class Pattern implements Serializable{
 	public Instances getMatches(Instances data, Discretizer discretizer){
 		Instances mds = new Instances(data,0);
 		for (Instance ins:data){
-			if (this.match(ins, discretizer)){
+			if (this.match(ins, discretizer) > 0){
 				mds.add(ins);
 			}
 		}
@@ -57,7 +69,7 @@ public class Pattern implements Serializable{
 	public int supportOfData(Instances data, Discretizer discretizer){
 		int count = 0;
 		for (Instance ins:data){
-			if (this.match(ins, discretizer)){
+			if (this.match(ins, discretizer) > 0){
 				count++;
 			}
 		}
@@ -91,6 +103,8 @@ public class Pattern implements Serializable{
 		}
 		str.append("support = ");
 		str.append(support);
+		str.append("weight = ");
+		str.append(localClassifier==null?null:localClassifier.getWeight());
 		return str.toString();
 	}
 

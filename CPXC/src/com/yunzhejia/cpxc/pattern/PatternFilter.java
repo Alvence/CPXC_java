@@ -1,5 +1,5 @@
 package com.yunzhejia.cpxc.pattern;
 
 public interface PatternFilter {
-	public PatternSet filter(PatternSet patternSet);
+	public PatternSet filter(PatternSet patternSet) throws Exception;
 }

@@ -12,6 +12,7 @@ import com.yunzhejia.cpxc.pattern.Pattern;
 import com.yunzhejia.cpxc.pattern.PatternFilter;
 import com.yunzhejia.cpxc.pattern.PatternSet;
 import com.yunzhejia.cpxc.pattern.SupportPatternFilter;
+import com.yunzhejia.cpxc.pattern.TERPatternFilter;
 import com.yunzhejia.cpxc.util.ClassifierGenerator;
 import com.yunzhejia.cpxc.util.ClassifierGenerator.ClassifierType;
 
@@ -34,8 +35,9 @@ public class CPXC extends AbstractClassifier{
 	/** min growth ratio for contrast patterns*/
 	protected double minRatio;
 	
+	protected transient PatternSet patternSet;
 	protected transient AbstractClassifier baseClassifier;
-	protected transient HashMap<Pattern, LocalClassifier> ensembles;
+	//protected transient HashMap<Pattern, LocalClassifier> ensembles;
 	protected transient Discretizer discretizer;
 	
 	public CPXC(ClassifierType baseType, ClassifierType ensembleType, double rho, double minSup, double minRatio) {
@@ -56,36 +58,34 @@ public class CPXC extends AbstractClassifier{
 		baseClassifier = ClassifierGenerator.getClassifier(baseType);
 		//step 1 learn a base classifier 
 		baseClassifier.buildClassifier(data);
+		
 		//step 2 divide D into LE and SE
 		divideData(data,LE,SE);
+		
 		//step 3 perform binning & contrast pattern mining
 		discretizer = new Discretizer();
 		discretizer.initialize(data);
 		//pattern mining
-		PatternSet patternSet = minePatterns(data,LE,SE,discretizer);
+		patternSet = minePatterns(data,LE,SE,discretizer);
 		System.out.println("Patterns number = "+patternSet.size());
 		//contrasting
 		patternSet.contrast(LE,SE,discretizer,minRatio);
 		System.out.println("Patterns number after contrasting= "+patternSet.size());
 		
-		//build local classifiers
-		buildLocalClassifiers(data,patternSet);
+		//step 4 reduce the set of mined contrast pattern
+		patternSet = patternSet.filter(new SupportPatternFilter(data.numAttributes()));
+		System.out.println("Patterns number after filtering= "+patternSet.size());
+		//step 5 build local classifiers
+		buildLocalClassifiers(data);
 		
-		//filter patterns
-		patternSet = filterLocalClassifiers(data,patternSet);
-		System.out.println("Patterns number after filtering= " + patternSet.size());
+		
+		//step 6 remove contrast pattern of low utility
+		System.out.println("Initial TER="+patternSet.TER(data, baseClassifier, discretizer));
+		patternSet = patternSet.filter(new TERPatternFilter(data, baseClassifier, discretizer));
+		System.out.println("Final TER="+patternSet.TER(data, baseClassifier, discretizer));
+		System.out.println(patternSet.size());
+		
 	}
-	
-	private PatternSet filterLocalClassifiers(Instances data, PatternSet patternSet) {
-		PatternSet filteredSet;
-		filteredSet = filter(new SupportPatternFilter(data.numAttributes()), patternSet);
-		return filteredSet;
-	}
-	
-	private PatternSet filter(PatternFilter filter, PatternSet patternSet) {
-		return filter.filter(patternSet);
-	}
-
 
 	@Override
 	public double[] distributionForInstance(Instance instance)throws Exception{
@@ -94,29 +94,29 @@ public class CPXC extends AbstractClassifier{
 			probs[i] = 0;
 		}
 		boolean noMatch = true;
-		for (Pattern pattern:ensembles.keySet()){
-			if(pattern.match(instance, discretizer)){
-				LocalClassifier ensemble = ensembles.get(pattern);
+		for (Pattern pattern: patternSet){
+			LocalClassifier ensemble = pattern.getLocalClassifier();
+			if(pattern.match(instance, discretizer) > 0){
 				int response = (int)ensemble.predict(instance);
-				probs[response] += ensemble.getWeight();
+				probs[response] += ensemble.getWeight()* pattern.match(instance, discretizer);
 				noMatch = false;
 			}
 		}
 		if(noMatch){
-			probs = baseClassifier.distributionForInstance(instance);
+			return baseClassifier.distributionForInstance(instance);
 		}
 		
 		Utils.normalize(probs);
 		return probs;
 	}
 	
-	private void buildLocalClassifiers(Instances data,PatternSet patternSet) throws Exception {
-		this.ensembles = new HashMap<>();
+	private void buildLocalClassifiers(Instances data) throws Exception {
 		for (Pattern p:patternSet){
 			LocalClassifier localClassifier = new LocalClassifier(p, this.ensembleType);
 			Instances mds = p.getMatches(data, discretizer);
 			localClassifier.train(mds);
-			ensembles.put(p, localClassifier);
+			localClassifier.setWeight(localClassifier.AER(mds, baseClassifier));
+			p.setLocalClassifier(localClassifier);
 			/*
 			Evaluation eval = new Evaluation(trainingData.get(p));
 			eval.evaluateModel(localClassifier.getClassifier(), trainingData.get(p));
@@ -146,7 +146,7 @@ public class CPXC extends AbstractClassifier{
 			String[] cmd = {"program\\GcGrowth.exe", tmpFile,(int)(minSup*data.numInstances())+"","tmp\\output" };
 			Process process = new ProcessBuilder(cmd).start();
 			//wait until the program is complete
-			while(process.isAlive()){}
+			while(isRunning(process)){}
 			ps = new PatternSet();
 			ps.readPatterns(patternFile);
 			
@@ -163,6 +163,15 @@ public class CPXC extends AbstractClassifier{
 		}
 		*/
 		return ps;
+	}
+	
+	private boolean isRunning(Process process) {
+	    try {
+	        process.exitValue();
+	        return false;
+	    } catch (Exception e) {
+	        return true;
+	    }
 	}
 	
 	private void divideData(Instances data, Instances LE, Instances SE) throws Exception{

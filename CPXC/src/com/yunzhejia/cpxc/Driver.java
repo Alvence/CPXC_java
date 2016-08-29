@@ -25,9 +25,10 @@ public class Driver {
 			cpxc.buildClassifier(data);
 			
 			Evaluation eval = new Evaluation(data);
-			eval.evaluateModel(cpxc, data);
-//			eval.crossValidateModel(cpxc, data, 7, new Random(1));
-			System.out.println("accuracy on cpxc: " + eval.pctCorrect() + "%");
+//			eval.evaluateModel(cpxc, data);
+			eval.crossValidateModel(cpxc, data, 7, new Random(1));
+			System.out.println("accuracy on trainingdata: " + eval.pctCorrect() + "%");
+			System.out.println("AUC on trainingdata: " + eval.areaUnderROC(0) + "%");
 			
 			 
 		} catch (Exception e) {
