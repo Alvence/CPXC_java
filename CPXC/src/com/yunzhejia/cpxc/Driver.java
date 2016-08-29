@@ -1,9 +1,12 @@
 package com.yunzhejia.cpxc;
 
 
+import java.util.Random;
+
 import com.yunzhejia.cpxc.util.ClassifierGenerator.ClassifierType;
 
 import weka.classifiers.AbstractClassifier;
+import weka.classifiers.evaluation.Evaluation;
 import weka.core.Instances;
 import weka.core.converters.ConverterUtils.DataSource;
 
@@ -20,6 +23,11 @@ public class Driver {
 				data.setClassIndex(data.numAttributes() - 1);
 			}
 			cpxc.buildClassifier(data);
+			
+			Evaluation eval = new Evaluation(data);
+			eval.evaluateModel(cpxc, data);
+//			eval.crossValidateModel(cpxc, data, 7, new Random(1));
+			System.out.println("accuracy on cpxc: " + eval.pctCorrect() + "%");
 			
 			 
 		} catch (Exception e) {

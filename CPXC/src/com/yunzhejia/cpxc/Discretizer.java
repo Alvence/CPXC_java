@@ -1,17 +1,17 @@
 package com.yunzhejia.cpxc;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import com.yunzhejia.cpxc.util.OutputUtils;
-
 import weka.core.Attribute;
 import weka.core.Instance;
 import weka.core.Instances;
-import weka.core.SystemInfo;
 
-public class Discretizer {
+public class Discretizer implements Serializable{
+	private static final long serialVersionUID = 2555190450596422877L;
+
 	public static int SHIFT_SIZE = 10;
 	
 	private HashMap<Integer, List<Double>> cuttingPoints;
@@ -24,9 +24,9 @@ public class Discretizer {
 		int[] cuttingPointAttributes = cuttingPointAttributeIndex(data);
 		
 		
-		OutputUtils.print(nominalAttributes);
-		OutputUtils.print(nocuttingPointAttributes);
-		OutputUtils.print(cuttingPointAttributes);
+//		OutputUtils.print(nominalAttributes);
+//		OutputUtils.print(nocuttingPointAttributes);
+//		OutputUtils.print(cuttingPointAttributes);
 		
 		cuttingPoints = new HashMap<Integer,List<Double>>();
 		calculateNominal(data, nominalAttributes);
@@ -51,6 +51,10 @@ public class Discretizer {
 			}
 		}
 		return ret;
+	}
+	
+	public int getShiftedDiscretizedValue(int attrIndex, Object attrVal){
+		return getDiscretizedValue(attrIndex, attrVal)+(attrIndex<<SHIFT_SIZE);
 	}
 	
 	public int getDiscretizedValue(int attrIndex, Object attrVal){

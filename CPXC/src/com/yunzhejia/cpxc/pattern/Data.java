@@ -1,4 +1,4 @@
-package com.yunzhejia.cpxc.data;
+package com.yunzhejia.cpxc.pattern;
 
 import com.yunzhejia.cpxc.util.OutputUtils;
 
