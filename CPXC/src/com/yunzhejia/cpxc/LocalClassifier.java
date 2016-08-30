@@ -52,12 +52,14 @@ public class LocalClassifier {
 	
 	public double AER(Instances mds, AbstractClassifier baseClassifier) throws Exception{
 		double AER = 0;
+		double sum = 0;
 		for (Instance ins:mds){
 			double errB = getError(baseClassifier,ins);
 			double errP = getError(ins);
 			AER += Math.abs(errB - errP);
+			sum += errB;
 		}
-		AER = AER / mds.numInstances();
+		AER = AER / sum;
 		return AER;
 	}
 	

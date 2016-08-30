@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
+import com.yunzhejia.cpxc.pattern.AERPatternFilter;
 import com.yunzhejia.cpxc.pattern.Pattern;
 import com.yunzhejia.cpxc.pattern.PatternFilter;
 import com.yunzhejia.cpxc.pattern.PatternSet;
@@ -81,7 +82,9 @@ public class CPXC extends AbstractClassifier{
 		
 		//step 6 remove contrast pattern of low utility
 		System.out.println("Initial TER="+patternSet.TER(data, baseClassifier, discretizer));
+		patternSet = patternSet.filter(new AERPatternFilter());
 		patternSet = patternSet.filter(new TERPatternFilter(data, baseClassifier, discretizer));
+		
 		System.out.println("Final TER="+patternSet.TER(data, baseClassifier, discretizer));
 		System.out.println(patternSet.size());
 		
