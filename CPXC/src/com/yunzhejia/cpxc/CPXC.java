@@ -98,7 +98,7 @@ public class CPXC extends AbstractClassifier{
 		
 		//step 9 train the default classifier
 		Instances noMatchingData = patternSet.getNoMatchingData(data, discretizer);
-		System.out.println(noMatchingData.numInstances()+" out of "+ data.numInstances() +" are not covered");
+//		System.out.println(noMatchingData.numInstances()+" out of "+ data.numInstances() +" are not covered");
 		
 		if(noMatchingData.numInstances() < data.numInstances() * 0.05){
 			defaultClassifier = baseClassifier;
