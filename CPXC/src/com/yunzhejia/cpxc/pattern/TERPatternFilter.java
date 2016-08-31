@@ -38,6 +38,31 @@ public class TERPatternFilter implements PatternFilter {
 			}
 			cps.remove(pattern);
 			ps.add(pattern);
+			Pattern pInCPS = null;
+			Pattern pInPS = null;
+			
+			currentObj = new PatternSet(ps).TER(data, baseClassifier, discretizer);
+			double tmpObj = currentObj;
+			for(Pattern p1 : cps){
+				for(Pattern p2: ps){
+					List<Pattern> tmpPS = new ArrayList<>(ps);
+					tmpPS.remove(p2);
+					tmpPS.add(p1);
+					double tmp = new PatternSet(tmpPS).TER(data, baseClassifier, discretizer);
+					if(tmp - tmpObj > 0.0001){
+						pInCPS = p1;
+						pInPS = p2;
+						tmpObj = tmp;
+					}
+				}
+			}
+			
+			if(pInPS!=null){
+				ps.remove(pInPS);
+				ps.add(pInCPS);
+				cps.remove(pInCPS);
+				cps.add(pInPS);
+			}
 			currentObj = new PatternSet(ps).TER(data, baseClassifier, discretizer);
 			//System.out.println("currentObj = "+currentObj+"  pre="+obj);
 		}while(currentObj - obj > 0.01);
@@ -46,7 +71,7 @@ public class TERPatternFilter implements PatternFilter {
 
 	private Pattern patternMaximizesObj(List<Pattern> ps, List<Pattern> cps, Instances data,
 			AbstractClassifier baseClassifier, Discretizer discretizer) throws Exception {
-		double maxObj = new PatternSet(ps).TER(data, baseClassifier, discretizer);
+		double maxObj = 0;
 		Pattern ret = null;
 		for(Pattern p:cps){
 			List<Pattern> tmp = new ArrayList<>(ps);

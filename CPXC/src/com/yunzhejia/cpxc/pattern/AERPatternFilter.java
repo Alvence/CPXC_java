@@ -13,7 +13,7 @@ public class AERPatternFilter implements PatternFilter {
 		for (Pattern p:patternSet){
 			aers.add(p.getLocalClassifier().getWeight());
 		}
-		double threshold = Collections.max(aers)*0.75;
+		double threshold = Collections.max(aers)*0.4;
 		PatternSet ps = new PatternSet(patternSet);
 		Iterator<Pattern> it = ps.iterator();
 		while(it.hasNext()){

@@ -15,6 +15,7 @@ import com.yunzhejia.cpxc.pattern.PatternSet;
 import com.yunzhejia.cpxc.pattern.SupportPatternFilter;
 import com.yunzhejia.cpxc.pattern.TERPatternFilter;
 import com.yunzhejia.cpxc.util.ClassifierGenerator;
+import com.yunzhejia.cpxc.util.OutputUtils;
 import com.yunzhejia.cpxc.util.ClassifierGenerator.ClassifierType;
 
 import weka.classifiers.AbstractClassifier;
@@ -38,6 +39,7 @@ public class CPXC extends AbstractClassifier{
 	
 	protected transient PatternSet patternSet;
 	protected transient AbstractClassifier baseClassifier;
+	protected transient AbstractClassifier defaultClassifier;
 	//protected transient HashMap<Pattern, LocalClassifier> ensembles;
 	protected transient Discretizer discretizer;
 	
@@ -63,30 +65,47 @@ public class CPXC extends AbstractClassifier{
 		//step 2 divide D into LE and SE
 		divideData(data,LE,SE);
 		
-		//step 3 perform binning & contrast pattern mining
+		//step 3 perform binning
 		discretizer = new Discretizer();
 		discretizer.initialize(data);
-		//pattern mining
-		patternSet = minePatterns(data,LE,SE,discretizer);
-		System.out.println("Patterns number = "+patternSet.size());
+		
+		//step 4 contrast pattern mining
+		patternSet = minePatterns(LE,discretizer);
+//		System.out.println("Pattern number = "+patternSet.size());
 		//contrasting
 		patternSet.contrast(LE,SE,discretizer,minRatio);
-		System.out.println("Patterns number after contrasting= "+patternSet.size());
+//		System.out.println("Pattern number after contrasting = "+patternSet.size());
 		
-		//step 4 reduce the set of mined contrast pattern
+		//step 5 reduce the set of mined contrast pattern
 		patternSet = patternSet.filter(new SupportPatternFilter(data.numAttributes()));
-		System.out.println("Patterns number after filtering= "+patternSet.size());
-		//step 5 build local classifiers
+//		System.out.println("Pattern number after filtering = "+patternSet.size());
+		//step 6 build local classifiers
 		buildLocalClassifiers(data);
 		
 		
-		//step 6 remove contrast pattern of low utility
-		System.out.println("Initial TER="+patternSet.TER(data, baseClassifier, discretizer));
-		patternSet = patternSet.filter(new AERPatternFilter());
-		patternSet = patternSet.filter(new TERPatternFilter(data, baseClassifier, discretizer));
+		//step 7 remove contrast pattern of low utility
+//		System.out.println("Initial TER="+patternSet.TER(data, baseClassifier, discretizer));
+//		patternSet = patternSet.filter(new AERPatternFilter());
 		
-		System.out.println("Final TER="+patternSet.TER(data, baseClassifier, discretizer));
-		System.out.println(patternSet.size());
+		//step 8 select an optimal set of patterns
+		patternSet = patternSet.filter(new TERPatternFilter(data, baseClassifier, discretizer));
+//		
+//		System.out.println("Final TER="+patternSet.TER(data, baseClassifier, discretizer));
+//		System.out.println(patternSet.size());
+//		System.out.println(patternSet.getNoMatchingData(LE, discretizer).numInstances()+" out of "+ LE.numInstances() +" are not covered");
+//		System.out.println(patternSet.getNoMatchingData(SE, discretizer).numInstances()+" out of "+ SE.numInstances() +" are not covered");
+		
+		
+		//step 9 train the default classifier
+		Instances noMatchingData = patternSet.getNoMatchingData(data, discretizer);
+		System.out.println(noMatchingData.numInstances()+" out of "+ data.numInstances() +" are not covered");
+		
+		if(noMatchingData.numInstances() < data.numInstances() * 0.05){
+			defaultClassifier = baseClassifier;
+		}else{
+			defaultClassifier = ClassifierGenerator.getClassifier(ensembleType);
+			defaultClassifier.buildClassifier(noMatchingData);
+		}
 		
 	}
 
@@ -100,13 +119,15 @@ public class CPXC extends AbstractClassifier{
 		for (Pattern pattern: patternSet){
 			LocalClassifier ensemble = pattern.getLocalClassifier();
 			if(pattern.match(instance, discretizer) > 0){
-				int response = (int)ensemble.predict(instance);
-				probs[response] += ensemble.getWeight()* pattern.match(instance, discretizer);
+				double[] dist = ensemble.distributionForInstance(instance);
+				for(int i = 0; i < dist.length; i++){
+					probs[i] += dist[i]*ensemble.getWeight()* pattern.match(instance, discretizer);
+				}
 				noMatch = false;
 			}
 		}
 		if(noMatch){
-			return baseClassifier.distributionForInstance(instance);
+			return defaultClassifier.distributionForInstance(instance);
 		}
 		
 		Utils.normalize(probs);
@@ -129,26 +150,22 @@ public class CPXC extends AbstractClassifier{
 	}
 
 
-	private PatternSet minePatterns(Instances data, Instances LE, Instances SE, Discretizer discretizer){
+	private PatternSet minePatterns(Instances data, Discretizer discretizer){
 		PatternSet ps = null;
 		String tmpFile = "tmp/dataForPattern.txt";
-		String patternFile = "tmp/output.closed";
+		String patternFile = "tmp/output.key";
 		File file = new File(tmpFile);
 		try {
 			PrintWriter writer = new PrintWriter(file);
-			for(int i = 0; i < LE.numInstances(); i++){
-				Instance ins = LE.get(i);
-				writer.println(discretizer.getDiscretizedInstance(ins));
-			}
-			for(int i = 0; i < SE.numInstances(); i++){
-				Instance ins = SE.get(i);
+			for(int i = 0; i < data.numInstances(); i++){
+				Instance ins = data.get(i);
 				writer.println(discretizer.getDiscretizedInstance(ins));
 			}
 			writer.close();
 			
 			String[] cmd = {"program\\GcGrowth.exe", tmpFile,(int)(minSup*data.numInstances())+"","tmp\\output" };
 			Process process = new ProcessBuilder(cmd).start();
-			//wait until the program is complete
+			//wait until the program terminates
 			while(isRunning(process)){}
 			ps = new PatternSet();
 			ps.readPatterns(patternFile);
@@ -187,7 +204,6 @@ public class CPXC extends AbstractClassifier{
 		}
 		//get cutting point
 		double k = cuttingPoint(errs);
-		
 		//initialize two data sets
 		for (int i = 0; i < data.numInstances(); i++){
 			Instance ins = data.get(i);
@@ -197,41 +213,46 @@ public class CPXC extends AbstractClassifier{
 				SE.add(ins);
 			}
 		}
-		System.out.println("cutting error = " + k);
-		
+//		System.out.println("cutting error = " + k);
+		/*
 		Evaluation eval = new Evaluation(data);
 		eval.evaluateModel(baseClassifier, data);
 		System.out.println("accuracy on whole data: " + eval.pctCorrect() + "%");
 		Evaluation eval1 = new Evaluation(data);
 		eval1.evaluateModel(baseClassifier, LE);
-		System.out.println("accuracy on LE: " + eval1.pctCorrect() + "%");
+		System.out.println("accuracy on LE: " + eval1.pctCorrect() + "%   size="+LE.numInstances());
 		Evaluation eval2 = new Evaluation(data);
 		eval2.evaluateModel(baseClassifier, SE);
-		System.out.println("accuracy on SE: " + eval2.pctCorrect() + "%");
+		System.out.println("accuracy on SE: " + eval2.pctCorrect() + "%   size="+SE.numInstances());*/
 	}
-/*
+	/*
 	private double cuttingPoint(List<Double> errs){
+		List<Double> list = new ArrayList<Double>(errs);
+		Collections.sort(list);
+		//OutputUtils.print(errs);
+		double sum = 0f;
+		for (double err:list){
+			sum += err;
+		}
+		double threshold = sum * rho;
 		
-		Collections.sort(errs);
-		OutputUtils.print(errs);
+		double calc = 0f;
+		int index = list.size()-1;
+		while (calc < threshold){
+			calc += list.get(index);
+			index--;
+		}
+		return list.get(index);
+	}
+	*/
+	
+	private double cuttingPoint(List<Double> errs){
 		double sum = 0f;
 		for (double err:errs){
 			sum += err;
 		}
-		double threshold = sum * rho;
-		sum = 0f;
-		int index = 0;
-		while (sum < threshold){
-			sum += errs.get(index);
-			index++;
-		}
-		return errs.get(index-1);
-	}
-	*/
-private double cuttingPoint(List<Double> errs){
-		List<Double> list = new ArrayList<Double>(errs);
-		Collections.sort(list);
-		int index = (int)(list.size() * (1-rho));
-		return list.get(index);
+		double threshold = sum/errs.size() * rho;
+		
+		return threshold;
 	}
 }

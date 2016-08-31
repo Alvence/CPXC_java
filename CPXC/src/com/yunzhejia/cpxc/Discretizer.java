@@ -88,6 +88,7 @@ public class Discretizer implements Serializable{
 		weka.filters.unsupervised.attribute.Discretize discretizer = new weka.filters.unsupervised.attribute.Discretize();
 		discretizer.setAttributeIndicesArray(cuttingPointAttributes);
 		discretizer.setInputFormat(data);
+		discretizer.setBins(3);
 		weka.filters.supervised.attribute.Discretize.useFilter(data, discretizer);
 		
 		for(int index: cuttingPointAttributes){

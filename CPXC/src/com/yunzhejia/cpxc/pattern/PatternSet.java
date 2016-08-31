@@ -56,7 +56,7 @@ public class PatternSet extends AbstractList<Pattern> implements Serializable{
 			Pattern p = it.next();
 			float supLE = p.supportOfData(LE, discretizer);
 			float supSE = p.supportOfData(SE, discretizer);
-			if (supLE/supSE < 2){
+			if (supLE/supSE < minRatio){
 				it.remove();
 			}
 		}
@@ -101,8 +101,10 @@ public class PatternSet extends AbstractList<Pattern> implements Serializable{
 		for (Pattern pattern: patterns){
 			LocalClassifier ensemble = pattern.getLocalClassifier();
 			if(pattern.match(instance, discretizer) > 0){
-				int response = (int)ensemble.predict(instance);
-				probs[response] += ensemble.getWeight()* pattern.match(instance, discretizer);
+				double[] dist = ensemble.distributionForInstance(instance);
+				for(int i = 0; i < dist.length; i++){
+					probs[i] += dist[i]*ensemble.getWeight()* pattern.match(instance, discretizer);
+				}
 				noMatch = false;
 			}
 		}
@@ -116,6 +118,16 @@ public class PatternSet extends AbstractList<Pattern> implements Serializable{
 	private double getBaseError(AbstractClassifier baseClassifier, Instance ins) throws Exception{
 		int response = (int)ins.classValue();
 		return 1-baseClassifier.distributionForInstance(ins)[response];
+	}
+	
+	public Instances getNoMatchingData(Instances data, Discretizer discretizer){
+		Instances ret = new Instances(data,0);
+		for (Instance ins : data){
+			if (!this.match(ins, discretizer)){
+				ret.add(ins);
+			}
+		}
+		return ret;
 	}
 
 	
