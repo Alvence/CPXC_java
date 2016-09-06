@@ -22,7 +22,10 @@
 package weka.core;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
+
+import weka.core.Debug.Random;
 
 /**
  * Class for storing an instance as a sparse vector. A sparse instance only
@@ -38,7 +41,32 @@ import java.util.Enumeration;
  */
 public class SparseInstance extends AbstractInstance {
 
-  /** for serialization */
+	@Override
+	public long getID(){
+		return id;
+	}
+	  @Override
+	  public int hashCode() {
+	  	final int prime = 31;
+	  	int result = 1;
+	  	result = prime * result + (int) (id ^ (id >>> 32));
+	  	return result;
+	  }
+
+	  @Override
+	  public boolean equals(Object obj) {
+	  	if (this == obj)
+	  		return true;
+	  	if (obj == null)
+	  		return false;
+	  	if (getClass() != obj.getClass())
+	  		return false;
+	  	SparseInstance other = (SparseInstance) obj;
+	  	if (id != other.id)
+	  		return false;
+	  	return true;
+	  }
+/** for serialization */
   private static final long serialVersionUID = -3579051291332630149L;
 
   /** The index of the attribute associated with each stored value. */
@@ -63,6 +91,7 @@ public class SparseInstance extends AbstractInstance {
     if (instance instanceof SparseInstance) {
       m_AttValues = ((SparseInstance) instance).m_AttValues;
       m_Indices = ((SparseInstance) instance).m_Indices;
+      id =  ((SparseInstance) instance).id;
     } else {
       double[] tempValues = new double[instance.numAttributes()];
       int[] tempIndices = new int[instance.numAttributes()];
@@ -90,6 +119,7 @@ public class SparseInstance extends AbstractInstance {
    */
   public SparseInstance(SparseInstance instance) {
 
+	id = instance.id;
     m_AttValues = instance.m_AttValues;
     m_Indices = instance.m_Indices;
     m_Weight = instance.m_Weight;
@@ -106,7 +136,7 @@ public class SparseInstance extends AbstractInstance {
    * @param attValues a vector of attribute values
    */
   public SparseInstance(double weight, double[] attValues) {
-
+	  id = Random.nextID();
     m_Weight = weight;
     m_Dataset = null;
     m_NumAttributes = attValues.length;

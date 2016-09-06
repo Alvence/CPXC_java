@@ -78,6 +78,8 @@ import java.util.Random;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
+import com.yunzhejia.adt.ADT;
+
 /**
  * Class for evaluating machine learning models.
  * <p/>
@@ -769,7 +771,14 @@ public class Evaluation implements Summarizable, RevisionHandler, Serializable {
       Classifier copiedClassifier = AbstractClassifier.makeCopy(classifier);
       copiedClassifier.buildClassifier(train);
       Instances test = data.testCV(numFolds, i);
-      evaluateModel(copiedClassifier, test, forPredictionsPrinting);
+      Instances newTest = new Instances(test,0);
+      for(Instance ins:test){
+    	  ADT adt = (ADT)copiedClassifier;
+    	  if(adt.desicionClassifier.classifyInstance(ins)>0.5){
+    		  newTest.add(ins);
+    	  }
+      }
+      evaluateModel(copiedClassifier, newTest, forPredictionsPrinting);
     }
     m_NumFolds = numFolds;
 

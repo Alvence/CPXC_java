@@ -129,6 +129,16 @@ public class PatternSet extends AbstractList<Pattern> implements Serializable{
 		}
 		return ret;
 	}
+	
+	public Instances getMatchingData(Instances data, Discretizer discretizer){
+		Instances ret = new Instances(data,0);
+		for (Instance ins : data){
+			if (this.match(ins, discretizer)){
+				ret.add(ins);
+			}
+		}
+		return ret;
+	}
 
 	
 	public List<Pattern> getPatterns(){

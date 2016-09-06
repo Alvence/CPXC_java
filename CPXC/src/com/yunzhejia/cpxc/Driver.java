@@ -13,10 +13,10 @@ import weka.core.converters.ConverterUtils.DataSource;
 
 public class Driver {
 	public static void main(String[] args){
-		String[] files = {"data/ILPD.arff", "data/blood.arff","data/planning.arff"};
+		String[] files = {"data/ILPD.arff"};
 		for (String file:files){
-			runTest(file);
-			//runCVSimulation(file);
+			//runTest(file);
+			runCVSimulation(file);
 			//runTrainingSimulation(file);
 		}
 	}
@@ -44,7 +44,7 @@ public class Driver {
 	}
 	
 	public static void runCVSimulation(String inputfile){
-		AbstractClassifier cpxc = new CPXC(ClassifierType.NAIVE_BAYES,ClassifierType.DECISION_TREE, 0.9, 0.02,2);
+		AbstractClassifier cpxc = new CPXC(ClassifierType.NAIVE_BAYES,ClassifierType.DECISION_TREE, 0.45, 0.02,2);
 		DataSource source;
 		Instances data;
 		try {

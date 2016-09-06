@@ -34,6 +34,8 @@ import java.util.Enumeration;
 public abstract class AbstractInstance implements Instance, Serializable,
   RevisionHandler {
 
+	protected long id;
+	
   /** for serialization */
   static final long serialVersionUID = 1482635194499365155L;
 

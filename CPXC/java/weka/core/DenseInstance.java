@@ -24,6 +24,8 @@ package weka.core;
 import java.util.ArrayList;
 import java.util.Enumeration;
 
+import weka.core.Debug.Random;
+
 /**
  * Class for handling an instance. All values (numeric, date, nominal, string or
  * relational) are internally stored as floating-point numbers. If an attribute
@@ -68,6 +70,34 @@ import java.util.Enumeration;
  */
 public class DenseInstance extends AbstractInstance {
 
+	@Override
+	public long getID(){
+		return id;
+	}
+	
+	@Override
+	  public int hashCode() {
+	  	final int prime = 31;
+	  	int result = 1;
+	  	result = prime * result + (int) (id ^ (id >>> 32));
+	  	return result;
+	  }
+
+	  @Override
+	  public boolean equals(Object obj) {
+	  	if (this == obj)
+	  		return true;
+	  	if (obj == null)
+	  		return false;
+	  	if (getClass() != obj.getClass())
+	  		return false;
+	  	DenseInstance other = (DenseInstance) obj;
+	  	if (id != other.id)
+	  		return false;
+	  	return true;
+	  }
+	
+	
   /** for serialization */
   static final long serialVersionUID = 1482635194499365122L;
 
@@ -90,6 +120,9 @@ public class DenseInstance extends AbstractInstance {
     } else {
       m_AttValues = instance.toDoubleArray();
     }
+    if (instance instanceof AbstractInstance) {
+        id = ((AbstractInstance) instance).id;
+      }
     m_Weight = instance.weight();
     m_Dataset = null;
   }
@@ -104,7 +137,7 @@ public class DenseInstance extends AbstractInstance {
    */
   // @ ensures m_Dataset == null;
   public DenseInstance(double weight, /* @non_null@ */double[] attValues) {
-
+	 id = Random.nextID();
     m_AttValues = attValues;
     m_Weight = weight;
     m_Dataset = null;
@@ -120,7 +153,7 @@ public class DenseInstance extends AbstractInstance {
   // @ requires numAttributes > 0; // Or maybe == 0 is okay too?
   // @ ensures m_Dataset == null;
   public DenseInstance(int numAttributes) {
-
+	  id = Random.nextID();
     m_AttValues = new double[numAttributes];
     for (int i = 0; i < m_AttValues.length; i++) {
       m_AttValues[i] = Utils.missingValue();

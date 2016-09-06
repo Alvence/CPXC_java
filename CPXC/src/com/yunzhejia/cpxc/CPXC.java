@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
 
 import com.yunzhejia.cpxc.pattern.AERPatternFilter;
 import com.yunzhejia.cpxc.pattern.Pattern;
@@ -74,11 +75,11 @@ public class CPXC extends AbstractClassifier{
 //		System.out.println("Pattern number = "+patternSet.size());
 		//contrasting
 		patternSet.contrast(LE,SE,discretizer,minRatio);
-//		System.out.println("Pattern number after contrasting = "+patternSet.size());
+		System.out.println("Pattern number after contrasting = "+patternSet.size());
 		
 		//step 5 reduce the set of mined contrast pattern
 		patternSet = patternSet.filter(new SupportPatternFilter(data.numAttributes()));
-//		System.out.println("Pattern number after filtering = "+patternSet.size());
+		System.out.println("Pattern number after filtering = "+patternSet.size());
 		//step 6 build local classifiers
 		buildLocalClassifiers(data);
 		
@@ -107,6 +108,16 @@ public class CPXC extends AbstractClassifier{
 			defaultClassifier.buildClassifier(noMatchingData);
 		}
 		
+		//this.distributionsForInstances(data);
+		
+	}
+	
+	private void testData(Instances data, Instances test) throws Exception{
+		AbstractClassifier cl = ClassifierGenerator.getClassifier(baseType);
+		cl.buildClassifier(data);
+		Evaluation eval = new Evaluation(data);
+		eval.evaluateModel(cl, test);
+		System.out.println("acc="+eval.pctCorrect());
 	}
 
 	@Override
@@ -132,6 +143,27 @@ public class CPXC extends AbstractClassifier{
 		
 		Utils.normalize(probs);
 		return probs;
+	}
+	
+	@Override
+	  public double[][] distributionsForInstances(Instances batch)
+	    throws Exception {
+	    double[][] batchPreds = new double[batch.numInstances()][];
+	    Instances data = patternSet.getMatchingData(batch, discretizer);
+	    System.out.println(data.numInstances() +" out of "+batch.numInstances()+"are covered");
+	    int count = 0;
+	    for (Instance ins : data){
+	    	if (ins.classValue() == 0){
+	    		count ++;
+	    	}
+	    }
+	    System.out.println(count+" instances of class 0 are covered");
+	    System.out.println(data.numInstances()-count+" instances of class 1 are covered");
+	    for (int i = 0; i < batch.numInstances(); i++) {
+	      batchPreds[i] = distributionForInstance(batch.instance(i));
+	    }
+
+	    return batchPreds;
 	}
 	
 	private void buildLocalClassifiers(Instances data) throws Exception {
@@ -214,7 +246,7 @@ public class CPXC extends AbstractClassifier{
 			}
 		}
 //		System.out.println("cutting error = " + k);
-		/*
+		
 		Evaluation eval = new Evaluation(data);
 		eval.evaluateModel(baseClassifier, data);
 		System.out.println("accuracy on whole data: " + eval.pctCorrect() + "%");
@@ -223,7 +255,7 @@ public class CPXC extends AbstractClassifier{
 		System.out.println("accuracy on LE: " + eval1.pctCorrect() + "%   size="+LE.numInstances());
 		Evaluation eval2 = new Evaluation(data);
 		eval2.evaluateModel(baseClassifier, SE);
-		System.out.println("accuracy on SE: " + eval2.pctCorrect() + "%   size="+SE.numInstances());*/
+		System.out.println("accuracy on SE: " + eval2.pctCorrect() + "%   size="+SE.numInstances());/**/
 	}
 	/*
 	private double cuttingPoint(List<Double> errs){

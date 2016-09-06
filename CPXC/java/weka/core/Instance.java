@@ -65,6 +65,7 @@ import java.util.Enumeration;
  * @version $Revision$
  */
 public interface Instance extends Copyable {
+	  public long getID();
 
   /**
    * Returns the attribute with the given index.
