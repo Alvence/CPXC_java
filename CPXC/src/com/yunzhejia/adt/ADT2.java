@@ -80,8 +80,14 @@ public class ADT2 extends AbstractClassifier{
 		List<Instances> newList = new ArrayList<Instances>(num);
 		for(int i = 0; i < num;i++){
 			newList.add(changeLabel(instancesList.get(i),i, num));
-			System.out.println(newList.get(i).classAttribute().numValues());
+//			System.out.println(newList.get(i));
 		}
+		
+		Instances newData = new Instances(newList.get(0));
+		for(Instances instances:newList){
+			newData.addAll(instances);
+		}
+		System.out.println(newData);
 		
 		/*
 		
@@ -171,8 +177,15 @@ public class ADT2 extends AbstractClassifier{
 			newLabels.add(i+"");
 		}
 		Attribute newClassAttr = new Attribute("Partition", newLabels);
+		
+		int classIndex = newData.classIndex();
+		
 		newData.setClass(newClassAttr);
-		System.out.println(newClassAttr.numValues());
+		newData.deleteAttributeAt(classIndex);
+		newData.insertAttributeAt(newClassAttr, classIndex);
+		newData.setClassIndex(classIndex);
+		
+		
 		for (Instance ins:data){
 			Instance newIns = (Instance)ins.copy();
 			newIns.setClassValue(newLabel);
