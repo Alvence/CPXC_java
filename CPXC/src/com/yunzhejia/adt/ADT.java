@@ -23,6 +23,7 @@ import com.yunzhejia.cpxc.util.ClassifierGenerator.ClassifierType;
 
 import weka.classifiers.AbstractClassifier;
 import weka.classifiers.Evaluation;
+import weka.classifiers.bayes.NaiveBayes;
 import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.Utils;
@@ -31,11 +32,13 @@ import weka.core.converters.ConverterUtils.DataSource;
 public class ADT extends AbstractClassifier{
 	private static final long serialVersionUID = 3636935337536598456L;
 	/** type of base classifier*/
-	protected ClassifierType baseType = ClassifierType.NAIVE_BAYES; 
+	protected ClassifierType baseType = ClassifierType.DECISION_TREE; 
 	/** type of local classifiers*/
-	protected ClassifierType ensembleType = ClassifierType.NAIVE_BAYES;
+	protected ClassifierType ensembleType = ClassifierType.DECISION_TREE;
+	/** type of decision classifier*/
+	protected ClassifierType desicionType = ClassifierType.DECISION_TREE;
 	/** ratio to divide dataset to LargeErrSet and SmallErrSet*/
-	protected double rho = 0.1; 
+	protected double rho = 0.3; 
 	
 	protected transient PatternSet patternSet;
 	protected transient AbstractClassifier baseClassifier;
@@ -49,10 +52,10 @@ public class ADT extends AbstractClassifier{
 		Instances LE = new Instances(data,0);
 		Instances SE = new Instances(data,0);
 		
-		baseClassifier = ClassifierGenerator.getClassifier(ensembleType);
-		desicionClassifier = ClassifierGenerator.getClassifier(baseType);
-		LEClassifier = ClassifierGenerator.getClassifier(baseType);
-		SEClassifier = ClassifierGenerator.getClassifier(baseType);
+		baseClassifier = ClassifierGenerator.getClassifier(baseType);
+		desicionClassifier = ClassifierGenerator.getClassifier(desicionType);
+		LEClassifier = ClassifierGenerator.getClassifier(ensembleType);
+		SEClassifier = ClassifierGenerator.getClassifier(ensembleType);
 		//step 1 learn a base classifier 
 		baseClassifier.buildClassifier(data);
 		
@@ -81,6 +84,9 @@ public class ADT extends AbstractClassifier{
 		
 		LEClassifier.buildClassifier(merge(pLE,L2));
 		SEClassifier.buildClassifier(merge(pSE,S2));
+		
+//		LEClassifier.buildClassifier(LE);
+//		SEClassifier.buildClassifier(SE);
 		
 		Evaluation eval = new Evaluation(newData);
 		eval.evaluateModel(desicionClassifier, newData);
@@ -241,8 +247,8 @@ public class ADT extends AbstractClassifier{
 		DataSource source;
 		Instances data;
 		try {
-			source = new DataSource("data/ILPD.arff");
-//			source = new DataSource("data/blood.arff");
+			source = new DataSource("data/sick.arff");
+//			source = new DataSource("data/vote.arff");
 			data = source.getDataSet();
 			if (data.classIndex() == -1){
 				data.setClassIndex(data.numAttributes() - 1);
@@ -251,6 +257,8 @@ public class ADT extends AbstractClassifier{
 //			weka.filters.supervised.attribute.Discretize discretizer = new weka.filters.supervised.attribute.Discretize();
 //			discretizer.setInputFormat(data);
 //			data = weka.filters.supervised.attribute.Discretize.useFilter(data, discretizer);
+			
+			AbstractClassifier cl = new NaiveBayes();
 			
 			Evaluation eval = new Evaluation(data);
 			adt.buildClassifier(data);

@@ -771,14 +771,14 @@ public class Evaluation implements Summarizable, RevisionHandler, Serializable {
       Classifier copiedClassifier = AbstractClassifier.makeCopy(classifier);
       copiedClassifier.buildClassifier(train);
       Instances test = data.testCV(numFolds, i);
-      Instances newTest = new Instances(test,0);
-      for(Instance ins:test){
-    	  ADT adt = (ADT)copiedClassifier;
-    	  if(adt.desicionClassifier.classifyInstance(ins)>0.5){
-    		  newTest.add(ins);
-    	  }
-      }
-      evaluateModel(copiedClassifier, newTest, forPredictionsPrinting);
+//      Instances newTest = new Instances(test,0);
+//      for(Instance ins:test){
+//    	  ADT adt = (ADT)copiedClassifier;
+//    	  if(adt.desicionClassifier.classifyInstance(ins)>0.5){
+//    		  newTest.add(ins);
+//    	  }
+//      }
+      evaluateModel(copiedClassifier, test, forPredictionsPrinting);
     }
     m_NumFolds = numFolds;
 

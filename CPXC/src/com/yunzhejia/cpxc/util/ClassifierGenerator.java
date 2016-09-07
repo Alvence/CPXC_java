@@ -4,12 +4,13 @@ import java.io.Serializable;
 
 import weka.classifiers.AbstractClassifier;
 import weka.classifiers.bayes.NaiveBayes;
+import weka.classifiers.functions.LibSVM;
 import weka.classifiers.trees.J48;
 
 public class ClassifierGenerator implements Serializable{
 	private static final long serialVersionUID = -2578826239599092125L;
 
-	public enum ClassifierType {NAIVE_BAYES, DECISION_TREE};
+	public enum ClassifierType {NAIVE_BAYES, DECISION_TREE, SVM};
 	
 	public static AbstractClassifier getClassifier(ClassifierType type){
 		AbstractClassifier classifier = null;
@@ -19,6 +20,9 @@ public class ClassifierGenerator implements Serializable{
 				break;
 			case DECISION_TREE:
 				classifier = new J48();
+				break;
+			case SVM:
+				classifier = new LibSVM();
 				break;
 			default:
 				classifier = new NaiveBayes();

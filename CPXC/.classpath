@@ -11,5 +11,6 @@
 	<classpathentry kind="lib" path="lib/junit.jar"/>
 	<classpathentry kind="lib" path="lib/mtj.jar"/>
 	<classpathentry kind="src" path="java"/>
+	<classpathentry kind="lib" path="lib/libsvm.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
