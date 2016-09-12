@@ -21,6 +21,33 @@
 
 package weka.classifiers.evaluation;
 
+import java.beans.BeanInfo;
+import java.beans.Introspector;
+import java.beans.MethodDescriptor;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
+import java.io.Reader;
+import java.io.Serializable;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.Random;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
+
+import com.yunzhejia.adt.ADT2;
+
 import weka.classifiers.AbstractClassifier;
 import weka.classifiers.Classifier;
 import weka.classifiers.ConditionalDensityEstimator;
@@ -52,33 +79,6 @@ import weka.core.xml.KOML;
 import weka.core.xml.XMLOptions;
 import weka.core.xml.XMLSerialization;
 import weka.estimators.UnivariateKernelEstimator;
-
-import java.beans.BeanInfo;
-import java.beans.Introspector;
-import java.beans.MethodDescriptor;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
-import java.io.Reader;
-import java.io.Serializable;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Random;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
-
-import com.yunzhejia.adt.ADT;
 
 /**
  * Class for evaluating machine learning models.
@@ -771,13 +771,14 @@ public class Evaluation implements Summarizable, RevisionHandler, Serializable {
       Classifier copiedClassifier = AbstractClassifier.makeCopy(classifier);
       copiedClassifier.buildClassifier(train);
       Instances test = data.testCV(numFolds, i);
-//      Instances newTest = new Instances(test,0);
-//      for(Instance ins:test){
-//    	  ADT adt = (ADT)copiedClassifier;
-//    	  if(adt.desicionClassifier.classifyInstance(ins)>0.5){
-//    		  newTest.add(ins);
-//    	  }
-//      }
+    /*  Instances newTest = new Instances(test,0);
+      for(Instance ins:test){
+    	  ADT2 adt = (ADT2)copiedClassifier;
+    	  if(adt.desicionClassifier.classifyInstance(adt.convertInstance(ins)) == 3){
+    		  newTest.add(ins);
+    	  }
+      }
+      */
       evaluateModel(copiedClassifier, test, forPredictionsPrinting);
     }
     m_NumFolds = numFolds;

@@ -32,10 +32,13 @@ import weka.core.converters.ConverterUtils.DataSource;
 
 public class ADT2 extends AbstractClassifier{
 	private static final long serialVersionUID = 3636935337536598456L;
+	
+	public static final double ERR_MARGIN = 0.1;
+	
 	/** type of base classifier*/
 	protected ClassifierType baseType = ClassifierType.NAIVE_BAYES; 
 	/** type of local classifiers*/
-	protected ClassifierType ensembleType = ClassifierType.NAIVE_BAYES;
+	protected ClassifierType ensembleType = ClassifierType.DECISION_TREE;
 	/** type of decision classifier*/
 	protected ClassifierType desicionType = ClassifierType.DECISION_TREE;
 	/** ratio to divide dataset to LargeErrSet and SmallErrSet*/
@@ -43,51 +46,80 @@ public class ADT2 extends AbstractClassifier{
 	
 	protected int layer;
 	
+	
+	protected int totalLabels; 
+	protected transient Instances headerInfoData;
+	
 	protected transient AbstractClassifier baseClassifier;
 	public transient AbstractClassifier desicionClassifier;
-	protected transient AbstractClassifier LEClassifier;
-	protected transient AbstractClassifier SEClassifier;
 	protected transient HashMap<Integer, AbstractClassifier> ensembles;
 	//protected transient HashMap<Pattern, LocalClassifier> ensembles;
 	
-	public ADT2(int l){
+	public ADT2(int l, int numEnsembles){
 		super();
 		layer = l;
+		totalLabels = numEnsembles;
 	}
 	
 	public ADT2(){
-		this(0);
+		this(0,4);
 	}
 	
 	@Override
 	public void buildClassifier(Instances data) throws Exception {
-		int num = 4;
-		List<Instances> instancesList = new ArrayList<Instances>(num);
+		int num = totalLabels;
+		List<Instances> B = new ArrayList<Instances>(num);
 		for(int i = 0 ; i < num; i++){
-			instancesList.add(new  Instances(data,0));
+			B.add(new  Instances(data,0));
 		}
 		
 		baseClassifier = ClassifierGenerator.getClassifier(baseType);
 		desicionClassifier = ClassifierGenerator.getClassifier(desicionType);
-		LEClassifier = ClassifierGenerator.getClassifier(ensembleType);
-		SEClassifier = ClassifierGenerator.getClassifier(ensembleType);
+		ensembles = new HashMap<>();
 		//step 1 learn a base classifier 
 		baseClassifier.buildClassifier(data);
 		
 		//step 2 divide D into LE and SE
-		divideData(data,instancesList, num);
+		divideData(data,B, num);
 		
 		List<Instances> newList = new ArrayList<Instances>(num);
 		for(int i = 0; i < num;i++){
-			newList.add(changeLabel(instancesList.get(i),i, num));
-//			System.out.println(newList.get(i));
+			newList.add(changeLabel(B.get(i),i, num));
 		}
 		
-		Instances newData = new Instances(newList.get(0));
+		Instances newData = new Instances(newList.get(0),0);
 		for(Instances instances:newList){
 			newData.addAll(instances);
 		}
-		System.out.println(newData);
+		desicionClassifier.buildClassifier(newData);
+		evaluate(desicionClassifier,newData,"desicion");
+		headerInfoData = newData;
+		
+		//partition original data using the decision classifier
+		List<Instances> P = new ArrayList<Instances>();
+		for(int i = 0 ; i < num; i++){
+			P.add(extractData(data, desicionClassifier, i, num, newData));
+//			System.out.println(P.get(i).size());
+		}
+		
+		for (int i = 0; i < num; i++){
+			Instances trainingData = merge(P.get(i),exclude(B.get(i),P.get(i)));
+//			Instances trainingData = B.get(i);
+			AbstractClassifier ensemble = ClassifierGenerator.getClassifier(ensembleType);
+			ensemble.buildClassifier(trainingData);
+			
+			Evaluation eval = new Evaluation(trainingData);
+			eval.evaluateModel(ensemble, trainingData);
+			if( eval.pctCorrect() < 80 && trainingData.numInstances() > 50&& layer < 4){
+				System.out.println("aaaa");
+				ensemble = new ADT2(layer+1, num);
+				ensemble.buildClassifier(trainingData);
+			}
+			ensembles.put(i, ensemble);
+			evaluate(ensemble,trainingData,"C"+i);
+		}
+		
+		evaluate(this,data,"training");
 		
 		/*
 		
@@ -195,14 +227,31 @@ public class ADT2 extends AbstractClassifier{
 		return newData;
 	}
 	
-	private Instances extractData(Instances data,AbstractClassifier cl, int label) throws Exception{
+	private Instances extractData(Instances data,AbstractClassifier cl, int label, int numClasses, Instances headerInfoData) throws Exception{
 		Instances newData = new Instances(data,0);
 		for(Instance instance:data){
-			if(((int)cl.classifyInstance(instance))==label){
+			Instance cIns = convertInstance(instance);
+			if(((int)cl.classifyInstance(cIns))==label){
 				newData.add(instance);
 			}
 		}
 		return newData;
+	}
+	
+	public Instance convertInstance(Instance instance){
+		Instance newIns = (Instance) headerInfoData.get(0).copy();
+		
+		for (int i = 0; i < newIns.numAttributes(); i++){
+			if(i != instance.classIndex() && !instance.isMissing(i)){
+				if (newIns.attribute(i).isNumeric()){
+					newIns.setValue(i, instance.value(i));
+				}else{
+					newIns.setValue(i, instance.stringValue(i));
+				}
+			}
+		}
+		return newIns;
+		
 	}
 
 	@Override
@@ -211,25 +260,21 @@ public class ADT2 extends AbstractClassifier{
 		for(int i = 0; i < probs.length; i++){
 			probs[i] = 0;
 		}
-		int label = (int)desicionClassifier.classifyInstance(instance);
+		int label = (int)desicionClassifier.classifyInstance(convertInstance(instance));
+		if(true)
+		return ensembles.get(label).distributionForInstance(instance);
 		
+	
+		double[] probCLS = desicionClassifier.distributionForInstance(convertInstance(instance));
+		OutputUtils.print(probCLS);
 		
-		/*
-		if (label == 1){
-			
-			return SEClassifier.distributionForInstance(instance);
-		}else if (label == 0){
-			return LEClassifier.distributionForInstance(instance);
+		for (int j = 0; j < probCLS.length; j++){
+			double[] probEnsemble =  ensembles.get(j).distributionForInstance(instance);
+			for(int i = 0; i < probs.length; i++){
+				probs[i] += probCLS[j] * probEnsemble[i];
+			}
 		}
-		*/
-		double[] probCLS = desicionClassifier.distributionForInstance(instance);
-		double[] probLE = LEClassifier.distributionForInstance(instance);
-		double[] probSE = SEClassifier.distributionForInstance(instance);
-		
-		for(int i = 0; i < probs.length; i++){
-			probs[i] = probCLS[0] * probLE[i] +  probCLS[1] * probSE[i];
-		}
-		
+		OutputUtils.print(probs);
 		Utils.normalize(probs);
 		return probs;
 	}
@@ -252,10 +297,18 @@ public class ADT2 extends AbstractClassifier{
 			int index = getBin(points,errs.get(i));
 //			System.out.println(index);
 			instancesList.get(index).add(ins);
+//			index = getBinUp(points,errs.get(i));
+//			if(index != -1){
+//				instancesList.get(index).add(ins);
+//			}
+//			index = getBinDown(points,errs.get(i));
+//			if(index != -1){
+//				instancesList.get(index).add(ins);
+//			}
 		}
 		System.out.print("cutting errors = ");
 		OutputUtils.print(points);
-		
+		/*
 		Evaluation eval = new Evaluation(data);
 		eval.evaluateModel(baseClassifier, data);
 		System.out.println("accuracy on whole data: " + eval.pctCorrect() + "%");
@@ -263,17 +316,42 @@ public class ADT2 extends AbstractClassifier{
 		for(Instances inss:instancesList){
 			Evaluation eval1 = new Evaluation(data);
 			eval1.evaluateModel(baseClassifier, inss);
-			System.out.println("accuracy on P"+i+++": " + eval1.pctCorrect() + "%");
-		}
+			System.out.println("accuracy on P"+i+++": " + eval1.pctCorrect() + "%" + " size="+inss.size());
+		}*/
 	}
 	
 	private int getBin(double[] points, double err){
 		int index = 0;
-		while(index < points.length && err > points[index]){
+		while(index < points.length && err >= points[index]){
 			index++;
 		}
 		return index;
 	}
+	
+	private int getBinUp(double[] points, double err){
+		int index = 0;
+		while(index < points.length && err >= points[index]){
+			index++;
+		}
+		if (index == points.length|| err + ERR_MARGIN < points[index]){
+			return -1;
+		}
+		
+		return index + 1;
+	}
+	
+	private int getBinDown(double[] points, double err){
+		int index = 0;
+		while(index < points.length && err >= points[index]){
+			index++;
+		}
+		if (index == 0|| err - ERR_MARGIN > points[index - 1]){
+			return -1;
+		}
+		
+		return index - 1;
+	}
+	
 	/*
 	private double cuttingPoint(List<Double> errs){
 		List<Double> list = new ArrayList<Double>(errs);
@@ -311,22 +389,23 @@ public class ADT2 extends AbstractClassifier{
 		return points;
 	}
 
-	private double cuttingPoint(List<Double> errs){
+	private double[] cuttingPoint(List<Double> errs, int num){
+		double[] points = new double[num-1];
 		double sum = 0f;
 		for (double err:errs){
 			sum += err;
 		}
 		double threshold = sum/errs.size() * rho;
 		
-		return threshold;
+		return points;
 	}
 	
 	public static void main(String[] args){
-		ADT2 adt = new ADT2();
+		ADT2 adt = new ADT2(1,2);
 		DataSource source;
 		Instances data;
 		try {
-			source = new DataSource("data/blood.arff");
+			source = new DataSource("data/ILPD.arff");
 //			source = new DataSource("data/vote.arff");
 			data = source.getDataSet();
 			if (data.classIndex() == -1){
@@ -336,12 +415,12 @@ public class ADT2 extends AbstractClassifier{
 //			weka.filters.supervised.attribute.Discretize discretizer = new weka.filters.supervised.attribute.Discretize();
 //			discretizer.setInputFormat(data);
 //			data = weka.filters.supervised.attribute.Discretize.useFilter(data, discretizer);
-			
+//			System.out.println(data);
 			
 			Evaluation eval = new Evaluation(data);
-			adt.buildClassifier(data);
+//			adt.buildClassifier(data);
 //			eval.evaluateModel(adt, data);
-//			eval.crossValidateModel(adt, data, 7, new Random(1));
+			eval.crossValidateModel(adt, data, 7, new Random(1));
 			
 			System.out.println("accuracy of "+": " + eval.pctCorrect() + "%");
 			System.out.println("AUC of "+": " + eval.weightedAreaUnderROC());

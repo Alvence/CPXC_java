@@ -102,11 +102,11 @@ public class ADT extends AbstractClassifier{
 		
 		Evaluation eval = new Evaluation(mergedPLE);
 		eval.evaluateModel(LEClassifier, merge(pLE,L2));
-		if( eval.pctCorrect() < 80 && mergedPLE.numInstances() > 50&& layer < 2){
+		/*if( eval.pctCorrect() < 80 && mergedPLE.numInstances() > 50&& layer < 2){
 			System.out.println("aaaa");
 			LEClassifier = new ADT(layer+1);
 			LEClassifier.buildClassifier(mergedPLE);
-		}
+		}*/
 		
 		evaluate(desicionClassifier,newData,"decision");
 		evaluate(LEClassifier,merge(pLE,L2),"LEClassifier");
@@ -219,7 +219,7 @@ public class ADT extends AbstractClassifier{
 		//initialize two data sets
 		for (int i = 0; i < data.numInstances(); i++){
 			Instance ins = data.get(i);
-			if (errs.get(i) > k){
+			if (errs.get(i) >= k){
 				LE.add(ins);
 			}else{
 				SE.add(ins);
@@ -258,6 +258,12 @@ public class ADT extends AbstractClassifier{
 	}
 	*/
 	
+	private double cuttingPoint(List<Double> errs) {
+		List<Double> list = new ArrayList<>(errs);
+		Collections.sort(list);
+		return list.get(list.size()/2);
+	}
+	/*
 	private double cuttingPoint(List<Double> errs){
 		double sum = 0f;
 		for (double err:errs){
@@ -267,7 +273,7 @@ public class ADT extends AbstractClassifier{
 		
 		return threshold;
 	}
-	
+	*/
 	public static void main(String[] args){
 		ADT adt = new ADT();
 		DataSource source;
@@ -286,9 +292,9 @@ public class ADT extends AbstractClassifier{
 			
 			
 			Evaluation eval = new Evaluation(data);
-			adt.buildClassifier(data);
-			eval.evaluateModel(adt, data);
-//			eval.crossValidateModel(adt, data, 7, new Random(1));
+//			adt.buildClassifier(data);
+//			eval.evaluateModel(adt, data);
+			eval.crossValidateModel(adt, data, 7, new Random(1));
 			
 			System.out.println("accuracy of "+": " + eval.pctCorrect() + "%");
 			System.out.println("AUC of "+": " + eval.weightedAreaUnderROC());
