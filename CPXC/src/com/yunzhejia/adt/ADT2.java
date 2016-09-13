@@ -42,7 +42,7 @@ public class ADT2 extends AbstractClassifier{
 	/** type of decision classifier*/
 	protected ClassifierType desicionType = ClassifierType.DECISION_TREE;
 	/** ratio to divide dataset to LargeErrSet and SmallErrSet*/
-	protected double rho = 0.5; 
+	protected double rho; 
 	
 	protected int layer;
 	
@@ -55,14 +55,15 @@ public class ADT2 extends AbstractClassifier{
 	protected transient HashMap<Integer, AbstractClassifier> ensembles;
 	//protected transient HashMap<Pattern, LocalClassifier> ensembles;
 	
-	public ADT2(int l, int numEnsembles){
+	public ADT2(int l, int numEnsembles, double o){
 		super();
 		layer = l;
 		totalLabels = numEnsembles;
+		rho = o;
 	}
 	
 	public ADT2(){
-		this(0,4);
+		this(0,4, 0.5);
 	}
 	
 	@Override
@@ -103,8 +104,8 @@ public class ADT2 extends AbstractClassifier{
 		}
 		
 		for (int i = 0; i < num; i++){
-			Instances trainingData = merge(P.get(i),exclude(B.get(i),P.get(i)));
-//			Instances trainingData = B.get(i);
+//			Instances trainingData = merge(P.get(i),exclude(B.get(i),P.get(i)));
+			Instances trainingData = B.get(i);
 			AbstractClassifier ensemble = ClassifierGenerator.getClassifier(ensembleType);
 			ensemble.buildClassifier(trainingData);
 			
@@ -112,7 +113,7 @@ public class ADT2 extends AbstractClassifier{
 			eval.evaluateModel(ensemble, trainingData);
 			if( eval.pctCorrect() < 80 && trainingData.numInstances() > 50&& layer < 4){
 				System.out.println("aaaa");
-				ensemble = new ADT2(layer+1, num);
+				ensemble = new ADT2(layer+1, num, rho);
 				ensemble.buildClassifier(trainingData);
 			}
 			ensembles.put(i, ensemble);
@@ -261,12 +262,11 @@ public class ADT2 extends AbstractClassifier{
 			probs[i] = 0;
 		}
 		int label = (int)desicionClassifier.classifyInstance(convertInstance(instance));
-		if(true)
-		return ensembles.get(label).distributionForInstance(instance);
+//		if(true)
+//		return ensembles.get(label).distributionForInstance(instance);
 		
 	
 		double[] probCLS = desicionClassifier.distributionForInstance(convertInstance(instance));
-		OutputUtils.print(probCLS);
 		
 		for (int j = 0; j < probCLS.length; j++){
 			double[] probEnsemble =  ensembles.get(j).distributionForInstance(instance);
@@ -274,7 +274,6 @@ public class ADT2 extends AbstractClassifier{
 				probs[i] += probCLS[j] * probEnsemble[i];
 			}
 		}
-		OutputUtils.print(probs);
 		Utils.normalize(probs);
 		return probs;
 	}
@@ -377,12 +376,12 @@ public class ADT2 extends AbstractClassifier{
 		List<Double> list = new ArrayList<>(errs);
 		double[] points = new double[num-1];
 		Collections.sort(list);
-		int index = 0;
-		int stepsize = list.size()/num;
+		int index = list.size() - 1;
+		int stepsize = (int)(list.size()*rho);
 		for(int i = 0; i < num-1;  i++){
-			index += stepsize;
-			if(index >= list.size()){
-				index = list.size() - 1;
+			index -= stepsize;
+			if(index < 0){
+				index = 0;
 			}
 			points[i] = list.get(index);
 		}
@@ -401,11 +400,11 @@ public class ADT2 extends AbstractClassifier{
 	}
 	
 	public static void main(String[] args){
-		ADT2 adt = new ADT2(1,2);
+		ADT2 adt = new ADT2(0,2,0.3);
 		DataSource source;
 		Instances data;
 		try {
-			source = new DataSource("data/ILPD.arff");
+			source = new DataSource("data/synthetic1.arff");
 //			source = new DataSource("data/vote.arff");
 			data = source.getDataSet();
 			if (data.classIndex() == -1){
