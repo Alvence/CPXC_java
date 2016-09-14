@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import com.yunzhejia.cpxc.Discretizer;
 import com.yunzhejia.cpxc.LocalClassifier;
@@ -20,6 +21,7 @@ import weka.classifiers.Evaluation;
 import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.Utils;
+import weka.core.converters.ConverterUtils.DataSource;
 
 public class CAEC extends AbstractClassifier{
 	private static final long serialVersionUID = 3445125166100986742L;
@@ -36,17 +38,12 @@ public class CAEC extends AbstractClassifier{
 	
 	protected transient PatternSet patternSet;
 	protected transient AbstractClassifier baseClassifier;
-	protected transient AbstractClassifier defaultClassifier;
+	protected transient AbstractClassifier LEClassifier;
+	protected transient AbstractClassifier SEClassifier;
 	//protected transient HashMap<Pattern, LocalClassifier> ensembles;
 	protected transient Discretizer discretizer;
 	
-	public CAEC(ClassifierType baseType, ClassifierType ensembleType, double rho, double minSup, double minRatio) {
-		super();
-		this.baseType = baseType;
-		this.ensembleType = ensembleType;
-		this.rho = rho;
-		this.minSup = minSup;
-		this.minRatio = minRatio;
+	public CAEC() {
 	}
 
 
@@ -55,54 +52,19 @@ public class CAEC extends AbstractClassifier{
 		Instances LE = new Instances(data,0);
 		Instances SE = new Instances(data,0);
 		
-		baseClassifier = ClassifierGenerator.getClassifier(baseType);
-		//step 1 learn a base classifier 
-		baseClassifier.buildClassifier(data);
-		
-		//step 2 divide D into LE and SE
-		divideData(data,LE,SE);
-		
-		//step 3 perform binning
-		discretizer = new Discretizer();
-		discretizer.initialize(data);
-		
-		//step 4 contrast pattern mining
-		patternSet = minePatterns(LE,discretizer);
-//		System.out.println("Pattern number = "+patternSet.size());
-		//contrasting
-		patternSet.contrast(LE,SE,discretizer,minRatio);
-		System.out.println("Pattern number after contrasting = "+patternSet.size());
-		
-		//step 5 reduce the set of mined contrast pattern
-		patternSet = patternSet.filter(new SupportPatternFilter(data.numAttributes()));
-		System.out.println("Pattern number after filtering = "+patternSet.size());
-		//step 6 build local classifiers
-		buildLocalClassifiers(data);
-		
-		
-		//step 7 remove contrast pattern of low utility
-//		System.out.println("Initial TER="+patternSet.TER(data, baseClassifier, discretizer));
-//		patternSet = patternSet.filter(new AERPatternFilter());
-		
-		//step 8 select an optimal set of patterns
-		patternSet = patternSet.filter(new TERPatternFilter(data, baseClassifier, discretizer));
-//		
-//		System.out.println("Final TER="+patternSet.TER(data, baseClassifier, discretizer));
-//		System.out.println(patternSet.size());
-//		System.out.println(patternSet.getNoMatchingData(LE, discretizer).numInstances()+" out of "+ LE.numInstances() +" are not covered");
-//		System.out.println(patternSet.getNoMatchingData(SE, discretizer).numInstances()+" out of "+ SE.numInstances() +" are not covered");
-		
-		
-		//step 9 train the default classifier
-		Instances noMatchingData = patternSet.getNoMatchingData(data, discretizer);
-//		System.out.println(noMatchingData.numInstances()+" out of "+ data.numInstances() +" are not covered");
-		
-		if(noMatchingData.numInstances() < data.numInstances() * 0.05){
-			defaultClassifier = baseClassifier;
-		}else{
-			defaultClassifier = ClassifierGenerator.getClassifier(ensembleType);
-			defaultClassifier.buildClassifier(noMatchingData);
+		for(Instance ins: data){
+			if(ins.value(0)<7){
+				LE.add(ins);
+			}else{
+				SE.add(ins);
+			}
 		}
+		
+		LEClassifier = ClassifierGenerator.getClassifier(ClassifierType.LOGISTIC);
+		SEClassifier = ClassifierGenerator.getClassifier(ClassifierType.LOGISTIC);
+		
+		LEClassifier.buildClassifier(LE);
+		SEClassifier.buildClassifier(SE);
 		
 		//this.distributionsForInstances(data);
 		
@@ -118,27 +80,11 @@ public class CAEC extends AbstractClassifier{
 
 	@Override
 	public double[] distributionForInstance(Instance instance)throws Exception{
-		double[] probs = new double[instance.numClasses()];
-		for(int i = 0; i < probs.length; i++){
-			probs[i] = 0;
+		if(instance.value(0)<7){
+			return LEClassifier.distributionForInstance(instance);
+		}else{
+			return SEClassifier.distributionForInstance(instance);
 		}
-		boolean noMatch = true;
-		for (Pattern pattern: patternSet){
-			LocalClassifier ensemble = pattern.getLocalClassifier();
-			if(pattern.match(instance, discretizer) > 0){
-				double[] dist = ensemble.distributionForInstance(instance);
-				for(int i = 0; i < dist.length; i++){
-					probs[i] += dist[i]*ensemble.getWeight()* pattern.match(instance, discretizer);
-				}
-				noMatch = false;
-			}
-		}
-		if(noMatch){
-			return defaultClassifier.distributionForInstance(instance);
-		}
-		
-		Utils.normalize(probs);
-		return probs;
 	}
 	
 	@Override
@@ -282,5 +228,47 @@ public class CAEC extends AbstractClassifier{
 		double threshold = sum/errs.size() * rho;
 		
 		return threshold;
+	}
+	
+	public static void main(String[] args){
+		CAEC adt = new CAEC();
+		DataSource source;
+		Instances data;
+		try {
+			source = new DataSource("data/synthetic1.arff");
+//			source = new DataSource("data/vote.arff");
+			data = source.getDataSet();
+			if (data.classIndex() == -1){
+				data.setClassIndex(data.numAttributes() - 1);
+			}
+			
+//			weka.filters.supervised.attribute.Discretize discretizer = new weka.filters.supervised.attribute.Discretize();
+//			discretizer.setInputFormat(data);
+//			data = weka.filters.supervised.attribute.Discretize.useFilter(data, discretizer);
+//			System.out.println(data);
+			
+			Evaluation eval = new Evaluation(data);
+//			adt.buildClassifier(data);
+//			eval.evaluateModel(adt, data);
+			eval.crossValidateModel(adt, data, 7, new Random(1));
+			
+			System.out.println("accuracy of "+": " + eval.pctCorrect() + "%");
+			System.out.println("AUC of "+": " + eval.weightedAreaUnderROC());
+			System.out.println(eval.toSummaryString());
+			
+			/*
+			AbstractClassifier cl = new NaiveBayes();
+			cl.buildClassifier(data);
+			Evaluation eval1 = new Evaluation(data);
+			eval1.evaluateModel(cl, data);
+//			eval1.crossValidateModel(cl, data, 7, new Random(1));
+			System.out.println("accuracy of NBC: " + eval1.pctCorrect() + "%");
+			System.out.println("AUC of NBC: " + eval1.weightedAreaUnderROC());
+			*/
+			 
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }
