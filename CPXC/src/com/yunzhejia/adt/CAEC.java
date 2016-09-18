@@ -21,6 +21,7 @@ import weka.classifiers.Evaluation;
 import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.Utils;
+import weka.core.Capabilities.Capability;
 import weka.core.converters.ConverterUtils.DataSource;
 
 public class CAEC extends AbstractClassifier{
