@@ -24,12 +24,13 @@ import com.yunzhejia.cpxc.util.ClassifierGenerator.ClassifierType;
 import weka.classifiers.AbstractClassifier;
 import weka.classifiers.Evaluation;
 import weka.classifiers.bayes.NaiveBayes;
+import weka.core.Attribute;
 import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.Utils;
 import weka.core.converters.ConverterUtils.DataSource;
 
-public class ADT extends AbstractClassifier{
+public class ADT_LS_LABEL extends AbstractClassifier{
 	private static final long serialVersionUID = 3636935337536598456L;
 	/** type of base classifier*/
 	protected ClassifierType baseType = ClassifierType.NAIVE_BAYES; 
@@ -48,12 +49,12 @@ public class ADT extends AbstractClassifier{
 	protected transient AbstractClassifier SEClassifier;
 	//protected transient HashMap<Pattern, LocalClassifier> ensembles;
 	
-	public ADT(int l){
+	public ADT_LS_LABEL(int l){
 		super();
 		layer = l;
 	}
 	
-	public ADT(){
+	public ADT_LS_LABEL(){
 		this(0);
 	}
 	
@@ -91,16 +92,18 @@ public class ADT extends AbstractClassifier{
 		System.out.println("L1 = "+L1.size()+" L2="+L2.size());
 		System.out.println("S1 = "+S1.size()+" S2="+S2.size());
 		
-		LEClassifier.buildClassifier(merge(pLE,L2));
-		SEClassifier.buildClassifier(merge(pSE,S2));
+		
+		Instances newL1 = changeHead(L1, L1.numClasses()+1);
+		Instances newS1 = changeHead(S1, S1.numClasses()+1);
+		Instances newS2 = changeLabel(S2, S2.numClasses(),S2.numClasses()+1);
+		Instances newL2 = changeLabel(L2, L2.numClasses(),L2.numClasses()+1);
+		
+		LEClassifier.buildClassifier(merge(newL1,newS2));
+		SEClassifier.buildClassifier(merge(newS1,newL2));
 		
 //		LEClassifier.buildClassifier(LE);
 //		SEClassifier.buildClassifier(SE);
 		
-		Instances mergedPLE = merge(pLE,L2);
-		
-		Evaluation eval = new Evaluation(mergedPLE);
-		eval.evaluateModel(LEClassifier, merge(pLE,L2));
 		/*if( eval.pctCorrect() < 80 && mergedPLE.numInstances() > 50&& layer < 2){
 			System.out.println("aaaa");
 			LEClassifier = new ADT(layer+1);
@@ -108,8 +111,57 @@ public class ADT extends AbstractClassifier{
 		}*/
 		
 		evaluate(desicionClassifier,newData,"decision");
-		evaluate(LEClassifier,merge(pLE,L2),"LEClassifier");
-		evaluate(SEClassifier,merge(pSE,S2),"SEClassifier");
+		evaluate(LEClassifier,merge(newL1,newS2),"LEClassifier");
+		evaluate(SEClassifier,merge(newS1,newL2),"SEClassifier");
+	}
+	
+	private Instances changeLabel(Instances data, int newLabel, int total){
+		Instances newData = new Instances(data,0);
+		List<String> newLabels = new ArrayList<>();
+		for(int i = 0; i < total; i++){
+			newLabels.add(i+"");
+		}
+		Attribute newClassAttr = new Attribute("Partition", newLabels);
+		
+		int classIndex = newData.classIndex();
+		
+		newData.setClass(newClassAttr);
+		newData.deleteAttributeAt(classIndex);
+		newData.insertAttributeAt(newClassAttr, classIndex);
+		newData.setClassIndex(classIndex);
+		
+		
+		for (Instance ins:data){
+			Instance newIns = (Instance)ins.copy();
+			newIns.setClassValue(newLabel);
+			newData.add(newIns);
+		}
+		
+		return newData;
+	}
+	private Instances changeHead(Instances data, int total){
+		Instances newData = new Instances(data,0);
+		List<String> newLabels = new ArrayList<>();
+		for(int i = 0; i < total; i++){
+			newLabels.add(i+"");
+		}
+		Attribute newClassAttr = new Attribute("Partition", newLabels);
+		
+		int classIndex = newData.classIndex();
+		
+		newData.setClass(newClassAttr);
+		newData.deleteAttributeAt(classIndex);
+		newData.insertAttributeAt(newClassAttr, classIndex);
+		newData.setClassIndex(classIndex);
+		
+		
+		for (Instance ins:data){
+			Instance newIns = (Instance)ins.copy();
+			newIns.setClassValue(ins.classValue());
+			newData.add(newIns);
+		}
+		
+		return newData;
 	}
 	
 	public void testDecisionClassifier(Instances data) throws Exception{
@@ -201,10 +253,24 @@ public class ADT extends AbstractClassifier{
 		double[] probCLS = desicionClassifier.distributionForInstance(instance);
 		double[] probLE = LEClassifier.distributionForInstance(instance);
 		double[] probSE = SEClassifier.distributionForInstance(instance);
-		
-		for(int i = 0; i < probs.length; i++){
-			probs[i] = probCLS[0] * probLE[i] +  probCLS[1] * probSE[i];
+		int repL = (int)LEClassifier.classifyInstance(instance);
+		int repS = (int)SEClassifier.classifyInstance(instance);
+		if (repS == instance.numClasses() && repL != instance.numClasses()){
+			for(int i = 0; i < probs.length; i++){
+				probs[i] = probLE[i];
+			}
 		}
+		if (repS != instance.numClasses() && repL == instance.numClasses()){
+			for(int i = 0; i < probs.length; i++){
+				probs[i] = probSE[i];
+			}
+		}
+		else{
+			for(int i = 0; i < probs.length; i++){
+				probs[i] = probCLS[0] * probLE[i] +  probCLS[1] * probSE[i];
+			}
+		}
+		
 		
 		Utils.normalize(probs);
 		return probs;
@@ -281,7 +347,7 @@ public class ADT extends AbstractClassifier{
 	}
 	*/
 	public static void main(String[] args){
-		ADT adt = new ADT();
+		ADT_LS_LABEL adt = new ADT_LS_LABEL(5);
 		DataSource source;
 		Instances data;
 		try {
@@ -298,7 +364,7 @@ public class ADT extends AbstractClassifier{
 			
 			
 			Evaluation eval = new Evaluation(data);
-//			adt.buildClassifier(data);
+			adt.buildClassifier(data);
 //			eval.evaluateModel(adt, data);
 			eval.crossValidateModel(adt, data, 7, new Random(1));
 			
@@ -311,7 +377,7 @@ public class ADT extends AbstractClassifier{
 //			cl.buildClassifier(data);
 			Evaluation eval1 = new Evaluation(data);
 //			eval1.evaluateModel(cl, data);
-			eval1.crossValidateModel(cl, data, 7, new Random(1));
+//			eval1.crossValidateModel(cl, data, 7, new Random(1));
 			System.out.println("accuracy of NBC: " + eval1.pctCorrect() + "%");
 			System.out.println("AUC of NBC: " + eval1.weightedAreaUnderROC());
 			/**/
