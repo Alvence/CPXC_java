@@ -46,7 +46,7 @@ import java.util.Random;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import com.yunzhejia.adt.ADT2;
+import com.yunzhejia.adt.DataPartition;
 
 import weka.classifiers.AbstractClassifier;
 import weka.classifiers.Classifier;
@@ -1960,9 +1960,9 @@ public class Evaluation implements Summarizable, RevisionHandler, Serializable {
       int mappedClass =
         ((weka.classifiers.misc.InputMappedClassifier) classifier)
           .getMappedClassIndex();
-      classMissing.setMissing(mappedClass);
+//      classMissing.setMissing(mappedClass);
     } else {
-      classMissing.setClassMissing();
+//      classMissing.setClassMissing();
     }
 
     // System.out.println("instance (to predict)" + classMissing);

@@ -58,6 +58,7 @@ public class ADT_LS_LABEL extends AbstractClassifier{
 		this(0);
 	}
 	
+	
 	@Override
 	public void buildClassifier(Instances data) throws Exception {
 		Instances LE = new Instances(data,0);
@@ -210,6 +211,8 @@ public class ADT_LS_LABEL extends AbstractClassifier{
 		}
 		return ret;
 	}
+	
+	
 	
 	private Instances changeLabel(Instances data, int newLabel){
 		Instances newData = new Instances(data,0);

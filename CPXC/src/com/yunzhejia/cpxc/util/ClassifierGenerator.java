@@ -7,11 +7,12 @@ import weka.classifiers.bayes.NaiveBayes;
 import weka.classifiers.functions.LibSVM;
 import weka.classifiers.functions.Logistic;
 import weka.classifiers.trees.J48;
+import weka.classifiers.trees.RandomForest;
 
 public class ClassifierGenerator implements Serializable{
 	private static final long serialVersionUID = -2578826239599092125L;
 
-	public enum ClassifierType {NAIVE_BAYES, DECISION_TREE, SVM, LOGISTIC};
+	public enum ClassifierType {NAIVE_BAYES, DECISION_TREE, SVM, LOGISTIC, RANDOM_FOREST};
 	
 	public static AbstractClassifier getClassifier(ClassifierType type){
 		AbstractClassifier classifier = null;
@@ -27,6 +28,9 @@ public class ClassifierGenerator implements Serializable{
 				break;
 			case LOGISTIC:
 				classifier = new Logistic();
+				break;
+			case RANDOM_FOREST:
+				classifier = new RandomForest();
 				break;
 			default:
 				classifier = new NaiveBayes();

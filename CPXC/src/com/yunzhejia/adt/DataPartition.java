@@ -36,7 +36,7 @@ public class DataPartition extends AbstractClassifier{
 	/** type of local classifiers*/
 	protected ClassifierType ensembleType = ClassifierType.NAIVE_BAYES;
 	/** type of decision classifier*/
-	protected ClassifierType desicionType = ClassifierType.DECISION_TREE;
+	protected ClassifierType desicionType = ClassifierType.RANDOM_FOREST;
 	/** ratio to divide dataset to LargeErrSet and SmallErrSet*/
 	protected double rho = 0.5; 
 	
@@ -91,6 +91,12 @@ public class DataPartition extends AbstractClassifier{
 		Instances S2 = exclude(SE,S1);
 		System.out.println("L1 = "+L1.size()+" L2="+L2.size());
 		System.out.println("S1 = "+S1.size()+" S2="+S2.size());
+		
+		LEClassifier.buildClassifier(LE);
+		SEClassifier = baseClassifier;
+		
+		evaluate(LEClassifier,LE,"LE");
+		evaluate(SEClassifier,SE,"SE");
 	}
 	
 	public void testDecisionClassifier(Instances data) throws Exception{
@@ -169,16 +175,17 @@ public class DataPartition extends AbstractClassifier{
 			probs[i] = 0;
 		}
 		int label = (int)desicionClassifier.classifyInstance(instance);
+//		System.out.println(instance.classIsMissing());
+//		if(SEClassifier.classifyInstance(instance) == instance.classValue()){
+//			System.out.println("111");
+//			return SEClassifier.distributionForInstance(instance);
+//		}else if(LEClassifier.classifyInstance(instance) == instance.classValue()){
+//			System.out.println("111");
+//			return LEClassifier.distributionForInstance(instance);
+//		}
+//		
 		
-		
-		/*
-		if (label == 1){
-			
-			return SEClassifier.distributionForInstance(instance);
-		}else if (label == 0){
-			return LEClassifier.distributionForInstance(instance);
-		}
-		*/
+		/**/
 		double[] probCLS = desicionClassifier.distributionForInstance(instance);
 		double[] probLE = LEClassifier.distributionForInstance(instance);
 		double[] probSE = SEClassifier.distributionForInstance(instance);
@@ -224,6 +231,12 @@ public class DataPartition extends AbstractClassifier{
 		eval2.evaluateModel(baseClassifier, SE);
 		System.out.println("accuracy on SE: " + eval2.pctCorrect() + "%   size="+SE.numInstances());/**/
 	}
+	
+	public int getLabel(Instance ins) throws Exception{
+		int label = (int)desicionClassifier.classifyInstance(ins);
+		return label;
+	}
+	
 	/*
 	private double cuttingPoint(List<Double> errs){
 		List<Double> list = new ArrayList<Double>(errs);
@@ -245,7 +258,7 @@ public class DataPartition extends AbstractClassifier{
 	}
 	*/
 	private double cuttingPoint(List<Double> errs) {
-		return 0.5;
+		return 0.01;
 	}/*
 	private double cuttingPoint(List<Double> errs) {
 		List<Double> list = new ArrayList<>(errs);
@@ -282,6 +295,14 @@ public class DataPartition extends AbstractClassifier{
 			
 			adt.buildClassifier(data);
 //			eval.evaluateModel(adt, data);
+			Evaluation eval = new Evaluation(data);
+//			adt.buildClassifier(data);
+//			eval.evaluateModel(adt, data);
+			eval.crossValidateModel(adt, data, 7, new Random(1));
+			
+			System.out.println("accuracy of "+": " + eval.pctCorrect() + "%");
+			System.out.println("AUC of "+": " + eval.weightedAreaUnderROC());
+			System.out.println(eval.toSummaryString());
 			
 			 
 		} catch (Exception e) {
