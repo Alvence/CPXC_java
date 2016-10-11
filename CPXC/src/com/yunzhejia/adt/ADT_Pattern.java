@@ -30,7 +30,7 @@ import weka.core.Instances;
 import weka.core.Utils;
 import weka.core.converters.ConverterUtils.DataSource;
 
-public class ADT_Oracle extends AbstractClassifier{
+public class ADT_Pattern extends AbstractClassifier{
 	private static final long serialVersionUID = 3636935337536598456L;
 	
 	public static final int LE_LABEL = 0;
@@ -46,6 +46,13 @@ public class ADT_Oracle extends AbstractClassifier{
 	protected double rho = 0.5; 
 	
 	protected int layer;
+	
+	protected transient PatternSet patternSet;
+	protected transient Discretizer discretizer;
+	/** min support for contrast patterns*/
+	protected double minSup = 0.01;
+	/** min growth ratio for contrast patterns*/
+	protected double minRatio = 12;
 	
 	protected transient AbstractClassifier baseClassifier;
 	public transient AbstractClassifier desicionClassifier;
@@ -85,23 +92,29 @@ public class ADT_Oracle extends AbstractClassifier{
 	}
 	
 	public int getOracleLabel(Instance instance) throws Exception{
+		/*
 		if(oracleLE.contains(instance)){
 			return LE_LABEL;
 		}else if(oracleSE.contains(instance)){
 			return SE_LABEL;
 		}else{
 			throw new Exception("no oracle label found");
+		}*/
+		if(patternSet.match(instance, discretizer)){
+			return LE_LABEL;
+		}else{
+			return SE_LABEL;
 		}
 	}
 	
 	//protected transient HashMap<Pattern, LocalClassifier> ensembles;
 	
-	public ADT_Oracle(int l){
+	public ADT_Pattern(int l){
 		super();
 		layer = l;
 	}
 	
-	public ADT_Oracle(){
+	public ADT_Pattern(){
 		this(0);
 	}
 	
@@ -121,13 +134,25 @@ public class ADT_Oracle extends AbstractClassifier{
 		//step 2 divide D into LE and SE
 		divideData(data,LE,SE);
 		
-		
+		//step 3 perform binning
+		discretizer = new Discretizer();
+		discretizer.initialize(data);
+				
+		//step 4 contrast pattern mining
+		patternSet = minePatterns(LE,discretizer);
+		patternSet.contrast(LE,SE,discretizer,minRatio);
+		System.out.println("Pattern number after contrasting = "+patternSet.size());
+		//step 5 reduce the set of mined contrast pattern
+		patternSet = patternSet.filter(new SupportPatternFilter(data.numAttributes()));
+		System.out.println("Pattern number after filtering = "+patternSet.size());
 		
 		Instances newLE = changeLabel(LE, 0);
 		Instances newSE = changeLabel(SE, 1);
 		Instances newData = new Instances(newLE);
 		newData.addAll(newSE);
 		desicionClassifier.buildClassifier(newData);
+		
+		
 		
 		Instances pLE = extractData(data, desicionClassifier, 0);
 		Instances pSE = extractData(data, desicionClassifier, 1);
@@ -157,6 +182,49 @@ public class ADT_Oracle extends AbstractClassifier{
 		evaluate(desicionClassifier,newData,"decision");
 		evaluate(LEClassifier,LE,"LEClassifier");
 		evaluate(SEClassifier,SE,"SEClassifier");
+	}
+	
+	private PatternSet minePatterns(Instances data, Discretizer discretizer){
+		PatternSet ps = null;
+		String tmpFile = "tmp/dataForPattern.txt";
+		String patternFile = "tmp/output.key";
+		File file = new File(tmpFile);
+		try {
+			PrintWriter writer = new PrintWriter(file);
+			for(int i = 0; i < data.numInstances(); i++){
+				Instance ins = data.get(i);
+				writer.println(discretizer.getDiscretizedInstance(ins));
+			}
+			writer.close();
+			
+			String[] cmd = {"program\\GcGrowth.exe", tmpFile,(int)(minSup*data.numInstances())+"","tmp\\output" };
+			Process process = new ProcessBuilder(cmd).start();
+			//wait until the program terminates
+			while(isRunning(process)){}
+			ps = new PatternSet();
+			ps.readPatterns(patternFile);
+			
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		/*verify support for patterns
+		for (Pattern p:ps.patterns){
+			if(p.getSupport() != p.supportOfData(data, discretizer)){
+				System.out.println("!!  "+p);
+			}
+		}
+		*/
+		return ps;
+	}
+	private boolean isRunning(Process process) {
+	    try {
+	        process.exitValue();
+	        return false;
+	    } catch (Exception e) {
+	        return true;
+	    }
 	}
 	
 	private Instances changeLabel(Instances data, int newLabel, int total){
@@ -399,7 +467,7 @@ public class ADT_Oracle extends AbstractClassifier{
 	}
 	*/
 	public static void main(String[] args){
-		ADT_Oracle adt = new ADT_Oracle(5);
+		ADT_Pattern adt = new ADT_Pattern(5);
 		DataSource source;
 		Instances data;
 		try {
