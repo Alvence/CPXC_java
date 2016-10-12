@@ -52,7 +52,7 @@ public class ADT_Pattern extends AbstractClassifier{
 	/** min support for contrast patterns*/
 	protected double minSup = 0.01;
 	/** min growth ratio for contrast patterns*/
-	protected double minRatio = 12;
+	protected double minRatio = 50;
 	
 	protected transient AbstractClassifier baseClassifier;
 	public transient AbstractClassifier desicionClassifier;
@@ -101,9 +101,9 @@ public class ADT_Pattern extends AbstractClassifier{
 			throw new Exception("no oracle label found");
 		}*/
 		if(patternSet.match(instance, discretizer)){
-			return LE_LABEL;
-		}else{
 			return SE_LABEL;
+		}else{
+			return LE_LABEL;
 		}
 	}
 	
@@ -139,12 +139,12 @@ public class ADT_Pattern extends AbstractClassifier{
 		discretizer.initialize(data);
 				
 		//step 4 contrast pattern mining
-		patternSet = minePatterns(LE,discretizer);
-		patternSet.contrast(LE,SE,discretizer,minRatio);
+		patternSet = minePatterns(SE,discretizer);
+		patternSet.contrast(SE,LE,discretizer,minRatio);
 		System.out.println("Pattern number after contrasting = "+patternSet.size());
 		//step 5 reduce the set of mined contrast pattern
-		patternSet = patternSet.filter(new SupportPatternFilter(data.numAttributes()));
-		System.out.println("Pattern number after filtering = "+patternSet.size());
+//		patternSet = patternSet.filter(new SupportPatternFilter(data.numAttributes()));
+//		System.out.println("Pattern number after filtering = "+patternSet.size());
 		
 		Instances newLE = changeLabel(LE, 0);
 		Instances newSE = changeLabel(SE, 1);
@@ -160,7 +160,7 @@ public class ADT_Pattern extends AbstractClassifier{
 		
 		Instances L1 = union(LE,pLE);
 		Instances S1 = union(SE,pSE);
-		Instances L2 = exclude(LE,L1);
+		Instances L2 = exclude(LE,L1); 
 		Instances S2 = exclude(SE,S1);
 		System.out.println("L1 = "+L1.size()+" L2="+L2.size());
 		System.out.println("S1 = "+S1.size()+" S2="+S2.size());
@@ -488,7 +488,7 @@ public class ADT_Pattern extends AbstractClassifier{
 			adt.buildClassifier(data);
 //			adt.testDecisionClassifier(data);
 //			eval.evaluateModel(adt, data);
-			eval.crossValidateModel(adt, data, 7, new Random(1));
+			eval.crossValidateModel(adt, data, 10, new Random(1));
 			System.out.println("accuracy of "+": " + eval.pctCorrect() + "%");
 			System.out.println("AUC of "+": " + eval.weightedAreaUnderROC());
 			System.out.println(eval.toSummaryString());
@@ -498,7 +498,7 @@ public class ADT_Pattern extends AbstractClassifier{
 //			cl.buildClassifier(data);
 			Evaluation eval1 = new Evaluation(data);
 //			eval1.evaluateModel(cl, data);
-//			eval1.crossValidateModel(cl, data, 7, new Random(1));
+			eval1.crossValidateModel(cl, data, 10, new Random(1));
 			System.out.println("accuracy of NBC: " + eval1.pctCorrect() + "%");
 			System.out.println("AUC of NBC: " + eval1.weightedAreaUnderROC());
 			/**/

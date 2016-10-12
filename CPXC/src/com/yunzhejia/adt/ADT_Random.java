@@ -30,7 +30,7 @@ import weka.core.Instances;
 import weka.core.Utils;
 import weka.core.converters.ConverterUtils.DataSource;
 
-public class ADT_Oracle extends AbstractClassifier{
+public class ADT_Random extends AbstractClassifier{
 	private static final long serialVersionUID = 3636935337536598456L;
 	
 	public static final int LE_LABEL = 0;
@@ -55,6 +55,7 @@ public class ADT_Oracle extends AbstractClassifier{
 	protected Instances oracleLE;
 	protected Instances oracleSE;
 	protected Instances oracleData;
+	protected List<Double> labels;
 	
 	public void setOracleData(Instances oracleData){
 		this.oracleData = oracleData;
@@ -69,19 +70,9 @@ public class ADT_Oracle extends AbstractClassifier{
 		oracleClassifier.buildClassifier(data);
 		
 		//step 2 divide D into LE and SE
-		List<Double> errs = new ArrayList<Double>();
-		double[][] dist = oracleClassifier.distributionsForInstances(data);
-		for (int i = 0; i < data.numInstances(); i++){
-			Instance ins = data.get(i);
-			int label = (int)ins.classValue();
-			errs.add(1-dist[i][label]);
-		}
-		//get cutting point
-		double k = cuttingPoint(errs);
-		//initialize two data sets
-		for (int i = 0; i < data.numInstances(); i++){
-			Instance ins = data.get(i);
-			if (errs.get(i) >= k){
+		labels = new ArrayList<Double>();
+		for(Instance ins:data){
+			if(Math.random()<0.5){
 				oracleLE.add(ins);
 			}else{
 				oracleSE.add(ins);
@@ -101,12 +92,12 @@ public class ADT_Oracle extends AbstractClassifier{
 	
 	//protected transient HashMap<Pattern, LocalClassifier> ensembles;
 	
-	public ADT_Oracle(int l){
+	public ADT_Random(int l){
 		super();
 		layer = l;
 	}
 	
-	public ADT_Oracle(){
+	public ADT_Random(){
 		this(0);
 	}
 	
@@ -302,9 +293,9 @@ public class ADT_Oracle extends AbstractClassifier{
 		
 		int oracleLabel = this.getOracleLabel(instance);
 //		System.out.println(label+"  oracle = "+oracleLabel);
-		if (label == SE_LABEL){
+		if (oracleLabel == SE_LABEL){
 			return SEClassifier.distributionForInstance(instance);
-		}else if (label == LE_LABEL){
+		}else if (oracleLabel == LE_LABEL){
 			return LEClassifier.distributionForInstance(instance);
 		}
 		/**/
@@ -356,15 +347,15 @@ public class ADT_Oracle extends AbstractClassifier{
 		//initialize two data sets
 		for (int i = 0; i < data.numInstances(); i++){
 			Instance ins = data.get(i);
-			if (errs.get(i) >= k){
-//			if(Math.random()<0.5){
-				LE.add(ins);
-			}else{
+//			if (errs.get(i) >= k){
+			if(oracleSE.contains(ins)){
 				SE.add(ins);
+			}else{
+				LE.add(ins);
 			}
 		}
-		System.out.println("cutting error = " + k);
-		
+//		System.out.println("cutting error = " + k);
+//		
 //		Evaluation eval = new Evaluation(data);
 //		eval.evaluateModel(baseClassifier, data);
 //		System.out.println("accuracy on whole data: " + eval.pctCorrect() + "%");
@@ -400,7 +391,7 @@ public class ADT_Oracle extends AbstractClassifier{
 //		List<Double> list = new ArrayList<>(errs);
 //		Collections.sort(list);
 //		return list.get(list.size()/2);
-		return 0.2;
+		return 0.3;
 	}
 	/*
 	private double cuttingPoint(List<Double> errs){
@@ -414,7 +405,7 @@ public class ADT_Oracle extends AbstractClassifier{
 	}
 	*/
 	public static void main(String[] args){
-		ADT_Oracle adt = new ADT_Oracle(1);
+		ADT_Random adt = new ADT_Random(5);
 		DataSource source;
 		Instances data;
 		try {
