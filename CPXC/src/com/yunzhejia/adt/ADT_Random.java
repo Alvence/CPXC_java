@@ -349,22 +349,22 @@ public class ADT_Random extends AbstractClassifier{
 			Instance ins = data.get(i);
 //			if (errs.get(i) >= k){
 			if(oracleSE.contains(ins)){
-				SE.add(ins);
-			}else{
 				LE.add(ins);
+			}else{
+				SE.add(ins);
 			}
 		}
-//		System.out.println("cutting error = " + k);
-//		
-//		Evaluation eval = new Evaluation(data);
-//		eval.evaluateModel(baseClassifier, data);
-//		System.out.println("accuracy on whole data: " + eval.pctCorrect() + "%");
-//		Evaluation eval1 = new Evaluation(data);
-//		eval1.evaluateModel(baseClassifier, LE);
-//		System.out.println("accuracy on LE: " + eval1.pctCorrect() + "%   size="+LE.numInstances());
-//		Evaluation eval2 = new Evaluation(data);
-//		eval2.evaluateModel(baseClassifier, SE);
-//		System.out.println("accuracy on SE: " + eval2.pctCorrect() + "%   size="+SE.numInstances());/**/
+		System.out.println("cutting error = " + k);
+		
+		Evaluation eval = new Evaluation(data);
+		eval.evaluateModel(baseClassifier, data);
+		System.out.println("accuracy on whole data: " + eval.pctCorrect() + "%");
+		Evaluation eval1 = new Evaluation(data);
+		eval1.evaluateModel(baseClassifier, LE);
+		System.out.println("accuracy on LE: " + eval1.pctCorrect() + "%   size="+LE.numInstances());
+		Evaluation eval2 = new Evaluation(data);
+		eval2.evaluateModel(baseClassifier, SE);
+		System.out.println("accuracy on SE: " + eval2.pctCorrect() + "%   size="+SE.numInstances());/**/
 	}
 	/*
 	private double cuttingPoint(List<Double> errs){
