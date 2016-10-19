@@ -147,7 +147,7 @@ public class ADT_Oracle extends AbstractClassifier{
 		
 		
 		LEClassifier.buildClassifier(LE);
-//		SEClassifier.buildClassifier(SE);
+		SEClassifier.buildClassifier(SE);
 		SEClassifier = baseClassifier;
 		
 //		LEClassifier.buildClassifier(LE);
@@ -302,9 +302,9 @@ public class ADT_Oracle extends AbstractClassifier{
 		
 		int oracleLabel = this.getOracleLabel(instance);
 //		System.out.println(label+"  oracle = "+oracleLabel);
-		if (label == SE_LABEL){
+		if (oracleLabel == SE_LABEL){
 			return SEClassifier.distributionForInstance(instance);
-		}else if (label == LE_LABEL){
+		}else if (oracleLabel == LE_LABEL){
 			return LEClassifier.distributionForInstance(instance);
 		}
 		/**/
@@ -414,11 +414,11 @@ public class ADT_Oracle extends AbstractClassifier{
 	}
 	*/
 	public static void main(String[] args){
-		ADT_Oracle adt = new ADT_Oracle(1);
+		ADT_Oracle adt = new ADT_Oracle(5);
 		DataSource source;
 		Instances data;
 		try {
-			source = new DataSource("data/blood.arff");
+			source = new DataSource("data/ILPD.arff");
 //			source = new DataSource("data/vote.arff");
 			data = source.getDataSet();
 			if (data.classIndex() == -1){
