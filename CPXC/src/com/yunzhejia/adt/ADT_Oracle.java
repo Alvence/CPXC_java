@@ -422,7 +422,7 @@ public class ADT_Oracle extends AbstractClassifier{
 //			source = new DataSource("data/vote.arff");
 			data = source.getDataSet();
 			if (data.classIndex() == -1){
-				data.setClassIndex(data.numAttributes() - 1);
+				data.setClassIndex(data.numAttributes() - 1); 
 			}
 			
 //			weka.filters.supervised.attribute.Discretize discretizer = new weka.filters.supervised.attribute.Discretize();
