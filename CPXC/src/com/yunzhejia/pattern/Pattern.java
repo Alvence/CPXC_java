@@ -3,7 +3,9 @@
  */
 package com.yunzhejia.pattern;
 
+import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 import weka.core.Instance;
 import weka.core.Instances;
@@ -15,14 +17,19 @@ import weka.core.Instances;
  *
  */
 public class Pattern implements IPattern {
+	private String id;
 	private Set<ICondition> conditions;
 	private Instances associatedData;
 	private Instances mds;
 	
 	
+	public Pattern(ICondition condition) {
+		id = UUID.randomUUID().toString();
+		this.conditions = new HashSet<>();
+		this.conditions.add(condition);
+	}
 	
 	public Pattern(Set<ICondition> conditions) {
-		super();
 		this.conditions = conditions;
 	}
 
@@ -62,5 +69,14 @@ public class Pattern implements IPattern {
 				mds.add(ins);
 			}
 		}
+	}
+	
+	@Override
+	public String toString(){
+		String ret = "";
+		for (ICondition condition:conditions){
+			ret += condition +"   ";
+		}
+		return ret;
 	}
 }

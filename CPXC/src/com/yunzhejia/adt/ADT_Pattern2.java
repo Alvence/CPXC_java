@@ -2,35 +2,28 @@ package com.yunzhejia.adt;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
-import com.yunzhejia.cpxc.CPXC;
-import com.yunzhejia.cpxc.Discretizer;
-import com.yunzhejia.cpxc.pattern.AERPatternFilter;
-import com.yunzhejia.cpxc.pattern.Pattern;
-import com.yunzhejia.cpxc.pattern.PatternFilter;
-import com.yunzhejia.cpxc.pattern.PatternSet;
-import com.yunzhejia.cpxc.pattern.SupportPatternFilter;
-import com.yunzhejia.cpxc.pattern.TERPatternFilter;
 import com.yunzhejia.cpxc.util.ClassifierGenerator;
-import com.yunzhejia.cpxc.util.OutputUtils;
 import com.yunzhejia.cpxc.util.ClassifierGenerator.ClassifierType;
+import com.yunzhejia.pattern.IPattern;
+import com.yunzhejia.pattern.PatternSet;
+import com.yunzhejia.pattern.patternmining.ParallelCoordinatesMiner;
 
 import weka.classifiers.AbstractClassifier;
 import weka.classifiers.Evaluation;
 import weka.classifiers.bayes.NaiveBayes;
-import weka.core.Attribute;
 import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.Utils;
+import weka.core.converters.ArffSaver;
 import weka.core.converters.ConverterUtils.DataSource;
+import weka.core.pmml.jaxbbindings.Output;
 
-public class ADT_Pattern extends AbstractClassifier{
+public class ADT_Pattern2 extends AbstractClassifier{
 	private static final long serialVersionUID = 3636935337536598456L;
 	
 	public static final int LE_LABEL = 0;
@@ -48,7 +41,6 @@ public class ADT_Pattern extends AbstractClassifier{
 	protected int layer;
 	
 	protected transient PatternSet patternSet;
-	protected transient Discretizer discretizer;
 	/** min support for contrast patterns*/
 	protected double minSup = 0.01;
 	/** min growth ratio for contrast patterns*/
@@ -68,7 +60,7 @@ public class ADT_Pattern extends AbstractClassifier{
 		}else{
 			throw new Exception("no oracle label found");
 		}*/
-		if(patternSet.match(instance, discretizer)){
+		if(patternSet.match(instance)){
 			return SE_LABEL;
 		}else{
 			return LE_LABEL;
@@ -77,12 +69,12 @@ public class ADT_Pattern extends AbstractClassifier{
 	
 	//protected transient HashMap<Pattern, LocalClassifier> ensembles;
 	
-	public ADT_Pattern(int l){
+	public ADT_Pattern2(int l){
 		super();
 		layer = l;
 	}
 	
-	public ADT_Pattern(){
+	public ADT_Pattern2(){
 		this(0);
 	}
 	
@@ -101,14 +93,17 @@ public class ADT_Pattern extends AbstractClassifier{
 		
 		//step 2 divide D into LE and SE
 		divideData(data,LE,SE);
+		outputData(LE,"tmp/LE.arff");
+		outputData(SE,"tmp/SE.arff");
 		
-		//step 3 perform binning
-		discretizer = new Discretizer();
-		discretizer.initialize(data);
-				
 		//step 4 contrast pattern mining
-		patternSet = minePatterns(SE,discretizer);
-		patternSet.contrast(SE,LE,discretizer,minRatio);
+		ParallelCoordinatesMiner miner = new ParallelCoordinatesMiner();
+		PatternSet ps = miner.minePattern(data, 0.1);
+		patternSet = new PatternSet();
+		for(IPattern p:ps){
+				patternSet.add(p);
+		}
+//		patternSet = miner.minePattern(SE, 0.1);
 		System.out.println("Pattern number after contrasting = "+patternSet.size());
 		//step 5 reduce the set of mined contrast pattern
 //		patternSet = patternSet.filter(new SupportPatternFilter(data.numAttributes()));
@@ -152,96 +147,11 @@ public class ADT_Pattern extends AbstractClassifier{
 		evaluate(SEClassifier,SE,"SEClassifier");
 	}
 	
-	private PatternSet minePatterns(Instances data, Discretizer discretizer){
-		PatternSet ps = null;
-		String tmpFile = "tmp/dataForPattern.txt";
-		String patternFile = "tmp/output.key";
-		File file = new File(tmpFile);
-		try {
-			PrintWriter writer = new PrintWriter(file);
-			for(int i = 0; i < data.numInstances(); i++){
-				Instance ins = data.get(i);
-				writer.println(discretizer.getDiscretizedInstance(ins));
-			}
-			writer.close();
-			
-			String[] cmd = {"program\\GcGrowth.exe", tmpFile,(int)(minSup*data.numInstances())+"","tmp\\output" };
-			Process process = new ProcessBuilder(cmd).start();
-			//wait until the program terminates
-			while(isRunning(process)){}
-			ps = new PatternSet();
-			ps.readPatterns(patternFile);
-			
-			
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-		/*verify support for patterns
-		for (Pattern p:ps.patterns){
-			if(p.getSupport() != p.supportOfData(data, discretizer)){
-				System.out.println("!!  "+p);
-			}
-		}
-		*/
-		return ps;
-	}
-	private boolean isRunning(Process process) {
-	    try {
-	        process.exitValue();
-	        return false;
-	    } catch (Exception e) {
-	        return true;
-	    }
-	}
-	
-	private Instances changeLabel(Instances data, int newLabel, int total){
-		Instances newData = new Instances(data,0);
-		List<String> newLabels = new ArrayList<>();
-		for(int i = 0; i < total; i++){
-			newLabels.add(i+"");
-		}
-		Attribute newClassAttr = new Attribute("Partition", newLabels);
-		
-		int classIndex = newData.classIndex();
-		
-		newData.setClass(newClassAttr);
-		newData.deleteAttributeAt(classIndex);
-		newData.insertAttributeAt(newClassAttr, classIndex);
-		newData.setClassIndex(classIndex);
-		
-		
-		for (Instance ins:data){
-			Instance newIns = (Instance)ins.copy();
-			newIns.setClassValue(newLabel);
-			newData.add(newIns);
-		}
-		
-		return newData;
-	}
-	private Instances changeHead(Instances data, int total){
-		Instances newData = new Instances(data,0);
-		List<String> newLabels = new ArrayList<>();
-		for(int i = 0; i < total; i++){
-			newLabels.add(i+"");
-		}
-		Attribute newClassAttr = new Attribute("Partition", newLabels);
-		
-		int classIndex = newData.classIndex();
-		
-		newData.setClass(newClassAttr);
-		newData.deleteAttributeAt(classIndex);
-		newData.insertAttributeAt(newClassAttr, classIndex);
-		newData.setClassIndex(classIndex);
-		
-		
-		for (Instance ins:data){
-			Instance newIns = (Instance)ins.copy();
-			newIns.setClassValue(ins.classValue());
-			newData.add(newIns);
-		}
-		
-		return newData;
+	private void outputData(Instances dataSet, String filename) throws Exception{
+				 ArffSaver saver = new ArffSaver();
+				 saver.setInstances(dataSet);
+				 saver.setFile(new File(filename));
+				 saver.writeBatch();
 	}
 	
 	public void testDecisionClassifier(Instances data) throws Exception{
@@ -262,16 +172,6 @@ public class ADT_Pattern extends AbstractClassifier{
 		Evaluation eval = new Evaluation(data);
 		eval.evaluateModel(cl, data);
 		System.out.println("accuracy of "+name+": " + eval.pctCorrect() + "%");
-	}
-	
-	private Instances merge(Instances d1, Instances d2){
-		Instances ret = new Instances (d1);
-		for(Instance ins:d2){
-			if(!ret.contains(ins)){
-				ret.add(ins);
-			}
-		}
-		return ret;
 	}
 	
 	private Instances union(Instances d1, Instances d2){
@@ -435,7 +335,7 @@ public class ADT_Pattern extends AbstractClassifier{
 	}
 	*/
 	public static void main(String[] args){
-		ADT_Pattern adt = new ADT_Pattern(5);
+		ADT_Pattern2 adt = new ADT_Pattern2(5);
 		DataSource source;
 		Instances data;
 		try {

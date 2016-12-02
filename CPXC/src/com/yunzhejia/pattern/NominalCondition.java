@@ -13,10 +13,16 @@ public class NominalCondition implements ICondition {
 
 	private int attrIndex;
 	private String value;
+	private String attrName;
 	/**
 	 * 
 	 */
 	public NominalCondition(int attrIndex, String value) {
+		this(null, attrIndex, value);
+	}
+	
+	public NominalCondition(String attrName, int attrIndex, String value) {
+		this.attrName = attrName;
 		this.attrIndex = attrIndex;
 		this.value = value;
 	}
@@ -32,4 +38,8 @@ public class NominalCondition implements ICondition {
 		return false;
 	}
 
+	@Override
+	public String toString(){
+		return attrName + "=" + value;
+	}
 }
