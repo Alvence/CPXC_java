@@ -1,7 +1,7 @@
 @relation syntheticdata
 
-@attribute 'attr1' numeric
-@attribute 'attr2' numeric
+@attribute 'x' numeric
+@attribute 'y' numeric
 @attribute 'label' {0,1}
 
 @data

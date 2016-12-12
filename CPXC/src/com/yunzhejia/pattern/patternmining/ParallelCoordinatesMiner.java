@@ -1,5 +1,6 @@
 package com.yunzhejia.pattern.patternmining;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -14,8 +15,17 @@ import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.converters.ConverterUtils.DataSource;
 
-public class ParallelCoordinatesMiner implements IPatternMiner{
-	public static final int NUMERIC_BIN_WIDTH = 10;
+public class ParallelCoordinatesMiner implements IPatternMiner, Serializable{
+	private int NUMERIC_BIN_WIDTH = 10;
+	
+	public ParallelCoordinatesMiner(){
+		this(10);
+	}
+	
+	public ParallelCoordinatesMiner(int num_bin){
+		this.NUMERIC_BIN_WIDTH = num_bin;
+	}
+	
 	@Override
 	public PatternSet minePattern(Instances data, double minSupp) {
 		//1, get all the 
@@ -86,6 +96,48 @@ public class ParallelCoordinatesMiner implements IPatternMiner{
 			}
 		}
 	}
+	@Override
+	public PatternSet minePattern(Instances data, double minSupp, int featureId) {
+		//1, get all the 
+				PatternSet ps = new PatternSet();
+				int numAttribute = data.numAttributes();
+				calExtreme(data);
+				if (featureId==data.classIndex()){
+					return null;
+				}
+				String attrName = data.attribute(featureId).name();
+				if (data.attribute(featureId).isNumeric()){
+//					double lower = data.attribute(i).getLowerNumericBound();
+//					double upper = data.attribute(i).getUpperNumericBound();
+					double lower = mins.get(featureId);
+					double upper = maxs.get(featureId);
+					double width = (upper-lower)/NUMERIC_BIN_WIDTH;
+					double left = Double.MIN_VALUE;
+					double right = lower + width;
+					for (int bin = 0; bin < NUMERIC_BIN_WIDTH; bin++){
+						if(bin == NUMERIC_BIN_WIDTH-1){
+							right = Double.MAX_VALUE;
+						}
+						IPattern pattern = new Pattern(new NumericCondition(attrName,featureId, left, right));
+						if (pattern.support(data)>= minSupp){
+							ps.add(pattern);
+						}
+						left = right;
+						right = right + width;
+				}
+				}else{
+					Enumeration<Object> values = data.attribute(featureId).enumerateValues();
+					while(values.hasMoreElements()){
+						String value = values.nextElement().toString();
+						IPattern pattern = new Pattern(new NominalCondition(attrName,featureId, value));
+						if (pattern.support(data)>= minSupp){
+							ps.add(pattern);
+						}
+					}
+				}
+				
+				return  ps;
+	}
 	
 	public static void main(String[] args){
 		DataSource source;
@@ -109,4 +161,6 @@ public class ParallelCoordinatesMiner implements IPatternMiner{
 			e.printStackTrace();
 		}
 	}
+
+	
 }

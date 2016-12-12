@@ -18,4 +18,6 @@ public interface IPatternMiner {
 	 * @return
 	 */
 	public PatternSet minePattern(Instances data, double minSupp);
+	
+	public PatternSet minePattern(Instances data, double minSupp, int featureId);
 }
