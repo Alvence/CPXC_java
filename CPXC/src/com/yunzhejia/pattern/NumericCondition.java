@@ -35,7 +35,7 @@ public class NumericCondition implements ICondition {
 		}
 		return false;
 	}
-
+ 
 	@Override
 	public String toString(){
 		return (left==Double.MIN_VALUE?"":left+"<")+ attrName + 
