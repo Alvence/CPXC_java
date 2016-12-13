@@ -82,10 +82,10 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 			partitions = partitionMerge(partitions);
 			it2Size = partitions.size();
 		}while(it1Size != it2Size);
-//		System.out.println(partitions.size());
-//		for (Partition par:partitions){
-//			System.out.println(par);
-//		}
+		System.out.println(partitions.size());
+		for (Partition par:partitions){
+			System.out.println(par);
+		}
 		
 		
 		
@@ -270,7 +270,9 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 			data = source.getDataSet();
 		
 			
-			for (int bin = 2; bin < 30; bin++){
+//			for (int bin = 2; bin < 30; bin+=2){
+			int bin = 10;
+				System.out.println(bin);
 			GreedyGlobalLocalClassifier adt = new GreedyGlobalLocalClassifier(0.01f,new ParallelCoordinatesMiner(bin));
 			
 			if (data.classIndex() == -1){
@@ -288,7 +290,7 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 				bestAcc = eval.pctCorrect();
 				bestAUC = eval.weightedAreaUnderROC();
 				}
-			}
+//			}
 			System.out.println("accuracy of "+": " + bestAcc + "%");
 			System.out.println("AUC of "+": " + bestAUC);
 //			System.out.println(eval.toSummaryString());
