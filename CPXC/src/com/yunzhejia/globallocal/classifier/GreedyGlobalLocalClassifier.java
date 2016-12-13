@@ -26,7 +26,7 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 	private transient List<Partition> partitions;
 	private transient AbstractClassifier globalCL;
 	
-	protected ClassifierType globalType = ClassifierType.DECISION_TREE;
+	protected static ClassifierType globalType = ClassifierType.DECISION_TREE;
 	/** type of decision classifier*/
 	protected ClassifierType localType = ClassifierType.DECISION_TREE;
 
@@ -70,6 +70,7 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 				newPartition.patternSetList = localPatternSetList;
 				newPartition.classifier.buildClassifier(partitionData);
 				newPartition.weight = newPartition.data.size()*1.0 / data.size();
+				if(newPartition.data.size()>=10)
 				partitions.add(newPartition);
 			}
 		}
@@ -81,16 +82,16 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 			partitions = partitionMerge(partitions);
 			it2Size = partitions.size();
 		}while(it1Size != it2Size);
-		System.out.println(partitions.size());
-		for (Partition par:partitions){
-			System.out.println(par);
-		}
+//		System.out.println(partitions.size());
+//		for (Partition par:partitions){
+//			System.out.println(par);
+//		}
 		
 		
 		
 		globalCL = ClassifierGenerator.getClassifier(globalType);
 		Instances globalData = getGlobalData(data);
-		System.out.println(globalData.size());
+		globalCL.buildClassifier(globalData);
 	}
 	private Instances getGlobalData(Instances data){
 		Instances ret = new Instances(data,0);
@@ -177,18 +178,18 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 		Partition mergedPar = merge(par1,par2);
 		
 		Evaluation eval1 = new Evaluation(par1.data);
-		eval1.crossValidateModel(par1.classifier, par1.data, 3, new Random(1));
+		eval1.crossValidateModel(par1.classifier, par1.data, par1.data.size(), new Random(1));
 		double acc1=eval1.pctCorrect();
 		
 		Evaluation eval2 = new Evaluation(par2.data);
-		eval2.crossValidateModel(par2.classifier, par2.data, 3, new Random(1));
+		eval2.crossValidateModel(par2.classifier, par2.data, par2.data.size(), new Random(1));
 		double acc2=eval2.pctCorrect();
 		
 		Evaluation evalM = new Evaluation(mergedPar.data);
-		evalM.crossValidateModel(mergedPar.classifier, mergedPar.data, 3, new Random(1));
+		evalM.crossValidateModel(mergedPar.classifier, mergedPar.data, mergedPar.data.size(), new Random(1));
 		double accM=evalM.pctCorrect();
 		
-		if(accM >= (acc1+acc2)/2 ){
+		if(accM >= (acc1+acc2)/2){
 			return true;
 		}
 		return false;
@@ -254,35 +255,51 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 	}
 	
 	public static void main(String[] args){
-		GreedyGlobalLocalClassifier adt = new GreedyGlobalLocalClassifier(0.01f,new ParallelCoordinatesMiner(2));
-		DataSource source;
-		Instances data;
+		int bestNumBin = -1;
+		double bestAcc = 0;
+		double bestAUC = 0;
+		
+		
 		try {
-			source = new DataSource("data/synthetic1.arff");
-//			source = new DataSource("data/vote.arff");
+			DataSource source;
+			Instances data;
+	
+			source = new DataSource("data/synthetic2.arff");
+//			source = new DataSource("data/haberman.arff");
+//			source = new DataSource("data/iris.arff");
 			data = source.getDataSet();
+		
+			
+			for (int bin = 2; bin < 30; bin++){
+			GreedyGlobalLocalClassifier adt = new GreedyGlobalLocalClassifier(0.01f,new ParallelCoordinatesMiner(bin));
+			
 			if (data.classIndex() == -1){
 				data.setClassIndex(data.numAttributes() - 1);
 			}
-			
 			
 			Evaluation eval = new Evaluation(data);
 			adt.buildClassifier(data);
 //			adt.testDecisionClassifier(data);
 //			eval.evaluateModel(adt, data);
-			eval.crossValidateModel(adt, data, data.size(), new Random(1));
-			System.out.println("accuracy of "+": " + eval.pctCorrect() + "%");
-//			System.out.println("AUC of "+": " + eval.weightedAreaUnderROC());
+			eval.crossValidateModel(adt, data, 10, new Random(1));
+			
+			if (eval.pctCorrect() > bestAcc){
+				bestNumBin = bin;
+				bestAcc = eval.pctCorrect();
+				bestAUC = eval.weightedAreaUnderROC();
+				}
+			}
+			System.out.println("accuracy of "+": " + bestAcc + "%");
+			System.out.println("AUC of "+": " + bestAUC);
 //			System.out.println(eval.toSummaryString());
-//			
-//			
-//			AbstractClassifier cl = new NaiveBayes();
-////			cl.buildClassifier(data);
-//			Evaluation eval1 = new Evaluation(data);
-////			eval1.evaluateModel(cl, data);
-//			eval1.crossValidateModel(cl, data, 10, new Random(1));
-//			System.out.println("accuracy of NBC: " + eval1.pctCorrect() + "%");
-//			System.out.println("AUC of NBC: " + eval1.weightedAreaUnderROC());
+			
+			AbstractClassifier cl = ClassifierGenerator.getClassifier(GreedyGlobalLocalClassifier.globalType);
+//			cl.buildClassifier(data);
+			Evaluation eval1 = new Evaluation(data);
+//			eval1.evaluateModel(cl, data);
+			eval1.crossValidateModel(cl, data, 10, new Random(1));
+			System.out.println("accuracy of global: " + eval1.pctCorrect() + "%");
+			System.out.println("AUC of global: " + eval1.weightedAreaUnderROC()+"  bin="+bestNumBin);
 			/**/
 			 
 		} catch (Exception e) {
