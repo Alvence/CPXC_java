@@ -1,6 +1,8 @@
 package com.yunzhejia.globallocal.classifier;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
@@ -26,9 +28,10 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 	private transient List<Partition> partitions;
 	private transient AbstractClassifier globalCL;
 	
-	protected static ClassifierType globalType = ClassifierType.DECISION_TREE;
+	protected double delta = 0f;
+	protected static ClassifierType globalType = ClassifierType.SVM;
 	/** type of decision classifier*/
-	protected ClassifierType localType = ClassifierType.DECISION_TREE;
+	protected ClassifierType localType = ClassifierType.SVM;
 
 	public GreedyGlobalLocalClassifier() {
 		this(0.1f,new ParallelCoordinatesMiner(10));
@@ -41,10 +44,31 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 		this.patternMiner = patternMiner;
 	}
 
-
+	private transient Instances trainingData;
+	private transient Instances validationData;
+	private transient double globalAcc;
 
 	@Override
 	public void buildClassifier(Instances data) throws Exception {
+		// Make a copy of the data we can reorder
+	    Instances datate = new Instances(data);
+	    Random random = new Random(1);
+	    datate.randomize(random);
+	    if (data.classAttribute().isNominal()) {
+	      data.stratify(5);
+	    }
+	    trainingData = data.trainCV(5, 1, random);
+	    validationData = data.testCV(5, 1);
+//	    System.out.println("training size="+trainingData.size()+"  validation size="+validationData.size());
+//	    System.out.println(validationData);
+	    AbstractClassifier tempgcl = ClassifierGenerator.getClassifier(globalType);
+	    Evaluation eval = new Evaluation(validationData);
+	    tempgcl.buildClassifier(trainingData);
+//		adt.testDecisionClassifier(data);
+		eval.evaluateModel(tempgcl, validationData);
+	    globalAcc = eval.pctCorrect();
+	    
+	    
 		//1, find the patterns;
 		PatternSet ps = patternMiner.minePattern(data, minSupp);
 		partitions = new ArrayList<>();
@@ -70,10 +94,15 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 				newPartition.patternSetList = localPatternSetList;
 				newPartition.classifier.buildClassifier(partitionData);
 				newPartition.weight = newPartition.data.size()*1.0 / data.size();
-				if(newPartition.data.size()>=10)
+				if(newPartition.data.size()>=5)
 				partitions.add(newPartition);
 			}
 		}
+//		System.out.println(partitions.size());
+//		for (Partition par:partitions){
+//			System.out.println(par);
+//		}
+		partitions = filterPartition(partitions);
 		
 		int it1Size = partitions.size();
 		int it2Size = partitions.size();
@@ -88,11 +117,35 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 		}
 		
 		
-		
+//		System.out.println("size="+partitions.size());
 		globalCL = ClassifierGenerator.getClassifier(globalType);
 		Instances globalData = getGlobalData(data);
+		if(globalData.size()>0)
 		globalCL.buildClassifier(globalData);
 	}
+	
+	//remove global optimal partitions
+	private List<Partition> filterPartition(List<Partition> partitions) throws Exception{
+		List<Partition> ret = new ArrayList<>();
+		for(Partition partition:partitions){
+			if(!canRemove(partition)){
+				ret.add(partition);
+			}
+		}
+		return ret;
+	}
+	
+	private boolean canRemove(Partition partition) throws Exception{
+		double eval = eval(partition);
+//		System.out.println("for partition "+partition+"   acc="+eval(partition)+"   while global="+globalAcc);
+		if(eval > globalAcc - delta){
+			System.out.println("for partition "+partition+"   acc="+eval(partition)+"   while global="+globalAcc);
+			return false;
+		}
+		
+		return true;
+	}
+	
 	private Instances getGlobalData(Instances data){
 		Instances ret = new Instances(data,0);
 		for (Instance ins : data){
@@ -126,6 +179,9 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 			flags[i] = false;
 		}
 		
+		double maxAdd = 0;
+		int a= 0,b= 0;
+		
 		for (int i = 0; i < partitions.size(); i++){
 			for (int j = i + 1; j < partitions.size(); j++){
 				if (flags[i]||flags[j]){
@@ -134,15 +190,30 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 				Partition par1 = partitions.get(i);
 				Partition par2 = partitions.get(j);
 				
-				if (canMerge(par1,par2)){
-					flags[i] = true;
-					flags[j] = true;
-					Partition newpar = merge(par1,par2);
-					ret.add(newpar);
+//				if (canMerge(par1,par2)){
+//					flags[i] = true;
+//					flags[j] = true;
+//					Partition newpar = merge(par1,par2);
+//					ret.add(newpar);
+//				}
+				double add = eval(merge(par1,par2)) - eval(par1,par2);
+				if(add > maxAdd){
+					maxAdd = add;
+					a = i;
+					b = j;
+//					flags[i] = true;
+//					flags[j] = true;
+//					Partition newpar = merge(par1,par2);
+//					ret.add(newpar);
 				}
 			}
 		}
-		
+		if(maxAdd > 1){
+			flags[a] = true;
+			flags[b] = true;
+			Partition newpar = merge(partitions.get(a),partitions.get(b));
+			ret.add(newpar);
+		}
 		for (int i = 0; i < flags.length; i++){
 			if (!flags[i]){
 				ret.add(partitions.get(i));
@@ -177,22 +248,88 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 	private boolean canMerge(Partition par1, Partition par2) throws Exception{
 		Partition mergedPar = merge(par1,par2);
 		
-		Evaluation eval1 = new Evaluation(par1.data);
-		eval1.crossValidateModel(par1.classifier, par1.data, par1.data.size(), new Random(1));
-		double acc1=eval1.pctCorrect();
-		
-		Evaluation eval2 = new Evaluation(par2.data);
-		eval2.crossValidateModel(par2.classifier, par2.data, par2.data.size(), new Random(1));
-		double acc2=eval2.pctCorrect();
-		
-		Evaluation evalM = new Evaluation(mergedPar.data);
-		evalM.crossValidateModel(mergedPar.classifier, mergedPar.data, mergedPar.data.size(), new Random(1));
-		double accM=evalM.pctCorrect();
-		
-		if(accM >= (acc1+acc2)/2){
+		double eval1 = eval(par1,par2);
+		double evalM = eval(mergedPar);
+	
+		if(evalM >= eval1 - delta){
 			return true;
 		}
+
 		return false;
+	}
+	
+	private double eval(Partition partition) throws Exception{
+		Instances globalData = new Instances(trainingData,0);
+		for(Instance ins:trainingData){
+			if(!partition.match(ins)){
+				globalData.add(ins);
+			}
+		}
+		AbstractClassifier gcl = ClassifierGenerator.getClassifier(globalType);
+		gcl.buildClassifier(globalData);
+		
+		
+		int correct = 0;
+		double acc = 0;
+		double[] probs;
+		for(Instance testIns:validationData){
+			double pre = 0;
+			if(partition.match(testIns)){
+				pre = partition.classifier.classifyInstance(testIns);
+				probs = partition.classifier.distributionForInstance(testIns);
+			}else{
+				pre = gcl.classifyInstance(testIns);
+				probs = gcl.distributionForInstance(testIns);
+			}
+			if(pre == testIns.classValue()){
+				correct ++;
+				acc += maxValue(probs);
+			}else{
+				acc += probs[(int)testIns.classValue()];
+			}
+		}
+		
+		return correct*100.0/validationData.size();
+//		return acc/validationData.size();
+	}
+	
+	private double maxValue(double[] chars) {
+		double max = chars[0];
+	    for (int ktr = 0; ktr < chars.length; ktr++) {
+	        if (chars[ktr] > max) {
+	            max = chars[ktr];
+	        }
+	    }
+	    return max;
+	}
+	
+	private double eval(Partition par1, Partition par2) throws Exception{
+		Instances globalData = new Instances(trainingData,0);
+		for(Instance ins:trainingData){
+			if((!par1.match(ins))&&(!par2.match(ins))){
+				globalData.add(ins);
+			}
+		}
+		AbstractClassifier gcl = ClassifierGenerator.getClassifier(globalType);
+		gcl.buildClassifier(globalData);
+		
+		
+		int correct = 0;
+		for(Instance testIns:validationData){
+			double pre = 0;
+			if(par1.match(testIns)){
+				pre = par1.classifier.classifyInstance(testIns);
+			} else if(par1.match(testIns)){
+				pre = par2.classifier.classifyInstance(testIns);
+			}else{
+				pre = gcl.classifyInstance(testIns);
+			}
+			if(pre == testIns.classValue()){
+				correct ++;
+			}
+		}
+		
+		return correct*100.0/validationData.size();
 	}
 	
 	@Override
@@ -280,9 +417,10 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 			}
 			
 			Evaluation eval = new Evaluation(data);
-			adt.buildClassifier(data);
+//			adt.buildClassifier(data);
 //			adt.testDecisionClassifier(data);
 //			eval.evaluateModel(adt, data);
+//			System.out.println("accuracy of "+": " + eval.pctCorrect() + "%");
 			eval.crossValidateModel(adt, data, 10, new Random(1));
 			
 			if (eval.pctCorrect() > bestAcc){
@@ -299,9 +437,9 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 //			cl.buildClassifier(data);
 			Evaluation eval1 = new Evaluation(data);
 //			eval1.evaluateModel(cl, data);
-			eval1.crossValidateModel(cl, data, 10, new Random(1));
-			System.out.println("accuracy of global: " + eval1.pctCorrect() + "%");
-			System.out.println("AUC of global: " + eval1.weightedAreaUnderROC()+"  bin="+bestNumBin);
+//			eval1.crossValidateModel(cl, data, 10, new Random(1));
+//			System.out.println("accuracy of global: " + eval1.pctCorrect() + "%");
+//			System.out.println("AUC of global: " + eval1.weightedAreaUnderROC()+"  bin="+bestNumBin);
 			/**/
 			 
 		} catch (Exception e) {
