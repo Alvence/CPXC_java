@@ -1,8 +1,10 @@
 package com.yunzhejia.globallocal.classifier;
 
+import java.io.BufferedWriter;
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
@@ -29,9 +31,9 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 	private transient AbstractClassifier globalCL;
 	
 	protected double delta = 0f;
-	protected static ClassifierType globalType = ClassifierType.SVM;
+	protected static ClassifierType globalType = ClassifierType.RANDOM_FOREST;
 	/** type of decision classifier*/
-	protected ClassifierType localType = ClassifierType.SVM;
+	protected ClassifierType localType = ClassifierType.LOGISTIC;
 
 	public GreedyGlobalLocalClassifier() {
 		this(0.1f,new ParallelCoordinatesMiner(10));
@@ -402,13 +404,13 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 			Instances data;
 	
 			source = new DataSource("data/synthetic2.arff");
-//			source = new DataSource("data/haberman.arff");
+//			source = new DataSource("data/blood.arff");
 //			source = new DataSource("data/iris.arff");
 			data = source.getDataSet();
 		
 			
 //			for (int bin = 2; bin < 30; bin+=2){
-			int bin = 10;
+			int bin = 20;
 				System.out.println(bin);
 			GreedyGlobalLocalClassifier adt = new GreedyGlobalLocalClassifier(0.01f,new ParallelCoordinatesMiner(bin));
 			
@@ -421,7 +423,7 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 //			adt.testDecisionClassifier(data);
 //			eval.evaluateModel(adt, data);
 //			System.out.println("accuracy of "+": " + eval.pctCorrect() + "%");
-			eval.crossValidateModel(adt, data, 10, new Random(1));
+//			eval.crossValidateModel(adt, data, 10, new Random(1));
 			
 			if (eval.pctCorrect() > bestAcc){
 				bestNumBin = bin;
@@ -429,8 +431,7 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 				bestAUC = eval.weightedAreaUnderROC();
 				}
 //			}
-			System.out.println("accuracy of "+": " + bestAcc + "%");
-			System.out.println("AUC of "+": " + bestAUC);
+			
 //			System.out.println(eval.toSummaryString());
 			
 			AbstractClassifier cl = ClassifierGenerator.getClassifier(GreedyGlobalLocalClassifier.globalType);
@@ -438,8 +439,36 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 			Evaluation eval1 = new Evaluation(data);
 //			eval1.evaluateModel(cl, data);
 //			eval1.crossValidateModel(cl, data, 10, new Random(1));
-//			System.out.println("accuracy of global: " + eval1.pctCorrect() + "%");
-//			System.out.println("AUC of global: " + eval1.weightedAreaUnderROC()+"  bin="+bestNumBin);
+			System.out.println("accuracy of "+": " + bestAcc + "%");
+			System.out.println("AUC of "+": " + bestAUC);
+			System.out.println("accuracy of global: " + eval1.pctCorrect() + "%");
+			System.out.println("AUC of global: " + eval1.weightedAreaUnderROC()+"  bin="+bestNumBin);
+			cl.buildClassifier(data);
+			try{
+			    Writer writer = new BufferedWriter(new OutputStreamWriter(
+			              new FileOutputStream("tmp/res"), "UTF-8"));
+			    Writer writer2 = new BufferedWriter(new OutputStreamWriter(
+			              new FileOutputStream("tmp/res2"), "UTF-8"));
+			    for (double x = 0; x < 20; x+=0.1){
+			    	for(double y = -10; y < 45; y+=0.1){
+			    		Instance newIns = data.firstInstance();
+			    		newIns.setValue(0, x);
+			    		newIns.setValue(1, y);
+			    		if (cl.classifyInstance(newIns)==1){
+			    			writer.write(x+","+y+"\n");
+			    		}
+			    		if (cl.classifyInstance(newIns)==0){
+			    			writer2.write(x+","+y+"\n");
+			    		}
+			    	}
+			    }
+			    writer.close();
+			    writer2.close();
+			} catch (Exception e) {
+			   // do something
+			}
+			
+			
 			/**/
 			 
 		} catch (Exception e) {

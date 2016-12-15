@@ -263,8 +263,8 @@ public class LibSVM
   };
   
   /** the kernel type. */
-//  protected int m_KernelType = KERNELTYPE_RBF;
-  protected int m_KernelType = KERNELTYPE_LINEAR;
+  protected int m_KernelType = KERNELTYPE_RBF;
+//  protected int m_KernelType = KERNELTYPE_LINEAR;
   
   /** for poly - in older versions of libsvm declared as a double.
    * At least since 2.82 it is an int. */
