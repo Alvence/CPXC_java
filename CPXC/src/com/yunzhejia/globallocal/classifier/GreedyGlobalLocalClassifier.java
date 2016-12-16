@@ -31,7 +31,7 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 	private transient AbstractClassifier globalCL;
 	
 	protected double delta = 0f;
-	protected static ClassifierType globalType = ClassifierType.RANDOM_FOREST;
+	protected static ClassifierType globalType = ClassifierType.LOGISTIC;
 	/** type of decision classifier*/
 	protected ClassifierType localType = ClassifierType.LOGISTIC;
 
@@ -423,7 +423,7 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 //			adt.testDecisionClassifier(data);
 //			eval.evaluateModel(adt, data);
 //			System.out.println("accuracy of "+": " + eval.pctCorrect() + "%");
-//			eval.crossValidateModel(adt, data, 10, new Random(1));
+			eval.crossValidateModel(adt, data, 10, new Random(1));
 			
 			if (eval.pctCorrect() > bestAcc){
 				bestNumBin = bin;
@@ -438,13 +438,13 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 //			cl.buildClassifier(data);
 			Evaluation eval1 = new Evaluation(data);
 //			eval1.evaluateModel(cl, data);
-//			eval1.crossValidateModel(cl, data, 10, new Random(1));
+			eval1.crossValidateModel(cl, data, 10, new Random(1));
 			System.out.println("accuracy of "+": " + bestAcc + "%");
 			System.out.println("AUC of "+": " + bestAUC);
 			System.out.println("accuracy of global: " + eval1.pctCorrect() + "%");
 			System.out.println("AUC of global: " + eval1.weightedAreaUnderROC()+"  bin="+bestNumBin);
-			cl.buildClassifier(data);
-			try{
+			/*cl.buildClassifier(data);
+			
 			    Writer writer = new BufferedWriter(new OutputStreamWriter(
 			              new FileOutputStream("tmp/res"), "UTF-8"));
 			    Writer writer2 = new BufferedWriter(new OutputStreamWriter(
@@ -464,12 +464,10 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 			    }
 			    writer.close();
 			    writer2.close();
-			} catch (Exception e) {
-			   // do something
-			}
+		
 			
 			
-			/**/
+			*/
 			 
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
