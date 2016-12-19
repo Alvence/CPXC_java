@@ -14,9 +14,19 @@ public class Discretizer implements Serializable{
 
 	public static int SHIFT_SIZE = 10;
 	
+	private int defaultBin;
+	
 	private HashMap<Integer, List<Double>> cuttingPoints;
 	
 	private HashMap<Integer, List<String>> nominals;
+	
+	public Discretizer(){
+		this(10);
+	}
+	
+	public Discretizer(int defaultBin){
+		this.defaultBin = defaultBin;
+	}
 	
 	public void initialize(Instances data) throws Exception{
 		int[] nominalAttributes = nominalAttributeIndex(data);
@@ -37,6 +47,43 @@ public class Discretizer implements Serializable{
 		
 		
 	}
+	
+	public boolean isNumeric(int attrIndex){
+		return cuttingPoints.containsKey(new Integer(attrIndex));
+	}
+	
+	public int getAttributeIndex(int discretizedValue){
+		return discretizedValue >> SHIFT_SIZE;
+	}
+	
+	public int getValue(int discretizedValue){
+		return discretizedValue & ((1 << SHIFT_SIZE) -1);
+	}
+	
+	public String getNominal(int discretizedValue){
+		int attr = getAttributeIndex(discretizedValue);
+		int val = getValue(discretizedValue);
+		return nominals.get(attr).get(val);
+	}
+	
+	public double getLeft(int discretizedValue){
+		int attr = getAttributeIndex(discretizedValue);
+		int val = getValue(discretizedValue);
+		if(val == 0){
+			return Double.MIN_VALUE;
+		}
+		return cuttingPoints.get(attr).get(val-1);
+	}
+	
+	public double getRight(int discretizedValue){
+		int attr = getAttributeIndex(discretizedValue);
+		int val = getValue(discretizedValue);
+		if(val ==  cuttingPoints.get(attr).size()){
+			return Double.MAX_VALUE;
+		}
+		return cuttingPoints.get(attr).get(val);
+	}
+	
 	
 	public String getDiscretizedInstance(Instance ins){
 		String ret = "";
@@ -88,7 +135,7 @@ public class Discretizer implements Serializable{
 		weka.filters.unsupervised.attribute.Discretize discretizer = new weka.filters.unsupervised.attribute.Discretize();
 		discretizer.setAttributeIndicesArray(cuttingPointAttributes);
 		discretizer.setInputFormat(data);
-		discretizer.setBins(3);
+		discretizer.setBins(defaultBin);
 		weka.filters.supervised.attribute.Discretize.useFilter(data, discretizer);
 		
 		for(int index: cuttingPointAttributes){

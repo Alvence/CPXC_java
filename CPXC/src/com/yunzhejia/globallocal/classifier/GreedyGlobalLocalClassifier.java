@@ -10,10 +10,12 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
+import com.yunzhejia.cpxc.Discretizer;
 import com.yunzhejia.cpxc.util.ClassifierGenerator;
 import com.yunzhejia.cpxc.util.ClassifierGenerator.ClassifierType;
 import com.yunzhejia.pattern.IPattern;
 import com.yunzhejia.pattern.PatternSet;
+import com.yunzhejia.pattern.patternmining.GcGrowthPatternMiner;
 import com.yunzhejia.pattern.patternmining.IPatternMiner;
 import com.yunzhejia.pattern.patternmining.ParallelCoordinatesMiner;
 
@@ -72,6 +74,9 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 	    
 	    
 		//1, find the patterns;
+//	    Discretizer discretizer = new Discretizer();
+//		discretizer.initialize(trainingData);
+//		patternMiner = new GcGrowthPatternMiner(discretizer);
 		PatternSet ps = patternMiner.minePattern(data, minSupp);
 		partitions = new ArrayList<>();
 		for (int i = 0; i < ps.size();i++){
@@ -106,13 +111,13 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 //		}
 		partitions = filterPartition(partitions);
 		
-		int it1Size = partitions.size();
-		int it2Size = partitions.size();
-		do{
-			it1Size = partitions.size();
-			partitions = partitionMerge(partitions);
-			it2Size = partitions.size();
-		}while(it1Size != it2Size);
+//		int it1Size = partitions.size();
+//		int it2Size = partitions.size();
+//		do{
+//			it1Size = partitions.size();
+//			partitions = partitionMerge(partitions);
+//			it2Size = partitions.size();
+//		}while(it1Size != it2Size);
 		System.out.println(partitions.size());
 		for (Partition par:partitions){
 			System.out.println(par);
@@ -213,6 +218,7 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 		if(maxAdd > 1){
 			flags[a] = true;
 			flags[b] = true;
+			System.out.println("Combine "+partitions.get(a)+"   and  "+partitions.get(b));
 			Partition newpar = merge(partitions.get(a),partitions.get(b));
 			ret.add(newpar);
 		}
@@ -366,8 +372,7 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 			}
 			return false;
 		}
-		
-		
+
 		public boolean match(Instance ins, Set<IPattern> patterns){
 			for (IPattern p:patterns){
 				if(!p.match(ins)){
