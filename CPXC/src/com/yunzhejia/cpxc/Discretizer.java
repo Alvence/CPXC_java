@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import com.yunzhejia.cpxc.util.OutputUtils;
+
 import weka.core.Attribute;
 import weka.core.Instance;
 import weka.core.Instances;
@@ -45,11 +47,12 @@ public class Discretizer implements Serializable{
 		calculateCuttingPointsEq(data, nocuttingPointAttributes);
 		//System.out.println(cuttingPoints);
 		
+		OutputUtils.print(nominalAttributes);
 		
 	}
 	
 	public boolean isNumeric(int attrIndex){
-		return cuttingPoints.containsKey(new Integer(attrIndex));
+		return !nominals.containsKey(new Integer(attrIndex));
 	}
 	
 	public int getAttributeIndex(int discretizedValue){

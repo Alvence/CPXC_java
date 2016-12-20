@@ -90,7 +90,7 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 		Instances LE = new Instances(data,0);
 		Instances SE = new Instances(data,0);
 		divideData(trainingData,LE,SE);
-		writeData(LE);
+//		writeData(LE);
 		PatternSet ps = patternMiner.minePattern(LE, minSupp);
 //		partitions = pairwisePartition(ps,data);
 		
@@ -114,7 +114,7 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 		for (Partition par:partitions){
 			System.out.println(par);
 		}
-		
+//		
 		
 //		System.out.println("size="+partitions.size());
 //		globalCL = ClassifierGenerator.getClassifier(globalType);

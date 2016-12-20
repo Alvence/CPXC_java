@@ -101,9 +101,8 @@ public class GcGrowthPatternMiner implements IPatternMiner {
 					condition = new NumericCondition(attrName,attrIndex, left, right);
 				}else{
 					String value = discretizer.getNominal(disVal);
-					condition = new NominalCondition(attrName,i, value);
+					condition = new NominalCondition(attrName,attrIndex, value);
 				}
-				System.out.println(condition);
 				conditions.add(condition);
 			}
 		}
