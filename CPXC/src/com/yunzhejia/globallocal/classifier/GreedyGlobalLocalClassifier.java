@@ -92,7 +92,7 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 		divideData(trainingData,LE,SE);
 //		writeData(LE);
 		PatternSet ps = patternMiner.minePattern(LE, minSupp);
-//		partitions = pairwisePartition(ps,data);
+//		partitions = pairwisePartition(ps,trainingData);
 		
 		partitions = singlewisePartition(ps,trainingData);
 		
@@ -102,6 +102,7 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 //		}
 		partitions = contrastPartition(partitions, LE, SE);
 		partitions = filterPartition(partitions);
+		partitions = bruteForceWeight(partitions);
 //		partitions = mergePartition(partitions);
 		
 		System.out.println(partitions.size());
@@ -128,8 +129,67 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 		return ret;
 	}
 
-	private void bruteForceWeight(List<Partition> partitions){
-		
+	private List<Partition> bruteForceWeight(List<Partition> partitions) throws Exception{
+		List<Partition> ret = new ArrayList<>();
+		Random rand = new Random(1);
+		int maxIt = 10000;
+		int size = partitions.size();
+		List<Boolean> bestWeights = null;
+		double bestAcc = 0;
+		for (int i = 0; i < maxIt; i++){
+			List<Boolean> weights = new ArrayList<>();
+			for(int j = 0; j < size; j++){
+				weights.add(rand.nextBoolean());
+			}
+			for(int j = 0; j < size; j++){
+				partitions.get(j).active = weights.get(j);
+			}
+			double acc = eval(partitions);
+			if (bestAcc < acc){
+				bestWeights = weights;
+				bestAcc = acc;
+			}
+		}
+		for(int j = 0; j < size; j++){
+			if (bestWeights.get(j)){
+				partitions.get(j).active = true;
+				ret.add(partitions.get(j));
+			}
+		}
+		return ret;
+	}
+	
+	private double eval(List<Partition> partitions) throws Exception{
+		int acc = 0;
+		for (Instance instance:validationData){
+			double[] probs = new double[instance.numClasses()];
+			boolean flag = false;
+			for(int i = 0; i < probs.length; i++){
+				probs[i] = 0;
+			}
+			for (Partition par:partitions){
+				if(par.isActive() && par.match(instance)){
+					probs = add(probs, par.classifier.distributionForInstance(instance), par.weight);
+					flag = true;
+//					return par.classifier.distributionForInstance(instance);
+				}
+			}
+			if (!flag){
+				probs = globalCL.distributionForInstance(instance);
+			}
+			double max = 0;
+			int c = 0;
+			for(int i = 0; i < probs.length; i++){
+				if (probs[i]>max){
+					max = probs[i];
+					c = i;
+				}
+			}
+			if (c == instance.classValue()){
+				acc+= 1;
+			}
+		}
+		return acc*100.0/validationData.size();
 	}
 
 	private List<Partition> contrastPartition(List<Partition> partitions, Instances LE, Instances SE) {
@@ -510,7 +570,7 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 			probs[i] = 0;
 		}
 		for (Partition par:partitions){
-			if(par.match(instance)){
+			if(par.isActive() && par.match(instance)){
 				probs = add(probs, par.classifier.distributionForInstance(instance), par.weight);
 				flag = true;
 //				return par.classifier.distributionForInstance(instance);
@@ -538,9 +598,11 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 		private Instances data;
 		private AbstractClassifier classifier;
 		private double weight;
+		private boolean active;
 
 		public Partition() {
 			classifier = ClassifierGenerator.getClassifier(localType);
+			active = true;
 		}
 		
 		public boolean match(Instance ins){
@@ -559,6 +621,9 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 				}
 			}
 			return true;
+		}
+		public boolean isActive(){
+			return active;
 		}
 		
 		@Override
@@ -589,14 +654,14 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 			Instances data;
 	
 //			source = new DataSource("data/synthetic2.arff");
-//			source = new DataSource("data/ILPD.arff");
-			source = new DataSource("data/vote.arff");
+			source = new DataSource("data/blood.arff");
+//			source = new DataSource("data/iris.arff");
 			data = source.getDataSet();
 		
 			
 //			for (int bin = 2; bin < 30; bin+=2){
 			int bin = 20;
-				System.out.println(bin);
+			System.out.println(bin);
 			GreedyGlobalLocalClassifier adt = new GreedyGlobalLocalClassifier(0.01f,new ParallelCoordinatesMiner(bin));
 			
 			if (data.classIndex() == -1){

@@ -47,13 +47,13 @@ public class Discretizer implements Serializable{
 		calculateCuttingPointsEq(data, nocuttingPointAttributes);
 		//System.out.println(cuttingPoints);
 		
-		OutputUtils.print(nominalAttributes);
-		for(int attr: nominals.keySet()){
-			for(String val: nominals.get(attr)){
-				System.out.println(attr+"  "+val);
-			}
-		}
-		
+//		OutputUtils.print(nominalAttributes);
+//		for(int attr: nominals.keySet()){
+//			for(String val: nominals.get(attr)){
+//				System.out.println(attr+"  "+val);
+//			}
+//		}
+//		
 	}
 	
 	public boolean isNumeric(int attrIndex){
@@ -105,7 +105,6 @@ public class Discretizer implements Serializable{
 				ret += getDiscretizedValue(j, ins.stringValue(j))+(j<<SHIFT_SIZE)+" ";
 			}
 		}
-		System.out.println(ins+"   d="+ret);
 		return ret;
 	}
 	

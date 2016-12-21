@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.PrintWriter;
+import java.net.StandardSocketOptions;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -53,7 +54,7 @@ public class GcGrowthPatternMiner implements IPatternMiner {
 			String[] cmd = {"program\\GcGrowth.exe", tmpFile,(int)(minSupp*data.numInstances())+"","tmp\\output" };
 			Process process = new ProcessBuilder(cmd).start();
 			//wait until the program terminates
-			while(isRunning(process)){}
+			while(isRunning(process)){;}
 			ps = new PatternSet();
 			
 			BufferedReader br = new BufferedReader(new FileReader(patternFile));
