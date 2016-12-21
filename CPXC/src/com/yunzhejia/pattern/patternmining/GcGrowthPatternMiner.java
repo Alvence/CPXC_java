@@ -123,7 +123,7 @@ public static void main(String[] args){
 	try {
 		DataSource source;
 		Instances data;
-		source = new DataSource("data/synthetic2.arff");
+		source = new DataSource("data/vote.arff");
 //		source = new DataSource("data/blood.arff");
 //		source = new DataSource("data/iris.arff");
 		data = source.getDataSet();
@@ -138,9 +138,9 @@ public static void main(String[] args){
 			IPatternMiner patternMiner = new GcGrowthPatternMiner(discretizer);
 			PatternSet ps = patternMiner.minePattern(data, 0.01);
 			System.out.println(ps.size());
-			for (IPattern p:ps){
-				System.out.println(p);
-			}
+//			for (IPattern p:ps){
+//				System.out.println(p);
+//			}
 		
 	} catch (Exception e) {
 		// TODO Auto-generated catch block

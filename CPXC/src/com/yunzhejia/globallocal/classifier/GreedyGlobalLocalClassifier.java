@@ -102,14 +102,8 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 //		}
 		partitions = contrastPartition(partitions, LE, SE);
 		partitions = filterPartition(partitions);
+//		partitions = mergePartition(partitions);
 		
-		int it1Size = partitions.size();
-		int it2Size = partitions.size();
-		do{
-			it1Size = partitions.size();
-			partitions = partitionMerge(partitions);
-			it2Size = partitions.size();
-		}while(it1Size != it2Size);
 		System.out.println(partitions.size());
 		for (Partition par:partitions){
 			System.out.println(par);
@@ -120,8 +114,24 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 //		globalCL = ClassifierGenerator.getClassifier(globalType);
 		Instances globalData = getGlobalData(trainingData);
 		if(globalData.size()>0)
-		globalCL.buildClassifier(globalData);
+			globalCL.buildClassifier(globalData);
 	}
+	private List<Partition> mergePartition(List<Partition> partitions) throws Exception {
+		List<Partition> ret = new ArrayList<>();
+		int it1Size = partitions.size();
+		int it2Size = partitions.size();
+		do{
+			it1Size = partitions.size();
+			partitions = partitionMerge(partitions);
+			it2Size = partitions.size();
+		}while(it1Size != it2Size);
+		return ret;
+	}
+
+	private void bruteForceWeight(List<Partition> partitions){
+		
+	}
+
 	private List<Partition> contrastPartition(List<Partition> partitions, Instances LE, Instances SE) {
 		List<Partition> ret = new ArrayList<>();
 		for(Partition partition:partitions){
@@ -579,8 +589,8 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 			Instances data;
 	
 //			source = new DataSource("data/synthetic2.arff");
-			source = new DataSource("data/ILPD.arff");
-//			source = new DataSource("data/iris.arff");
+//			source = new DataSource("data/ILPD.arff");
+			source = new DataSource("data/vote.arff");
 			data = source.getDataSet();
 		
 			

@@ -48,6 +48,11 @@ public class Discretizer implements Serializable{
 		//System.out.println(cuttingPoints);
 		
 		OutputUtils.print(nominalAttributes);
+		for(int attr: nominals.keySet()){
+			for(String val: nominals.get(attr)){
+				System.out.println(attr+"  "+val);
+			}
+		}
 		
 	}
 	
@@ -56,11 +61,11 @@ public class Discretizer implements Serializable{
 	}
 	
 	public int getAttributeIndex(int discretizedValue){
-		return discretizedValue >> SHIFT_SIZE;
+		return (discretizedValue >> SHIFT_SIZE);
 	}
 	
 	public int getValue(int discretizedValue){
-		return discretizedValue & ((1 << SHIFT_SIZE) -1);
+		return (discretizedValue & ((1 << SHIFT_SIZE) -1));
 	}
 	
 	public String getNominal(int discretizedValue){
@@ -91,7 +96,7 @@ public class Discretizer implements Serializable{
 	public String getDiscretizedInstance(Instance ins){
 		String ret = "";
 		for (int j = 0; j < ins.numAttributes(); j++){
-			if (j == ins.classIndex()){
+			if (j == ins.classIndex() || ins.isMissing(j)){
 				continue;
 			}
 			if (ins.attribute(j).isNumeric()){
@@ -100,6 +105,7 @@ public class Discretizer implements Serializable{
 				ret += getDiscretizedValue(j, ins.stringValue(j))+(j<<SHIFT_SIZE)+" ";
 			}
 		}
+		System.out.println(ins+"   d="+ret);
 		return ret;
 	}
 	
@@ -108,7 +114,7 @@ public class Discretizer implements Serializable{
 	}
 	
 	public int getDiscretizedValue(int attrIndex, Object attrVal){
-		if (cuttingPoints.keySet().contains(attrIndex)){
+		if (!nominals.keySet().contains(attrIndex)){
 			return getNumericDiscretizedValue(attrIndex, attrVal);
 		} else{
 			return getNominalDiscretizedValue(attrIndex, attrVal);
