@@ -34,7 +34,7 @@ public class GcGrowthPatternMiner implements IPatternMiner {
 	public PatternSet minePattern(Instances data, double minSupp, int featureId) {
 		// TODO Auto-generated method stub
 		return null;
-	}
+	}	
 	
 	@Override
 	public PatternSet minePattern(Instances data,  double minSupp){

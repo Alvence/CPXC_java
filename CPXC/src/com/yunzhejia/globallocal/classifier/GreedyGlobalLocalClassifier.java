@@ -38,7 +38,7 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 	private transient AbstractClassifier globalCL;
 	
 	protected double delta = -1f;
-	protected static ClassifierType globalType = ClassifierType.NAIVE_BAYES;
+	protected static ClassifierType globalType = ClassifierType.LOGISTIC;
 	/** type of decision classifier*/
 	protected ClassifierType localType = ClassifierType.LOGISTIC;
 
@@ -95,12 +95,8 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 //		partitions = pairwisePartition(ps,trainingData);
 		
 		partitions = singlewisePartition(ps,trainingData);
-		
-//		System.out.println(partitions.size());
-//		for (Partition par:partitions){
-//			System.out.println(par);
-//		}
-		partitions = contrastPartition(partitions, LE, SE);
+
+//		partitions = contrastPartition(partitions, LE, SE);
 		partitions = filterPartition(partitions);
 		partitions = bruteForceWeight(partitions);
 //		partitions = mergePartition(partitions);
@@ -114,8 +110,11 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 //		System.out.println("size="+partitions.size());
 //		globalCL = ClassifierGenerator.getClassifier(globalType);
 		Instances globalData = getGlobalData(trainingData);
-		if(globalData.size()>0)
+		if(globalData.size()>0){
 			globalCL.buildClassifier(globalData);
+		}else{
+			System.out.println("No ");
+		}
 	}
 	private List<Partition> mergePartition(List<Partition> partitions) throws Exception {
 		List<Partition> ret = new ArrayList<>();
@@ -653,8 +652,8 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 			DataSource source;
 			Instances data;
 	
-//			source = new DataSource("data/synthetic2.arff");
-			source = new DataSource("data/blood.arff");
+			source = new DataSource("data/synthetic2.arff");
+//			source = new DataSource("data/blood.arff");
 //			source = new DataSource("data/iris.arff");
 			data = source.getDataSet();
 		
