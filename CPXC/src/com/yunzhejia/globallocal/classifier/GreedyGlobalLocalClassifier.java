@@ -98,7 +98,7 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 		partitions = singlewisePartition(ps,trainingData);
 
 //		partitions = contrastPartition(partitions, LE, SE);
-		partitions = filterPartition(partitions);
+//		partitions = filterPartition(partitions);
 //		partitions = bruteForceWeight(partitions);
 //		partitions = mergePartition(partitions);
 		

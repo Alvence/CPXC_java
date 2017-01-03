@@ -2094,3 +2094,10 @@ FGGrowth-FBd tmp/dataForPattern.txt 0.743494 3 20 20 0	0.01	10.64MB 0.03MB 0.03M
 FGGrowth-FBd tmp/dataForPattern.txt 0.766284 2 14 14 0	0.00	10.64MB 0.03MB 0.03MB	
 FGGrowth-FBd tmp/dataForPattern.txt 0.766284 2 14 14 0	0.01	10.64MB 0.03MB 0.03MB	
 FGGrowth-FBd tmp/dataForPattern.txt 0.766284 2 14 14 0	0.00	10.64MB 0.03MB 0.03MB	
+FGGrowth-FBd tmp/dataForPattern.txt 0.766284 2 14 14 0	0.01	10.64MB 0.03MB 0.03MB	
+FGGrowth-FBd tmp/dataForPattern.txt 0.766284 2 14 14 0	0.01	10.64MB 0.03MB 0.03MB	
+FGGrowth-FBd tmp/dataForPattern.txt 0.766284 2 14 14 0	0.01	10.64MB 0.03MB 0.03MB	
+FGGrowth-FBd tmp/dataForPattern.txt 0.766284 2 14 14 0	0.01	10.64MB 0.03MB 0.03MB	
+FGGrowth-FBd tmp/dataForPattern.txt 0.743494 3 20 20 0	0.01	10.64MB 0.03MB 0.03MB	
+FGGrowth-FBd tmp/dataForPattern.txt 0.740741 2 16 16 0	0.01	10.64MB 0.03MB 0.03MB	
+FGGrowth-FBd tmp/dataForPattern.txt 0.766284 2 14 14 0	0.01	10.64MB 0.03MB 0.03MB	
