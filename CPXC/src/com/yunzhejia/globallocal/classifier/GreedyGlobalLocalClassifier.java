@@ -13,12 +13,13 @@ import java.util.Set;
 import com.yunzhejia.cpxc.Discretizer;
 import com.yunzhejia.cpxc.util.ClassifierGenerator;
 import com.yunzhejia.cpxc.util.ClassifierGenerator.ClassifierType;
-import com.yunzhejia.cpxc.util.OutputUtils;
+import com.yunzhejia.partition.IPartitionWeighting;
+import com.yunzhejia.partition.Partition;
+import com.yunzhejia.partition.SimulatedAnnealingWeighting;
 import com.yunzhejia.pattern.IPattern;
 import com.yunzhejia.pattern.PatternSet;
 import com.yunzhejia.pattern.patternmining.GcGrowthPatternMiner;
 import com.yunzhejia.pattern.patternmining.IPatternMiner;
-import com.yunzhejia.pattern.patternmining.ManualPatternMiner;
 import com.yunzhejia.pattern.patternmining.ParallelCoordinatesMiner;
 
 import weka.classifiers.AbstractClassifier;
@@ -66,11 +67,11 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 	    Instances datate = new Instances(data);
 	    Random random = new Random(1);
 	    datate.randomize(random);
-	    if (data.classAttribute().isNominal()) {
-	      data.stratify(4);
+	    if (datate.classAttribute().isNominal()) {
+	    	datate.stratify(4);
 	    }
-	    trainingData = data.trainCV(4, 1, random);
-	    validationData = data.testCV(4, 1);
+	    trainingData = datate.trainCV(4, 1, random);
+	    validationData = datate.testCV(4, 1);
 //	    System.out.println("training size="+trainingData.size()+"  validation size="+validationData.size());
 //	    System.out.println(validationData);
 	    AbstractClassifier tempgcl = ClassifierGenerator.getClassifier(globalType);
@@ -98,8 +99,11 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 
 //		partitions = contrastPartition(partitions, LE, SE);
 		partitions = filterPartition(partitions);
-		partitions = bruteForceWeight(partitions);
+//		partitions = bruteForceWeight(partitions);
 //		partitions = mergePartition(partitions);
+		
+		IPartitionWeighting weighter = new SimulatedAnnealingWeighting(200000);
+		partitions = weighter.calcWeight(partitions, tempgcl, validationData);
 		
 		System.out.println(partitions.size());
 		for (Partition par:partitions){
@@ -113,7 +117,7 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 		if(globalData.size()>0){
 			globalCL.buildClassifier(globalData);
 		}else{
-			System.out.println("No ");
+			System.out.println("No training Data for global");
 		}
 	}
 	private List<Partition> mergePartition(List<Partition> partitions) throws Exception {
@@ -128,68 +132,7 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 		return ret;
 	}
 
-	private List<Partition> bruteForceWeight(List<Partition> partitions) throws Exception{
-		List<Partition> ret = new ArrayList<>();
-		Random rand = new Random(1);
-		int maxIt = 10000;
-		int size = partitions.size();
-		List<Boolean> bestWeights = null;
-		double bestAcc = 0;
-		for (int i = 0; i < maxIt; i++){
-			List<Boolean> weights = new ArrayList<>();
-			for(int j = 0; j < size; j++){
-				weights.add(rand.nextBoolean());
-			}
-			for(int j = 0; j < size; j++){
-				partitions.get(j).active = weights.get(j);
-			}
-			double acc = eval(partitions);
-			if (bestAcc < acc){
-				bestWeights = weights;
-				bestAcc = acc;
-			}
-		}
-		for(int j = 0; j < size; j++){
-			if (bestWeights.get(j)){
-				partitions.get(j).active = true;
-				ret.add(partitions.get(j));
-			}
-		}
-		return ret;
-	}
 	
-	private double eval(List<Partition> partitions) throws Exception{
-		int acc = 0;
-		for (Instance instance:validationData){
-			double[] probs = new double[instance.numClasses()];
-			boolean flag = false;
-			for(int i = 0; i < probs.length; i++){
-				probs[i] = 0;
-			}
-			for (Partition par:partitions){
-				if(par.isActive() && par.match(instance)){
-					probs = add(probs, par.classifier.distributionForInstance(instance), par.weight);
-					flag = true;
-//					return par.classifier.distributionForInstance(instance);
-				}
-			}
-			if (!flag){
-				probs = globalCL.distributionForInstance(instance);
-			}
-			double max = 0;
-			int c = 0;
-			for(int i = 0; i < probs.length; i++){
-				if (probs[i]>max){
-					max = probs[i];
-					c = i;
-				}
-			}
-			if (c == instance.classValue()){
-				acc+= 1;
-			}
-		}
-		return acc*100.0/validationData.size();
-	}
 
 	private List<Partition> contrastPartition(List<Partition> partitions, Instances LE, Instances SE) {
 		List<Partition> ret = new ArrayList<>();
@@ -298,11 +241,12 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 				List<Set<IPattern>> localPatternSetList = new ArrayList<>();
 				localPatternSetList.add(localPatterns);
 				Partition newPartition = new Partition();
-				newPartition.data = partitionData;
-				newPartition.patternSetList = localPatternSetList;
-				newPartition.classifier.buildClassifier(partitionData);
-				newPartition.weight = newPartition.data.size()*1.0 / data.size();
-				if(newPartition.data.size()>=data.numAttributes())
+				newPartition.setClassifier(ClassifierGenerator.getClassifier(localType));
+				newPartition.setData(partitionData);;
+				newPartition.setPatternSetList(localPatternSetList);;
+				newPartition.getClassifier().buildClassifier(partitionData);
+				newPartition.setWeight(newPartition.getData().size()*1.0 / data.size());;
+				if(newPartition.getData().size()>=data.numAttributes())
 					partitions.add(newPartition);
 			}
 		}
@@ -322,11 +266,12 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 			List<Set<IPattern>> localPatternSetList = new ArrayList<>();
 			localPatternSetList.add(localPatterns);
 			Partition newPartition = new Partition();
-			newPartition.data = partitionData;
-			newPartition.patternSetList = localPatternSetList;
-			newPartition.classifier.buildClassifier(partitionData);
-			newPartition.weight = eval(newPartition) - globalAcc;
-			if(newPartition.data.size()>=data.numAttributes() && newPartition.weight>0)
+			newPartition.setClassifier(ClassifierGenerator.getClassifier(localType));
+			newPartition.setData(partitionData);;
+			newPartition.setPatternSetList(localPatternSetList);;
+			newPartition.getClassifier().buildClassifier(partitionData);
+			newPartition.setWeight(eval(newPartition) - globalAcc);
+			if(newPartition.getData().size()>=data.numAttributes() && newPartition.getWeight()>0)
 				partitions.add(newPartition);
 		}
 		return partitions;
@@ -454,23 +399,23 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 	private Partition merge(Partition par1, Partition par2) throws Exception{
 		Partition newPartition = new Partition();
 		List<Set<IPattern>> ps = new ArrayList<>();
-		for(Set<IPattern> p:par1.patternSetList){
+		for(Set<IPattern> p:par1.getPatternSetList()){
 			ps.add(p);
 		}
-		for(Set<IPattern> p:par2.patternSetList){
+		for(Set<IPattern> p:par2.getPatternSetList()){
 			ps.add(p);
 		}
-		Instances data = new Instances(par1.data, 0);
-		for(Instance ins:par1.data){
+		Instances data = new Instances(par1.getData(), 0);
+		for(Instance ins:par1.getData()){
 			data.add(ins);
 		}
-		for(Instance ins:par2.data){
+		for(Instance ins:par2.getData()){
 			data.add(ins);
 		}
-		newPartition.patternSetList = ps;
-		newPartition.data = data;
-		newPartition.weight = par1.weight+par2.weight;
-		newPartition.classifier.buildClassifier(data);
+		newPartition.setPatternSetList(ps);
+		newPartition.setData(data);
+		newPartition.setWeight(par1.getWeight()+par2.getWeight());
+		newPartition.getClassifier().buildClassifier(data);
 		return newPartition;
 	}
 	
@@ -504,8 +449,8 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 		for(Instance testIns:validationData){
 			double pre = 0;
 			if(partition.match(testIns)){
-				pre = partition.classifier.classifyInstance(testIns);
-				probs = partition.classifier.distributionForInstance(testIns);
+				pre = partition.getClassifier().classifyInstance(testIns);
+				probs = partition.getClassifier().distributionForInstance(testIns);
 			}else{
 				pre = gcl.classifyInstance(testIns);
 				probs = gcl.distributionForInstance(testIns);
@@ -547,9 +492,9 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 		for(Instance testIns:validationData){
 			double pre = 0;
 			if(par1.match(testIns)){
-				pre = par1.classifier.classifyInstance(testIns);
+				pre = par1.getClassifier().classifyInstance(testIns);
 			} else if(par1.match(testIns)){
-				pre = par2.classifier.classifyInstance(testIns);
+				pre = par2.getClassifier().classifyInstance(testIns);
 			}else{
 				pre = gcl.classifyInstance(testIns);
 			}
@@ -570,7 +515,7 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 		}
 		for (Partition par:partitions){
 			if(par.isActive() && par.match(instance)){
-				probs = add(probs, par.classifier.distributionForInstance(instance), par.weight);
+				probs = add(probs, par.getClassifier().distributionForInstance(instance), par.getWeight());
 				flag = true;
 //				return par.classifier.distributionForInstance(instance);
 			}
@@ -592,56 +537,7 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 		return arr1;
 	}
 	
-	public class Partition {
-		private List<Set<IPattern>> patternSetList;
-		private Instances data;
-		private AbstractClassifier classifier;
-		private double weight;
-		private boolean active;
-
-		public Partition() {
-			classifier = ClassifierGenerator.getClassifier(localType);
-			active = true;
-		}
 		
-		public boolean match(Instance ins){
-			for (Set<IPattern> patternSet:patternSetList){
-				if (match(ins, patternSet)){
-					return true;
-				}
-			}
-			return false;
-		}
-
-		public boolean match(Instance ins, Set<IPattern> patterns){
-			for (IPattern p:patterns){
-				if(!p.match(ins)){
-					return false;
-				}
-			}
-			return true;
-		}
-		public boolean isActive(){
-			return active;
-		}
-		
-		@Override
-		public String toString(){
-			String ret = "";
-			for (Set<IPattern> patternSet:patternSetList){
-				ret+="{";
-				for (IPattern p:patternSet){
-					ret+= p.toString()+" ";
-				}
-				ret+="}";
-			}
-			ret+=" weight ="+ weight;
-			ret+=" data size="+data.size();
-			return ret;
-		}
-
-	}
-	
 	public static void main(String[] args){
 		int bestNumBin = -1;
 		double bestAcc = 0;
