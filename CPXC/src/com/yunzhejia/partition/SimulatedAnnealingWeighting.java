@@ -18,9 +18,9 @@ public class SimulatedAnnealingWeighting implements IPartitionWeighting {
 	private Map<Instance, List<Double>> probsOfGlobal;
 
 	private int maxIt;
-	private double stepSize = 0.2;
+	private double stepSize = 0.1;
 	private double initialTemperature = 100;
-	private double temperatureDeclineRate = 0.95;
+	private double temperatureDeclineRate = 0.99;
 
 	public SimulatedAnnealingWeighting() {
 		this(10000);
@@ -39,6 +39,7 @@ public class SimulatedAnnealingWeighting implements IPartitionWeighting {
 		double temperature = initialTemperature;
 		// randomly generate initial weights
 		for (int i = 0; i < partitions.size(); i++) {
+//			current.add(Math.random()>0.5?1.0:0.0);
 			current.add(Math.random());
 		}
 		ArrayUtils.normalize(current);
@@ -53,12 +54,15 @@ public class SimulatedAnnealingWeighting implements IPartitionWeighting {
 				bestVal = neiVal;
 				bestWeights = nei;
 			}
+//			System.out.print("get cur:  ");
+//			OutputUtils.print(current);
+//			System.out.print("get neighbour:  ");
+//			OutputUtils.print(nei);
 			if (acceptProposal(currentVal, neiVal, temperature)) {
 				current = nei;
 				currentVal = neiVal;
 			}
-//			System.out.print("get neighbour:  ");
-//			OutputUtils.print(nei);
+			
 //			System.out.println("accept? " + (acceptProposal(currentVal, neiVal, temperature) ? "true" : "false"));
 			iteration++;
 			temperature = temperatureDeclineRate * temperature;
@@ -82,7 +86,9 @@ public class SimulatedAnnealingWeighting implements IPartitionWeighting {
 
 		if (nei.get(moveIndex) == 0) {
 			nei.set(moveIndex, val + stepSize);
+//			nei.set(moveIndex, 1.0);
 		} else {
+//			nei.set(moveIndex, 0.0);
 			int sign = Math.random() > 0.5 ? -1 : 1;
 			double newVal = val + sign * stepSize;
 			if (newVal < 0) {
@@ -104,8 +110,8 @@ public class SimulatedAnnealingWeighting implements IPartitionWeighting {
 			return false;
 		}
 		prob = Math.exp((proposal - current) / temperature);
-		System.out
-				.println("proposal=" + proposal + "  current=" + current + "  temp=" + temperature + "   prob=" + prob);
+//		System.out
+//				.println("proposal=" + proposal + "  current=" + current + "  temp=" + temperature + "   prob=" + prob);
 		return Math.random() < prob;
 	}
 
@@ -146,14 +152,18 @@ public class SimulatedAnnealingWeighting implements IPartitionWeighting {
 			for (int i = 0; i < probs.length; i++) {
 				probs[i] = 0.0;
 			}
-			for (int i = 0; i > partitions.size(); i++) {
+			for (int i = 0; i < partitions.size(); i++) {
 				Partition par = partitions.get(i);
-				if (par.match(instance)) {
+				
+				if ( weights.get(i)>0.0&&par.match(instance)) {
 					probs = add(probs, probsOfParitions.get(par).get(instance).toArray(probs), weights.get(i));
 					// probs = add(probs,
 					// par.getClassifier().distributionForInstance(instance),
 					// weights.get(i));
 					flag = true;
+//					System.out.println("ins="+instance+"   par="+par+"  class="+instance.classValue());
+//					System.out.println("PAR= "+probsOfParitions.get(par).get(instance));
+//					System.out.println("GLO= "+probsOfGlobal.get(instance));
 					// return par.classifier.distributionForInstance(instance);
 				}
 			}
@@ -172,7 +182,7 @@ public class SimulatedAnnealingWeighting implements IPartitionWeighting {
 				acc += 1;
 			}
 		}
-		System.out.println(acc*100.0/validationData.size());
+//		System.out.println(weights+"   "+acc*100.0/validationData.size());
 		return acc * 100.0 / validationData.size();
 	}
 

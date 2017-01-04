@@ -26,9 +26,13 @@ public class ManualPatternMiner implements IPatternMiner {
 		condition = new NumericCondition("x",0, 14, 16);
 		IPattern p3 = new Pattern(condition);
 		
+		condition = new NumericCondition("x",0, 10, 14);
+		IPattern p4 = new Pattern(condition);
+		
 		ps.add(p1);
 		ps.add(p2);
 		ps.add(p3);
+		ps.add(p4);
 		return ps;
 	}
 

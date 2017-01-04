@@ -170,7 +170,7 @@ public class SparseInstance extends AbstractInstance {
    */
   public SparseInstance(double weight, double[] attValues, int[] indices,
     int maxNumValues) {
-
+	  id = Random.nextID();
     int vals = 0;
     m_AttValues = new double[attValues.length];
     m_Indices = new int[indices.length];
@@ -203,7 +203,7 @@ public class SparseInstance extends AbstractInstance {
    * @param numAttributes the size of the instance
    */
   public SparseInstance(int numAttributes) {
-
+	  id = Random.nextID();
     m_AttValues = new double[numAttributes];
     m_NumAttributes = numAttributes;
     m_Indices = new int[numAttributes];
