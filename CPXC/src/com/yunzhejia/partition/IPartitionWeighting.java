@@ -6,5 +6,5 @@ import weka.classifiers.AbstractClassifier;
 import weka.core.Instances;
 
 public interface IPartitionWeighting {
-	public List<Partition> calcWeight(List<Partition> partitions, AbstractClassifier globalCL, Instances validationData) throws Exception ;
+	public List<IPartition> calcWeight(List<IPartition> partitions, AbstractClassifier globalCL, Instances validationData) throws Exception ;
 }

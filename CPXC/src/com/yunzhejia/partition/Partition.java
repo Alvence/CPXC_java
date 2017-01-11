@@ -11,7 +11,7 @@ import weka.classifiers.AbstractClassifier;
 import weka.core.Instance;
 import weka.core.Instances;
 
-public class Partition {
+public class Partition implements IPartition{
 	private List<Set<IPattern>> patternSetList;
 	private Instances data;
 	private AbstractClassifier classifier;
@@ -33,7 +33,7 @@ public class Partition {
 		return false;
 	}
 
-	public boolean match(Instance ins, Set<IPattern> patterns){
+	private boolean match(Instance ins, Set<IPattern> patterns){
 		for (IPattern p:patterns){
 			if(!p.match(ins)){
 				return false;

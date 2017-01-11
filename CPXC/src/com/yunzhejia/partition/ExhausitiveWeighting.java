@@ -14,7 +14,7 @@ import weka.core.Instances;
 
 public class ExhausitiveWeighting implements IPartitionWeighting {
 
-	private Map<Partition, Map<Instance, List<Double>>> probsOfParitions;
+	private Map<IPartition, Map<Instance, List<Double>>> probsOfParitions;
 	private Map<Instance, List<Double>> probsOfGlobal;
 	
 	public ExhausitiveWeighting() {
@@ -22,11 +22,11 @@ public class ExhausitiveWeighting implements IPartitionWeighting {
 	}
 
 	@Override
-	public List<Partition> calcWeight(List<Partition> partitions, AbstractClassifier globalCL,
+	public List<IPartition> calcWeight(List<IPartition> partitions, AbstractClassifier globalCL,
 			Instances validationData) throws Exception {
 		calcProbs(partitions, globalCL, validationData);
 		
-		List<Partition> ret = new ArrayList<>();
+		List<IPartition> ret = new ArrayList<>();
 		Random rand = new Random(1);
 		int maxIt = 10000;
 		int size = partitions.size();
@@ -55,11 +55,11 @@ public class ExhausitiveWeighting implements IPartitionWeighting {
 		return ret;
 	}
 	
-	private void calcProbs(List<Partition> partitions, AbstractClassifier globalCL, Instances validationData) throws Exception{
+	private void calcProbs(List<IPartition> partitions, AbstractClassifier globalCL, Instances validationData) throws Exception{
 		probsOfGlobal = new HashMap<>();
 		probsOfParitions = new HashMap<>();
 		
-		for (Partition partition: partitions){
+		for (IPartition partition: partitions){
 			probsOfParitions.put(partition, new HashMap<Instance, List<Double>>());
 		}
 		
@@ -71,7 +71,7 @@ public class ExhausitiveWeighting implements IPartitionWeighting {
 		}
 		
 		//calc probs of partitions
-		for (Partition par: partitions){
+		for (IPartition par: partitions){
 			Map<Instance, List<Double>> probsOfPartition = new HashMap<>();
 			for (Instance instance: validationData){
 				List<Double> probOfPartition = new ArrayList<>();
@@ -84,7 +84,7 @@ public class ExhausitiveWeighting implements IPartitionWeighting {
 	
 	
 
-	private double eval(List<Partition> partitions, AbstractClassifier globalCL, Instances validationData) throws Exception{
+	private double eval(List<IPartition> partitions, AbstractClassifier globalCL, Instances validationData) throws Exception{
 		int acc = 0;
 		for (Instance instance:validationData){
 			Double[] probs = new Double[instance.numClasses()];
@@ -92,7 +92,7 @@ public class ExhausitiveWeighting implements IPartitionWeighting {
 			for(int i = 0; i < probs.length; i++){
 				probs[i] = 0.0;
 			}
-			for (Partition par:partitions){
+			for (IPartition par:partitions){
 				if(par.isActive() && par.match(instance)){
 					probs = add(probs, probsOfParitions.get(par).get(instance).toArray(probs), par.getWeight());
 					flag = true;

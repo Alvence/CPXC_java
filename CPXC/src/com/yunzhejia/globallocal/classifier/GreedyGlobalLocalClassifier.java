@@ -13,6 +13,7 @@ import java.util.Set;
 import com.yunzhejia.cpxc.Discretizer;
 import com.yunzhejia.cpxc.util.ClassifierGenerator;
 import com.yunzhejia.cpxc.util.ClassifierGenerator.ClassifierType;
+import com.yunzhejia.partition.IPartition;
 import com.yunzhejia.partition.IPartitionWeighting;
 import com.yunzhejia.partition.Partition;
 import com.yunzhejia.partition.SimulatedAnnealingWeighting;
@@ -35,7 +36,7 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 	private double minRatio = 3;
 	private double rho = 0.55;
 	private IPatternMiner patternMiner;
-	private transient List<Partition> partitions;
+	private transient List<IPartition> partitions;
 	private transient AbstractClassifier globalCL;
 	
 	protected double delta = -1f;
@@ -93,7 +94,7 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 		Instances LE = new Instances(data,0);
 		Instances SE = new Instances(data,0);
 		divideData(trainingData,LE,SE);
-		writeData(LE);
+//		writeData(LE);
 		PatternSet ps = patternMiner.minePattern(LE, minSupp);
 //		partitions = pairwisePartition(ps,trainingData);
 		partitions = singlewisePartition(ps,trainingData);
@@ -102,14 +103,15 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 		
 		System.out.println(partitions.size());
 //		partitions = bruteForceWeight(partitions);
-		partitions = mergePartition(partitions);
+//		partitions = mergePartition(partitions);
 		System.out.println(partitions.size());
 //		partitions = filterPartition(partitions);
-		IPartitionWeighting weighter = new SimulatedAnnealingWeighting(100);
-		partitions = weighter.calcWeight(partitions, tempgcl, trainingData);
-		
+		if(partitions.size()>0){
+			IPartitionWeighting weighter = new SimulatedAnnealingWeighting(1000);
+			partitions = weighter.calcWeight(partitions, tempgcl, trainingData);
+		}
 		System.out.println(partitions.size());
-		for (Partition par:partitions){
+		for (IPartition par:partitions){
 			System.out.println(par);
 		}
 //		
@@ -124,8 +126,8 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 //			System.out.println("No training Data for global");
 //		}
 	}
-	private List<Partition> mergePartition(List<Partition> partitions) throws Exception {
-		List<Partition> ret = new ArrayList<>();
+	private List<IPartition> mergePartition(List<IPartition> partitions) throws Exception {
+		List<IPartition> ret = new ArrayList<>();
 		int it1Size = partitions.size();
 		int it2Size = partitions.size();
 		do{
@@ -256,8 +258,8 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 	}
 
 	//find the partition corresponding to a single pattern
-	private List<Partition> singlewisePartition(PatternSet ps, Instances data) throws Exception {
-		List<Partition> partitions = new ArrayList<>();
+	private List<IPartition> singlewisePartition(PatternSet ps, Instances data) throws Exception {
+		List<IPartition> partitions = new ArrayList<>();
 		for(IPattern pattern:ps){
 			Instances partitionData =  getMDS(pattern, data);
 			if (partitionData==null || partitionData.size()==0){
@@ -305,7 +307,7 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 		Instances ret = new Instances(data,0);
 		for (Instance ins : data){
 			boolean flag = false;
-			for (Partition par:partitions){
+			for (IPartition par:partitions){
 				if(par.match(ins)){
 					flag = true;
 				}
@@ -347,8 +349,8 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 		return ret;
 	}
 	
-	private List<Partition> partitionMerge(List<Partition> partitions) throws Exception{
-		List<Partition> ret = new ArrayList<>();
+	private List<IPartition> partitionMerge(List<IPartition> partitions) throws Exception{
+		List<IPartition> ret = new ArrayList<>();
 		boolean [] flags = new boolean[partitions.size()];
 		for(int i = 0; i < flags.length; i++){
 			flags[i] = false;
@@ -362,8 +364,8 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 				if (flags[i]||flags[j]){
 					continue;
 				}
-				Partition par1 = partitions.get(i);
-				Partition par2 = partitions.get(j);
+				IPartition par1 = partitions.get(i);
+				IPartition par2 = partitions.get(j);
 				
 //				if (canMerge(par1,par2)){
 //					flags[i] = true;
@@ -387,7 +389,7 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 			flags[a] = true;
 			flags[b] = true;
 			System.out.println("Combine "+partitions.get(a)+"   and  "+partitions.get(b));
-			Partition newpar = merge(partitions.get(a),partitions.get(b));
+			IPartition newpar = merge(partitions.get(a),partitions.get(b));
 			ret.add(newpar);
 		}
 		for (int i = 0; i < flags.length; i++){
@@ -398,8 +400,8 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 		return ret;
 	}
 	
-	private Partition merge(Partition par1, Partition par2) throws Exception{
-		Partition newPartition = new Partition();
+	private IPartition merge(IPartition par1, IPartition par2) throws Exception{
+		IPartition newPartition = new Partition();
 		List<Set<IPattern>> ps = new ArrayList<>();
 		for(Set<IPattern> p:par1.getPatternSetList()){
 			ps.add(p);
@@ -423,7 +425,7 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 	}
 	
 	private boolean canMerge(Partition par1, Partition par2) throws Exception{
-		Partition mergedPar = merge(par1,par2);
+		IPartition mergedPar = merge(par1,par2);
 		
 		double eval1 = eval(par1,par2);
 		double evalM = eval(mergedPar);
@@ -435,7 +437,7 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 		return false;
 	}
 	
-	private double eval(Partition partition) throws Exception{
+	private double eval(IPartition partition) throws Exception{
 		Instances globalData = new Instances(trainingData,0);
 		for(Instance ins:trainingData){
 			if(!partition.match(ins)){
@@ -480,7 +482,7 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 	    return max;
 	}
 	
-	private double eval(Partition par1, Partition par2) throws Exception{
+	private double eval(IPartition par1, IPartition par2) throws Exception{
 		Instances globalData = new Instances(trainingData,0);
 		for(Instance ins:trainingData){
 			if((!par1.match(ins))&&(!par2.match(ins))){
@@ -516,7 +518,7 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 		for(int i = 0; i < probs.length; i++){
 			probs[i] = 0;
 		}
-		for (Partition par:partitions){
+		for (IPartition par:partitions){
 			if(par.getWeight()>0.0&&par.isActive() && par.match(instance)){
 				probs = add(probs, par.getClassifier().distributionForInstance(instance), par.getWeight());
 				flag = true;

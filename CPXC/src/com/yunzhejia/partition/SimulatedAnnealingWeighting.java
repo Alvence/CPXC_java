@@ -14,7 +14,7 @@ import weka.core.Instances;
 
 public class SimulatedAnnealingWeighting implements IPartitionWeighting {
 
-	private Map<Partition, Map<Instance, List<Double>>> probsOfParitions;
+	private Map<IPartition, Map<Instance, List<Double>>> probsOfParitions;
 	private Map<Instance, List<Double>> probsOfGlobal;
 
 	private int maxIt;
@@ -31,7 +31,7 @@ public class SimulatedAnnealingWeighting implements IPartitionWeighting {
 	}
 
 	@Override
-	public List<Partition> calcWeight(List<Partition> partitions, AbstractClassifier globalCL, Instances validationData)
+	public List<IPartition> calcWeight(List<IPartition> partitions, AbstractClassifier globalCL, Instances validationData)
 			throws Exception {
 
 		calcProbs(partitions, globalCL, validationData);
@@ -42,6 +42,7 @@ public class SimulatedAnnealingWeighting implements IPartitionWeighting {
 //			current.add(Math.random()>0.5?1.0:0.0);
 			current.add(Math.random());
 		}
+		System.out.println(current);
 		ArrayUtils.normalize(current);
 		double currentVal = eval(partitions, globalCL, validationData, current);
 		List<Double> bestWeights = current;
@@ -115,12 +116,12 @@ public class SimulatedAnnealingWeighting implements IPartitionWeighting {
 		return Math.random() < prob;
 	}
 
-	private void calcProbs(List<Partition> partitions, AbstractClassifier globalCL, Instances validationData)
+	private void calcProbs(List<IPartition> partitions, AbstractClassifier globalCL, Instances validationData)
 			throws Exception {
 		probsOfGlobal = new HashMap<>();
 		probsOfParitions = new HashMap<>();
 
-		for (Partition partition : partitions) {
+		for (IPartition partition : partitions) {
 			probsOfParitions.put(partition, new HashMap<Instance, List<Double>>());
 		}
 
@@ -132,7 +133,7 @@ public class SimulatedAnnealingWeighting implements IPartitionWeighting {
 		}
 
 		// calc probs of partitions
-		for (Partition par : partitions) {
+		for (IPartition par : partitions) {
 			Map<Instance, List<Double>> probsOfPartition = new HashMap<>();
 			for (Instance instance : validationData) {
 				List<Double> probOfPartition = new ArrayList<>();
@@ -143,7 +144,7 @@ public class SimulatedAnnealingWeighting implements IPartitionWeighting {
 		}
 	}
 
-	private double eval(List<Partition> partitions, AbstractClassifier globalCL, Instances validationData,
+	private double eval(List<IPartition> partitions, AbstractClassifier globalCL, Instances validationData,
 			List<Double> weights) throws Exception {
 		int acc = 0;
 		for (Instance instance : validationData) {
@@ -153,7 +154,7 @@ public class SimulatedAnnealingWeighting implements IPartitionWeighting {
 				probs[i] = 0.0;
 			}
 			for (int i = 0; i < partitions.size(); i++) {
-				Partition par = partitions.get(i);
+				IPartition par = partitions.get(i);
 				
 				if ( weights.get(i)>0.0&&par.match(instance)) {
 					probs = add(probs, probsOfParitions.get(par).get(instance).toArray(probs), weights.get(i));
