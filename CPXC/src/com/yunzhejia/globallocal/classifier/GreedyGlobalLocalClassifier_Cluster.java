@@ -454,6 +454,7 @@ public class GreedyGlobalLocalClassifier_Cluster extends AbstractClassifier{
 			String[] files = {"data/synthetic2.arff","data/banana.arff","data/anneal.arff","data/blood.arff","data/diabetes.arff",
 					"data/hepatitis.arff","data/ILPD.arff","data/iris.arff","data/labor.arff","data/planning.arff","data/sick.arff"};
 			for(String file:files){
+				try{
 //			source = new DataSource("data/synthetic2.arff");
 			source = new DataSource(file);
 //			source = new DataSource("data/iris.arff");
@@ -475,9 +476,12 @@ public class GreedyGlobalLocalClassifier_Cluster extends AbstractClassifier{
 			writer.write(file+"\n");
 			writer.write("ACC="+eval.pctCorrect()+"\n");
 			writer.write("AUC="+eval.weightedAreaUnderROC()+"\n");
-			
+				}catch(Exception e){
+					//do nothing
+				}
 //			System.out.println(eval.toSummaryString());
 			}
+			writer.close();
 			/*AbstractClassifier cl = ClassifierGenerator.getClassifier(GreedyGlobalLocalClassifier_Cluster.globalType);
 //			cl.buildClassifier(data);
 			Evaluation eval1 = new Evaluation(data);
