@@ -27,15 +27,14 @@ public class ExhausitiveWeighting implements IPartitionWeighting {
 		calcProbs(partitions, globalCL, validationData);
 		
 		List<IPartition> ret = new ArrayList<>();
-		Random rand = new Random(1);
-		int maxIt = 10000;
+		int maxIt = (int)Math.pow(2, partitions.size());
 		int size = partitions.size();
 		List<Boolean> bestWeights = null;
 		double bestAcc = 0;
-		for (int i = 0; i < maxIt; i++){
-			List<Boolean> weights = new ArrayList<>();
-			for(int j = 0; j < size; j++){
-				weights.add(rand.nextBoolean());
+		for (int i = 1; i <= maxIt; i++){
+			List<Boolean> weights = next(i, partitions.size());
+			if(weights == null){
+				continue;
 			}
 			for(int j = 0; j < size; j++){
 				partitions.get(j).setActive(weights.get(j));;
@@ -49,12 +48,32 @@ public class ExhausitiveWeighting implements IPartitionWeighting {
 		for(int j = 0; j < size; j++){
 			if (bestWeights.get(j)){
 				partitions.get(j).setActive(true);;
-				ret.add(partitions.get(j));
+			}else{
+				partitions.get(j).setActive(false);;
 			}
+			ret.add(partitions.get(j));
 		}
 		return ret;
 	}
 	
+	private List<Boolean> next(int i, int size) {
+		int nonezero = 0;
+		List<Boolean> ret = new ArrayList<>();
+		for(int index = 0; index < size; index++){
+			int v = i & 1;
+			i = i>>1;
+			ret.add(v==1);
+			if(v==1){
+				nonezero += 1;
+			}
+		}
+		if(nonezero > size * .4){
+			return null;
+		}
+		return ret;
+	}
+	
+
 	private void calcProbs(List<IPartition> partitions, AbstractClassifier globalCL, Instances validationData) throws Exception{
 		probsOfGlobal = new HashMap<>();
 		probsOfParitions = new HashMap<>();

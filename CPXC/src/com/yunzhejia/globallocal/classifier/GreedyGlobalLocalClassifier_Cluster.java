@@ -10,28 +10,30 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
-import com.yunzhejia.cpxc.Discretizer;
 import com.yunzhejia.cpxc.util.ClassifierGenerator;
 import com.yunzhejia.cpxc.util.ClassifierGenerator.ClassifierType;
+import com.yunzhejia.cpxc.util.ClustererGenerator;
 import com.yunzhejia.cpxc.util.ClustererGenerator.ClustererType;
+import com.yunzhejia.partition.ClusterPartition;
+import com.yunzhejia.partition.ExhausitiveWeighting;
 import com.yunzhejia.partition.IPartition;
 import com.yunzhejia.partition.IPartitionWeighting;
 import com.yunzhejia.partition.Partition;
-import com.yunzhejia.partition.SimulatedAnnealingWeighting;
+import com.yunzhejia.partition.SimulatedAnnealingWeightingBinary;
 import com.yunzhejia.pattern.IPattern;
 import com.yunzhejia.pattern.PatternSet;
-import com.yunzhejia.pattern.patternmining.GcGrowthPatternMiner;
 import com.yunzhejia.pattern.patternmining.IPatternMiner;
-import com.yunzhejia.pattern.patternmining.ParallelCoordinatesMiner;
 
 import weka.classifiers.AbstractClassifier;
 import weka.classifiers.Evaluation;
+import weka.clusterers.AbstractClusterer;
 import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.Utils;
 import weka.core.converters.ConverterUtils.DataSource;
+import weka.filters.Filter;
 
-public class GreedyGlobalLocalClassifier extends AbstractClassifier{
+public class GreedyGlobalLocalClassifier_Cluster extends AbstractClassifier{
 	
 	private double minSupp;
 	private double minRatio = 3;
@@ -44,17 +46,11 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 	protected static ClassifierType globalType = ClassifierType.DECISION_TREE;
 	/** type of decision classifier*/
 	protected ClassifierType localType = ClassifierType.DECISION_TREE;
+	protected ClustererType clustererType = ClustererType.EM;
 
-	public GreedyGlobalLocalClassifier() {
-		this(0.1f,new ParallelCoordinatesMiner(10));
+	public GreedyGlobalLocalClassifier_Cluster() {
 	}
 	
-	
-
-	public GreedyGlobalLocalClassifier(double minSupp, IPatternMiner patternMiner) {
-		this.minSupp = minSupp;
-		this.patternMiner = patternMiner;
-	}
 
 	private transient Instances trainingData;
 	private transient Instances validationData;
@@ -74,7 +70,8 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 	    }
 	    trainingData = datate.trainCV(4, 1, random);
 	    validationData = datate.testCV(4, 1);
-	    trainingData = datate;
+//	    trainingData = datate;
+//	    validationData = datate;
 //	    System.out.println("training size="+trainingData.size()+"  validation size="+validationData.size());
 //	    System.out.println(validationData);
 	    AbstractClassifier tempgcl = ClassifierGenerator.getClassifier(globalType);
@@ -85,38 +82,26 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 	    globalAcc = eval.pctCorrect();
 	    
 	    
-		//1, find the patterns;
-	    Discretizer discretizer = new Discretizer();
-		discretizer.initialize(trainingData);
-		patternMiner = new GcGrowthPatternMiner(discretizer);
-//		patternMiner = new ManualPatternMiner();
-//		patternMiner = new ParallelCoordinatesMiner();
-		//2, split it into LE and SE
-		Instances LE = new Instances(data,0);
-		Instances SE = new Instances(data,0);
-		divideData(trainingData,LE,SE);
-//		writeData(LE);
-		PatternSet ps = patternMiner.minePattern(LE, minSupp);
 //		partitions = pairwisePartition(ps,trainingData);
-		partitions = singlewisePartition(ps,trainingData);
+		partitions = clusterPartition(clustererType,trainingData);
 
 //		partitions = contrastPartition(partitions, LE, SE);
 		
 		System.out.println(partitions.size());
 //		partitions = bruteForceWeight(partitions);
 //		partitions = mergePartition(partitions);
-		System.out.println(partitions.size());
+//		System.out.println(partitions.size());
 //		partitions = filterPartition(partitions);
 		if(partitions.size()>0){
-			IPartitionWeighting weighter = new SimulatedAnnealingWeighting(1000);
-			partitions = weighter.calcWeight(partitions, tempgcl, trainingData);
+//			IPartitionWeighting weighter = new SimulatedAnnealingWeightingBinary(10000);
+			IPartitionWeighting weighter = new ExhausitiveWeighting();
+			partitions = weighter.calcWeight(partitions, tempgcl, validationData);
 		}
-		System.out.println(partitions.size());
 		for (IPartition par:partitions){
 			System.out.println(par);
 		}
 //		
-		
+		writeData(data, "tmp/clusteredData"+(num++),clusterer);
 //		System.out.println("size="+partitions.size());
 //		globalCL = ClassifierGenerator.getClassifier(globalType);
 		globalCL.buildClassifier(trainingData);
@@ -139,24 +124,28 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 		return ret;
 	}
 
-	private List<Partition> contrastPartition(List<Partition> partitions, Instances LE, Instances SE) {
-		List<Partition> ret = new ArrayList<>();
-		for(Partition partition:partitions){
-			double ratio = getMDS(partition, LE).size() *1.0 / getMDS(partition,SE).size();
-			if(ratio >= minRatio){
-				ret.add(partition);
-			}
-		}
-		return ret;
-	}
 
-	private void writeData(Instances data){
+	private void writeData(Instances data, String filename, AbstractClusterer clusterer){
 		 Writer writer;
 		try {
+			
 			writer = new BufferedWriter(new OutputStreamWriter(
-			          new FileOutputStream("tmp/LE"), "UTF-8"));
+			          new FileOutputStream(filename), "UTF-8"));
 			for (Instance ins:data){
-				writer.write(ins.value(0)+","+ins.value(1)+"\n");
+				if(ins.classIndex()!=-1){
+					Instances mdata = new Instances(data,0);
+					mdata.add(ins);
+					weka.filters.unsupervised.attribute.Remove filter = new weka.filters.unsupervised.attribute.Remove();
+					filter.setAttributeIndices("" + (mdata.classIndex() + 1));
+					filter.setInputFormat(mdata);
+					Instances dataClusterer = Filter.useFilter(mdata, filter);
+					ins = dataClusterer.get(0);
+				}
+				if (partitions.get(clusterer.clusterInstance(ins)).isActive()){
+					writer.write(ins.value(0)+","+ins.value(1)+","+clusterer.clusterInstance(ins)+"\n");
+				}else{
+					writer.write(ins.value(0)+","+ins.value(1)+", -1\n");
+				}
 			}
 			writer.close();
 		} catch (Exception e) {
@@ -164,130 +153,48 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 		} 
 	    
 	}
-
-
-	private void divideData(Instances data, Instances LE, Instances SE) throws Exception{
-		List<Double> errs = new ArrayList<Double>();
-		double[][] dist = globalCL.distributionsForInstances(data);
-		for (int i = 0; i < data.numInstances(); i++){
-			Instance ins = data.get(i);
-			int label = (int)ins.classValue();
-			errs.add(1-dist[i][label]);
-		}
-		//get cutting point
-		double k = cuttingPoint(errs);
-		//initialize two data sets
-		for (int i = 0; i < data.numInstances(); i++){
-			Instance ins = data.get(i);
-			if (errs.get(i) > k){
-				LE.add(ins);
-			}else{
-				SE.add(ins);
-			}
-		}
-//		System.out.println("cutting error = " + k);
-		
-		Evaluation eval = new Evaluation(data);
-		eval.evaluateModel(globalCL, data);
-		System.out.println("accuracy on whole data: " + eval.pctCorrect() + "%");
-		Evaluation eval1 = new Evaluation(data);
-		eval1.evaluateModel(globalCL, LE);
-		System.out.println("accuracy on LE: " + eval1.pctCorrect() + "%   size="+LE.numInstances());
-		Evaluation eval2 = new Evaluation(data);
-		eval2.evaluateModel(globalCL, SE);
-		System.out.println("accuracy on SE: " + eval2.pctCorrect() + "%   size="+SE.numInstances());/**/
-	}
-	/*
-	private double cuttingPoint(List<Double> errs){
-		List<Double> list = new ArrayList<Double>(errs);
-		Collections.sort(list);
-		//OutputUtils.print(errs);
-		double sum = 0f;
-		for (double err:list){
-			sum += err;
-		}
-		double threshold = sum * rho;
-		
-		double calc = 0f;
-		int index = list.size()-1;
-		while (calc < threshold){
-			calc += list.get(index);
-			index--;
-		}
-		return list.get(index);
-	}
-	*/
 	
-	private double cuttingPoint(List<Double> errs){
-		double sum = 0f;
-		for (double err:errs){
-			sum += err;
-		}
-		double threshold = sum/errs.size() * rho;
-		
-		return threshold;
-	}
-	private List<Partition> pairwisePartition(PatternSet ps, Instances data) throws Exception {
-		List<Partition> partitions = new ArrayList<>();
-		for (int i = 0; i < ps.size();i++){
-			for (int j = i + 1; j < ps.size(); j++){
-				IPattern patterni = ps.get(i);
-				IPattern patternj = ps.get(j);
-				if(patterni.equals(patternj)){
-					continue;
-				}
-				Instances partitionData = getMutual(patterni,patternj,data);
-				if (partitionData==null || partitionData.size()==0){
-					continue;
-				}
-				Set<IPattern> localPatterns = new HashSet<>();
-				localPatterns.add(patternj);
-				localPatterns.add(patterni);
-				List<Set<IPattern>> localPatternSetList = new ArrayList<>();
-				localPatternSetList.add(localPatterns);
-				Partition newPartition = new Partition();
-				newPartition.setClassifier(ClassifierGenerator.getClassifier(localType));
-				newPartition.setData(partitionData);;
-				newPartition.setPatternSetList(localPatternSetList);;
-				newPartition.getClassifier().buildClassifier(partitionData);
-				newPartition.setWeight(newPartition.getData().size()*1.0 / data.size());;
-				if(newPartition.getData().size()>=data.numAttributes())
-					partitions.add(newPartition);
-			}
-		}
-		return partitions;
-	}
+	
+
+	AbstractClusterer clusterer;
 	
 	private List<IPartition> clusterPartition(ClustererType clustererType, Instances data) throws Exception {
 		List<IPartition> partitions = new ArrayList<>();
+		clusterer = ClustererGenerator.getClusterer(clustererType);
 		
-		
-		return partitions;
-	}
+		weka.filters.unsupervised.attribute.Remove filter = new weka.filters.unsupervised.attribute.Remove();
+		 filter.setAttributeIndices("" + (data.classIndex() + 1));
+		 filter.setInputFormat(data);
+		 Instances dataClusterer = Filter.useFilter(data, filter);
 
-	//find the partition corresponding to a single pattern
-	private List<IPartition> singlewisePartition(PatternSet ps, Instances data) throws Exception {
-		List<IPartition> partitions = new ArrayList<>();
-		for(IPattern pattern:ps){
-			Instances partitionData =  getMDS(pattern, data);
-			if (partitionData==null || partitionData.size()==0){
+		 clusterer.buildClusterer(dataClusterer);
+		int numOfClusters = clusterer.numberOfClusters();
+		for (int i = 0; i < numOfClusters; i++){
+			IPartition partition = new ClusterPartition(clusterer, i);
+			partition.setActive(true);
+			partition.setWeight(1);
+			partition.setData(new Instances(data,0));
+			partitions.add(partition);
+		}
+		//assign data to partitions
+		for (int i = 0; i < data.size();i++){
+			int label = clusterer.clusterInstance(dataClusterer.get(i));
+			partitions.get(label).getData().add(data.get(i));
+		}
+		
+		for (IPartition par:partitions){
+			if(par.getData().size()<1){
 				continue;
 			}
-			Set<IPattern> localPatterns = new HashSet<>();
-			localPatterns.add(pattern);
-			List<Set<IPattern>> localPatternSetList = new ArrayList<>();
-			localPatternSetList.add(localPatterns);
-			Partition newPartition = new Partition();
-			newPartition.setClassifier(ClassifierGenerator.getClassifier(localType));
-			newPartition.setData(partitionData);;
-			newPartition.setPatternSetList(localPatternSetList);;
-			newPartition.getClassifier().buildClassifier(partitionData);
-			newPartition.setWeight(eval(newPartition) - globalAcc);
-			if(newPartition.getData().size()>=data.numAttributes() && newPartition.getWeight()>0)
-				partitions.add(newPartition);
+			AbstractClassifier classifier = ClassifierGenerator.getClassifier(localType);
+			classifier.buildClassifier(par.getData());
+			par.setClassifier(classifier);
 		}
+		
 		return partitions;
 	}
+	static int num=0;
+
 
 	//remove global optimal partitions
 	private List<Partition> filterPartition(List<Partition> partitions) throws Exception{
@@ -327,25 +234,6 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 		return ret;
 	}
 	
-	private Instances getMutual(IPattern p1, IPattern p2, Instances data){
-		Instances ret = new Instances(data,0);
-		for (Instance ins : data){
-			if(p1.match(ins)&&p2.match(ins)){
-				ret.add(ins);
-			}
-		}
-		return ret;
-	}
-	
-	private Instances getMDS(IPattern patttern,  Instances data){
-		Instances ret = new Instances(data,0);
-		for (Instance ins : data){
-			if(patttern.match(ins)){
-				ret.add(ins);
-			}
-		}
-		return ret;
-	}
 	
 	private Instances getMDS(Partition partition,  Instances data){
 		Instances ret = new Instances(data,0);
@@ -530,7 +418,7 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 			if(par.getWeight()>0.0&&par.isActive() && par.match(instance)){
 				probs = add(probs, par.getClassifier().distributionForInstance(instance), par.getWeight());
 				flag = true;
-//				return par.classifier.distributionForInstance(instance);
+				return par.getClassifier().distributionForInstance(instance);
 			}
 		}
 		if (!flag){
@@ -558,19 +446,21 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 		
 		
 		try {
+
+			Writer writer = new BufferedWriter(new OutputStreamWriter(
+			          new FileOutputStream("tmp/result"), "UTF-8"));
 			DataSource source;
 			Instances data;
-	
-			source = new DataSource("data/synthetic2.arff");
-//			source = new DataSource("data/banana.arff");
+			String[] files = {"data/synthetic2.arff","data/banana.arff","data/anneal.arff","data/blood.arff","data/diabetes.arff",
+					"data/hepatitis.arff","data/ILPD.arff","data/iris.arff","data/labor.arff","data/planning.arff","data/sick.arff"};
+			for(String file:files){
+//			source = new DataSource("data/synthetic2.arff");
+			source = new DataSource(file);
 //			source = new DataSource("data/iris.arff");
 			data = source.getDataSet();
 		
 			
-//			for (int bin = 2; bin < 30; bin+=2){
-			int bin = 20;
-			System.out.println(bin);
-			GreedyGlobalLocalClassifier adt = new GreedyGlobalLocalClassifier(0.01f,new ParallelCoordinatesMiner(bin));
+			GreedyGlobalLocalClassifier_Cluster adt = new GreedyGlobalLocalClassifier_Cluster();
 			
 			if (data.classIndex() == -1){
 				data.setClassIndex(data.numAttributes() - 1);
@@ -582,17 +472,13 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 //			eval.evaluateModel(adt, data);
 //			System.out.println("accuracy of "+": " + eval.pctCorrect() + "%");
 			eval.crossValidateModel(adt, data, 10, new Random(1));
-			
-			if (eval.pctCorrect() > bestAcc){
-				bestNumBin = bin;
-				bestAcc = eval.pctCorrect();
-				bestAUC = eval.weightedAreaUnderROC();
-				}
-//			}
+			writer.write(file+"\n");
+			writer.write("ACC="+eval.pctCorrect()+"\n");
+			writer.write("AUC="+eval.weightedAreaUnderROC()+"\n");
 			
 //			System.out.println(eval.toSummaryString());
-			
-			AbstractClassifier cl = ClassifierGenerator.getClassifier(GreedyGlobalLocalClassifier.globalType);
+			}
+			/*AbstractClassifier cl = ClassifierGenerator.getClassifier(GreedyGlobalLocalClassifier_Cluster.globalType);
 //			cl.buildClassifier(data);
 			Evaluation eval1 = new Evaluation(data);
 //			eval1.evaluateModel(cl, data);
@@ -600,7 +486,7 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 			System.out.println("accuracy of "+": " + bestAcc + "%");
 			System.out.println("AUC of "+": " + bestAUC);
 			System.out.println("accuracy of global: " + eval1.pctCorrect() + "%");
-			System.out.println("AUC of global: " + eval1.weightedAreaUnderROC()+"  bin="+bestNumBin);
+			System.out.println("AUC of global: " + eval1.weightedAreaUnderROC()+"  bin="+bestNumBin);*/
 			/*cl.buildClassifier(data);
 			
 			    Writer writer = new BufferedWriter(new OutputStreamWriter(
@@ -629,7 +515,7 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 			 
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
 	}
 
