@@ -101,7 +101,7 @@ public class GreedyGlobalLocalClassifier_Cluster extends AbstractClassifier{
 			System.out.println(par);
 		}
 //		
-		writeData(data, "tmp/clusteredData"+(num++),clusterer);
+//		writeData(data, "tmp/clusteredData"+(num++),clusterer);
 //		System.out.println("size="+partitions.size());
 //		globalCL = ClassifierGenerator.getClassifier(globalType);
 		globalCL.buildClassifier(trainingData);
@@ -190,7 +190,6 @@ public class GreedyGlobalLocalClassifier_Cluster extends AbstractClassifier{
 			classifier.buildClassifier(par.getData());
 			par.setClassifier(classifier);
 		}
-		
 		return partitions;
 	}
 	static int num=0;
@@ -453,6 +452,7 @@ public class GreedyGlobalLocalClassifier_Cluster extends AbstractClassifier{
 			Instances data;
 			String[] files = {"data/synthetic2.arff","data/banana.arff","data/anneal.arff","data/blood.arff","data/diabetes.arff",
 					"data/hepatitis.arff","data/ILPD.arff","data/iris.arff","data/labor.arff","data/planning.arff","data/sick.arff"};
+//			String[] files = {"data/sick.arff"};
 			for(String file:files){
 				try{
 //			source = new DataSource("data/synthetic2.arff");
@@ -473,13 +473,15 @@ public class GreedyGlobalLocalClassifier_Cluster extends AbstractClassifier{
 //			eval.evaluateModel(adt, data);
 //			System.out.println("accuracy of "+": " + eval.pctCorrect() + "%");
 			eval.crossValidateModel(adt, data, 10, new Random(1));
+			System.out.println(eval.toSummaryString());
 			writer.write(file+"\n");
 			writer.write("ACC="+eval.pctCorrect()+"\n");
-			writer.write("AUC="+eval.weightedAreaUnderROC()+"\n");
+			writer.write("AUC="+eval.weightedAreaUnderROC()+"\n\n");
 				}catch(Exception e){
 					//do nothing
+//					e.printStackTrace();
 				}
-//			System.out.println(eval.toSummaryString());
+			
 			}
 			writer.close();
 			/*AbstractClassifier cl = ClassifierGenerator.getClassifier(GreedyGlobalLocalClassifier_Cluster.globalType);

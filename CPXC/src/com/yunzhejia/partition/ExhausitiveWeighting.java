@@ -94,7 +94,13 @@ public class ExhausitiveWeighting implements IPartitionWeighting {
 			Map<Instance, List<Double>> probsOfPartition = new HashMap<>();
 			for (Instance instance: validationData){
 				List<Double> probOfPartition = new ArrayList<>();
-				probOfPartition = ArrayUtils.arrayToList(par.getClassifier().distributionForInstance(instance));
+				if (par.getClassifier()!=null){
+					probOfPartition = ArrayUtils.arrayToList(par.getClassifier().distributionForInstance(instance));
+				}else{
+					for(int i = 0; i < instance.numClasses();i++){
+						probOfPartition.add(0.0);
+					}
+				}
 				probsOfPartition.put(instance, probOfPartition);
 			}
 			probsOfParitions.put(par, probsOfPartition);
