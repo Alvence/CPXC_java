@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.Map;
 
 import com.yunzhejia.cpxc.util.ArrayUtils;
-import com.yunzhejia.cpxc.util.OutputUtils;
 
 import weka.classifiers.AbstractClassifier;
+import weka.classifiers.Classifier;
 import weka.core.Instance;
 import weka.core.Instances;
 
@@ -147,6 +147,21 @@ public class SimulatedAnnealingWeighting implements IPartitionWeighting {
 	private double eval(List<IPartition> partitions, AbstractClassifier globalCL, Instances validationData,
 			List<Double> weights) throws Exception {
 		int acc = 0;
+		
+		Instances globalData = new Instances(validationData,0);
+		for(int i = 0; i < partitions.size(); i++){
+			if (weights.get(i) != 0.0){
+				for(Instance ins:partitions.get(i).getData()){
+					globalData.add(ins);
+				}
+			}
+		}
+		if (globalData.size()>0){
+			AbstractClassifier newGL = (AbstractClassifier)AbstractClassifier.makeCopy(globalCL);
+			newGL.buildClassifier(globalData);
+			globalCL = newGL;
+		}
+		
 		for (Instance instance : validationData) {
 			Double[] probs = new Double[instance.numClasses()];
 			boolean flag = false;
@@ -169,7 +184,8 @@ public class SimulatedAnnealingWeighting implements IPartitionWeighting {
 				}
 			}
 			if (!flag) {
-				probs = probsOfGlobal.get(instance).toArray(probs);
+				probs = ArrayUtils.primariesToObjects(globalCL.distributionForInstance(instance));
+//				probs = probsOfGlobal.get(instance).toArray(probs);
 			}
 			double max = 0;
 			int c = 0;

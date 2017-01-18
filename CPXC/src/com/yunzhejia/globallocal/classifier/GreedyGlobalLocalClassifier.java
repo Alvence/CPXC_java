@@ -41,9 +41,9 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 	private transient AbstractClassifier globalCL;
 	
 	protected double delta = -1f;
-	protected static ClassifierType globalType = ClassifierType.DECISION_TREE;
+	protected static ClassifierType globalType = ClassifierType.LOGISTIC;
 	/** type of decision classifier*/
-	protected ClassifierType localType = ClassifierType.DECISION_TREE;
+	protected ClassifierType localType = ClassifierType.LOGISTIC;
 
 	public GreedyGlobalLocalClassifier() {
 		this(0.1f,new ParallelCoordinatesMiner(10));
@@ -106,10 +106,10 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 //		partitions = bruteForceWeight(partitions);
 //		partitions = mergePartition(partitions);
 		System.out.println(partitions.size());
-//		partitions = filterPartition(partitions);
+		partitions = filterPartition(partitions);
 		if(partitions.size()>0){
 			IPartitionWeighting weighter = new SimulatedAnnealingWeighting(1000);
-			partitions = weighter.calcWeight(partitions, tempgcl, trainingData);
+			partitions = weighter.calcWeight(partitions, tempgcl, validationData);
 		}
 		System.out.println(partitions.size());
 		for (IPartition par:partitions){
@@ -119,13 +119,14 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 		
 //		System.out.println("size="+partitions.size());
 //		globalCL = ClassifierGenerator.getClassifier(globalType);
-		globalCL.buildClassifier(trainingData);
-//		Instances globalData = getGlobalData(trainingData);
-//		if(globalData.size()>0){
-//			globalCL.buildClassifier(globalData);
-//		}else{
-//			System.out.println("No training Data for global");
-//		}
+//		globalCL.buildClassifier(trainingData);
+		Instances globalData = getGlobalData(trainingData);
+		if(globalData.size()>0){
+			globalCL.buildClassifier(globalData);
+		}else{
+			System.out.println("No training Data for global");
+			globalCL.buildClassifier(trainingData);
+		}
 	}
 	private List<IPartition> mergePartition(List<IPartition> partitions) throws Exception {
 		List<IPartition> ret = new ArrayList<>();
@@ -227,8 +228,8 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 		
 		return threshold;
 	}
-	private List<Partition> pairwisePartition(PatternSet ps, Instances data) throws Exception {
-		List<Partition> partitions = new ArrayList<>();
+	private List<IPartition> pairwisePartition(PatternSet ps, Instances data) throws Exception {
+		List<IPartition> partitions = new ArrayList<>();
 		for (int i = 0; i < ps.size();i++){
 			for (int j = i + 1; j < ps.size(); j++){
 				IPattern patterni = ps.get(i);
@@ -290,9 +291,9 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 	}
 
 	//remove global optimal partitions
-	private List<Partition> filterPartition(List<Partition> partitions) throws Exception{
-		List<Partition> ret = new ArrayList<>();
-		for(Partition partition:partitions){
+	private List<IPartition> filterPartition(List<IPartition> partitions) throws Exception{
+		List<IPartition> ret = new ArrayList<>();
+		for(IPartition partition:partitions){
 			if(!canRemove(partition)){
 				ret.add(partition);
 			}
@@ -300,7 +301,7 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 		return ret;
 	}
 	
-	private boolean canRemove(Partition partition) throws Exception{
+	private boolean canRemove(IPartition partition) throws Exception{
 		double eval = eval(partition);
 //		System.out.println("for partition "+partition+"   acc="+eval(partition)+"   while global="+globalAcc);
 		if(eval > globalAcc - delta){
@@ -316,7 +317,7 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 		for (Instance ins : data){
 			boolean flag = false;
 			for (IPartition par:partitions){
-				if(par.match(ins)){
+				if(par.getWeight()>0&&par.match(ins)){
 					flag = true;
 				}
 			}

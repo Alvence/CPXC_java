@@ -39,7 +39,7 @@ public class ExhausitiveWeighting implements IPartitionWeighting {
 			for(int j = 0; j < size; j++){
 				partitions.get(j).setActive(weights.get(j));;
 			}
-			double acc = eval(partitions, globalCL, validationData);
+			double acc = eval(partitions, globalCL, validationData, weights);
 			if (bestAcc < acc){
 				bestWeights = weights;
 				bestAcc = acc;
@@ -48,8 +48,10 @@ public class ExhausitiveWeighting implements IPartitionWeighting {
 		for(int j = 0; j < size; j++){
 			if (bestWeights.get(j)){
 				partitions.get(j).setActive(true);;
+				partitions.get(j).setWeight(1);
 			}else{
 				partitions.get(j).setActive(false);;
+				partitions.get(j).setWeight(0);
 			}
 			ret.add(partitions.get(j));
 		}
@@ -109,23 +111,41 @@ public class ExhausitiveWeighting implements IPartitionWeighting {
 	
 	
 
-	private double eval(List<IPartition> partitions, AbstractClassifier globalCL, Instances validationData) throws Exception{
+	private double eval(List<IPartition> partitions, AbstractClassifier globalCL, Instances validationData, List<Boolean> weights) throws Exception{
 		int acc = 0;
+		
+		Instances globalData = new Instances(validationData,0);
+		for(int i = 0; i < partitions.size(); i++){
+			if (weights.get(i)){
+				for(Instance ins:partitions.get(i).getData()){
+					globalData.add(ins);
+				}
+			}
+		}
+		if (globalData.size()>0){
+			AbstractClassifier newGL = (AbstractClassifier)AbstractClassifier.makeCopy(globalCL);
+			newGL.buildClassifier(globalData);
+			globalCL = newGL;
+		}
+		
+		
 		for (Instance instance:validationData){
 			Double[] probs = new Double[instance.numClasses()];
 			boolean flag = false;
 			for(int i = 0; i < probs.length; i++){
 				probs[i] = 0.0;
 			}
-			for (IPartition par:partitions){
-				if(par.isActive() && par.match(instance)){
-					probs = add(probs, probsOfParitions.get(par).get(instance).toArray(probs), par.getWeight());
+			for (int i = 0; i < partitions.size(); i++) {
+				IPartition par = partitions.get(i);
+				if(weights.get(i) && par.match(instance)){
+					probs = add(probs, probsOfParitions.get(par).get(instance).toArray(probs), 1);
 					flag = true;
 //					return par.classifier.distributionForInstance(instance);
 				}
 			}
 			if (!flag){
-				probs = probsOfGlobal.get(instance).toArray(probs);
+				probs = ArrayUtils.primariesToObjects(globalCL.distributionForInstance(instance));
+//				probs = probsOfGlobal.get(instance).toArray(probs);
 			}
 			double max = 0;
 			int c = 0;

@@ -43,9 +43,9 @@ public class GreedyGlobalLocalClassifier_Cluster extends AbstractClassifier{
 	private transient AbstractClassifier globalCL;
 	
 	protected double delta = -1f;
-	protected static ClassifierType globalType = ClassifierType.DECISION_TREE;
+	protected static ClassifierType globalType = ClassifierType.LOGISTIC;
 	/** type of decision classifier*/
-	protected ClassifierType localType = ClassifierType.DECISION_TREE;
+	protected ClassifierType localType = ClassifierType.LOGISTIC;
 	protected ClustererType clustererType = ClustererType.EM;
 
 	public GreedyGlobalLocalClassifier_Cluster() {
@@ -93,8 +93,8 @@ public class GreedyGlobalLocalClassifier_Cluster extends AbstractClassifier{
 //		System.out.println(partitions.size());
 //		partitions = filterPartition(partitions);
 		if(partitions.size()>0){
-//			IPartitionWeighting weighter = new SimulatedAnnealingWeightingBinary(10000);
-			IPartitionWeighting weighter = new ExhausitiveWeighting();
+			IPartitionWeighting weighter = new SimulatedAnnealingWeightingBinary(1000);
+//			IPartitionWeighting weighter = new ExhausitiveWeighting();
 			partitions = weighter.calcWeight(partitions, tempgcl, validationData);
 		}
 		for (IPartition par:partitions){
@@ -104,13 +104,13 @@ public class GreedyGlobalLocalClassifier_Cluster extends AbstractClassifier{
 //		writeData(data, "tmp/clusteredData"+(num++),clusterer);
 //		System.out.println("size="+partitions.size());
 //		globalCL = ClassifierGenerator.getClassifier(globalType);
-		globalCL.buildClassifier(trainingData);
-//		Instances globalData = getGlobalData(trainingData);
-//		if(globalData.size()>0){
-//			globalCL.buildClassifier(globalData);
-//		}else{
-//			System.out.println("No training Data for global");
-//		}
+//		globalCL.buildClassifier(trainingData);
+		Instances globalData = getGlobalData(trainingData);
+		if(globalData.size()>0){
+			globalCL.buildClassifier(globalData);
+		}else{
+			System.out.println("No training Data for global");
+		}
 	}
 	private List<IPartition> mergePartition(List<IPartition> partitions) throws Exception {
 		List<IPartition> ret = new ArrayList<>();
@@ -126,7 +126,7 @@ public class GreedyGlobalLocalClassifier_Cluster extends AbstractClassifier{
 
 
 	private void writeData(Instances data, String filename, AbstractClusterer clusterer){
-		 Writer writer;
+		Writer writer;
 		try {
 			
 			writer = new BufferedWriter(new OutputStreamWriter(
@@ -222,7 +222,7 @@ public class GreedyGlobalLocalClassifier_Cluster extends AbstractClassifier{
 		for (Instance ins : data){
 			boolean flag = false;
 			for (IPartition par:partitions){
-				if(par.match(ins)){
+				if(par.getWeight()>0&&par.match(ins)){
 					flag = true;
 				}
 			}
@@ -450,9 +450,9 @@ public class GreedyGlobalLocalClassifier_Cluster extends AbstractClassifier{
 			          new FileOutputStream("tmp/result"), "UTF-8"));
 			DataSource source;
 			Instances data;
-			String[] files = {"data/synthetic2.arff","data/banana.arff","data/anneal.arff","data/blood.arff","data/diabetes.arff",
+			String[] files = {"data/synthetic2.arff","data/anneal.arff","data/banana.arff","data/blood.arff","data/diabetes.arff",
 					"data/hepatitis.arff","data/ILPD.arff","data/iris.arff","data/labor.arff","data/planning.arff","data/sick.arff"};
-//			String[] files = {"data/sick.arff"};
+//			String[] files = {"data/synthetic2.arff"};
 			for(String file:files){
 				try{
 //			source = new DataSource("data/synthetic2.arff");

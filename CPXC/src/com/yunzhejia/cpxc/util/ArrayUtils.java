@@ -17,6 +17,14 @@ public class ArrayUtils {
 		return ret;
 	}
 	
+	public static Double[] primariesToObjects(double[] arr){
+		Double[] ret = new Double[arr.length];
+		for (int i = 0;i < arr.length;i++){
+			ret[i] = arr[i];
+		}
+		return ret;
+	}
+	
 	public static void normalize(List<Double> list){
 		double sum = 0;
 	    for (double d : list) {
