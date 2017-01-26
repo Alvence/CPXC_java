@@ -13,7 +13,7 @@ import weka.core.converters.ConverterUtils.DataSource;
 
 public class Driver {
 	public static void main(String[] args){
-		String[] files = {"data/ILPD.arff"};
+		String[] files = {"data/hepatitis.arff"};
 		for (String file:files){
 			//runTest(file);
 			runCVSimulation(file);

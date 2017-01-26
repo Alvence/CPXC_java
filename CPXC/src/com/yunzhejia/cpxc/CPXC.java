@@ -24,6 +24,7 @@ import weka.classifiers.Evaluation;
 import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.Utils;
+import weka.core.converters.ConverterUtils.DataSource;
 
 public class CPXC extends AbstractClassifier{
 	private static final long serialVersionUID = 3445125166100986742L;
@@ -286,5 +287,50 @@ public class CPXC extends AbstractClassifier{
 		double threshold = sum/errs.size() * rho;
 		
 		return threshold;
+	}
+	
+	
+	public static void main(String[] args){
+		String[] files = {"data/sick.arff"};
+		for (String file:files){
+			//runTest(file);
+			AbstractClassifier cpxc = new CPXC(ClassifierType.NAIVE_BAYES,ClassifierType.DECISION_TREE, 0.45, 0.02,3);
+			DataSource source;
+			Instances data;
+			try {
+				source = new DataSource(file);
+				//source = new DataSource("data/diabetes.arff");
+				data = source.getDataSet();
+				if (data.classIndex() == -1){
+					data.setClassIndex(data.numAttributes() - 1);
+				}
+				
+//				weka.filters.supervised.attribute.Discretize discretizer = new weka.filters.supervised.attribute.Discretize();
+//				discretizer.setInputFormat(data);
+//				data = weka.filters.supervised.attribute.Discretize.useFilter(data, discretizer);
+				
+				Evaluation eval = new Evaluation(data);
+//				cpxc.buildClassifier(data);
+//				eval.evaluateModel(cpxc, data);
+				eval.crossValidateModel(cpxc, data, 10, new Random(1));
+				
+				System.out.println("accuracy of "+file+": " + eval.pctCorrect() + "%");
+				System.out.println("AUC of "+file+": " + eval.weightedAreaUnderROC());
+				
+				
+				/*
+				AbstractClassifier cl = new NaiveBayes();
+				Evaluation eval1 = new Evaluation(data);
+				eval1.crossValidateModel(cl, data, 7, new Random(1));
+				System.out.println("accuracy of NBC: " + eval1.pctCorrect() + "%");
+				System.out.println("AUC of NBC: " + eval1.weightedAreaUnderROC());
+				*/
+				 
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			//runTrainingSimulation(file);
+		}
 	}
 }
