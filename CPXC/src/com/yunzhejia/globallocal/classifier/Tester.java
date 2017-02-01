@@ -7,6 +7,7 @@ import java.io.Writer;
 import java.util.Random;
 
 import com.yunzhejia.cpxc.util.ClassifierGenerator;
+import com.yunzhejia.cpxc.util.ClassifierGenerator.ClassifierType;
 
 import weka.classifiers.AbstractClassifier;
 import weka.classifiers.Evaluation;
@@ -25,17 +26,18 @@ public class Tester {
 			String[] files = {"data/synthetic2.arff","data/anneal.arff","data/banana.arff","data/blood.arff","data/diabetes.arff",
 					"data/hepatitis.arff","data/ILPD.arff","data/iris.arff","data/labor.arff","data/planning.arff","data/sick.arff"};
 //			String[] files = {"data/synthetic2.arff"};
-			String file="data/adult/train.arff";
-			String fileTest="data/adult/test.arff";
+			String file="data/sonar/train.arff";
+			String fileTest="data/sonar/test.arff";
 //			source = new DataSource("data/synthetic2.arff");
 			source = new DataSource(file);
 			sourceTest = new DataSource(fileTest);
 //			source = new DataSource("data/iris.arff");
 			data = source.getDataSet();
-			dataTest = source.getDataSet();
+			dataTest = sourceTest.getDataSet();
 		
 			
 			AbstractClassifier adt = new GreedyGlobalLocalClassifier_Cluster();
+//			AbstractClassifier adt = ClassifierGenerator.getClassifier(ClassifierType.RANDOM_FOREST);
 			
 			if (data.classIndex() == -1){
 				data.setClassIndex(data.numAttributes() - 1);
@@ -51,6 +53,8 @@ public class Tester {
 //			System.out.println("accuracy of "+": " + eval.pctCorrect() + "%");
 			eval.evaluateModel(adt, dataTest);
 			System.out.println(eval.toSummaryString());
+			
+			
 			
 			/*AbstractClassifier cl = ClassifierGenerator.getClassifier(GreedyGlobalLocalClassifier_Cluster.globalType);
 //			cl.buildClassifier(data);

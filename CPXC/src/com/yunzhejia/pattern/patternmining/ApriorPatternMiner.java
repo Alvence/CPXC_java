@@ -1,14 +1,10 @@
 package com.yunzhejia.pattern.patternmining;
 
-import java.util.Arrays;
 
-import com.yunzhejia.globallocal.classifier.GreedyGlobalLocalClassifier_Cluster;
 import com.yunzhejia.pattern.PatternSet;
 
 import weka.associations.AbstractAssociator;
 import weka.associations.Apriori;
-import weka.classifiers.AbstractClassifier;
-import weka.classifiers.Evaluation;
 import weka.core.Instances;
 import weka.core.converters.ConverterUtils.DataSource;
 import weka.filters.supervised.attribute.Discretize;

@@ -2,6 +2,7 @@ package com.yunzhejia.cpxc;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -94,15 +95,19 @@ public class Discretizer implements Serializable{
 	
 	
 	public String getDiscretizedInstance(Instance ins){
+		return getDiscretizedInstance(ins," ");
+	}
+	
+	public String getDiscretizedInstance(Instance ins, String delimeter){
 		String ret = "";
 		for (int j = 0; j < ins.numAttributes(); j++){
 			if (j == ins.classIndex() || ins.isMissing(j)){
 				continue;
 			}
 			if (ins.attribute(j).isNumeric()){
-				ret += getDiscretizedValue(j, ins.value(j))+(j<<SHIFT_SIZE)+" ";
+				ret += getDiscretizedValue(j, ins.value(j))+(j<<SHIFT_SIZE)+ (j==ins.numAttributes()-1?"":delimeter);
 			}else{
-				ret += getDiscretizedValue(j, ins.stringValue(j))+(j<<SHIFT_SIZE)+" ";
+				ret += getDiscretizedValue(j, ins.stringValue(j))+(j<<SHIFT_SIZE)+ (j==ins.numAttributes()-1?"":delimeter);
 			}
 		}
 		return ret;
@@ -147,6 +152,7 @@ public class Discretizer implements Serializable{
 		weka.filters.supervised.attribute.Discretize.useFilter(data, discretizer);
 		
 		for(int index: cuttingPointAttributes){
+			System.out.println("attr" + index + "  " + Arrays.toString(discretizer.getCutPoints(index)));
 			List<Double> points = new ArrayList<Double>();
 			for (double point: discretizer.getCutPoints(index)){
 				points.add(point);

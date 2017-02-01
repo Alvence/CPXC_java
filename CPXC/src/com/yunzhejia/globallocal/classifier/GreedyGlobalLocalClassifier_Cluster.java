@@ -46,7 +46,7 @@ public class GreedyGlobalLocalClassifier_Cluster extends AbstractClassifier{
 	protected static ClassifierType globalType = ClassifierType.LOGISTIC;
 	/** type of decision classifier*/
 	protected ClassifierType localType = ClassifierType.LOGISTIC;
-	protected ClustererType clustererType = ClustererType.EM;
+	protected ClustererType clustererType = ClustererType.KMEANS;
 
 	public GreedyGlobalLocalClassifier_Cluster() {
 	}
