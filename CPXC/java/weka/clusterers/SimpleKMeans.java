@@ -216,7 +216,7 @@ public class SimpleKMeans extends RandomizableClusterer implements
   /**
    * number of clusters to generate.
    */
-  protected int m_NumClusters = 2;
+  protected int m_NumClusters = 20;
 
   /**
    * Holds the initial start points, as supplied by the initialization method
