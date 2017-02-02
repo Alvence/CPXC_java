@@ -54,9 +54,10 @@ public class PatternSet extends AbstractList<Pattern> implements Serializable{
 		Iterator<Pattern> it = patterns.iterator();
 		while(it.hasNext()){
 			Pattern p = it.next();
-			float supLE = p.supportOfData(LE, discretizer);
-			float supSE = p.supportOfData(SE, discretizer);
-			if (supLE/supSE < minRatio){
+			double supLE = p.supportOfData(LE, discretizer);
+			double supSE = p.supportOfData(SE, discretizer);
+			
+			if (supSE != 0 && supLE/supSE < minRatio){
 				it.remove();
 			}
 		}
