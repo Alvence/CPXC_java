@@ -101,47 +101,47 @@ import weka.core.WeightedInstancesHandler;
  * @author Richard Kirkby (rkirkby@cs.waikato.ac.nz)
  * @version $Revision$
  */
-public class RandomTree extends AbstractClassifier implements OptionHandler,
+public class RandomTree_old extends AbstractClassifier implements OptionHandler,
   WeightedInstancesHandler, Randomizable, Drawable, PartitionGenerator {
 
   /** for serialization */
   private static final long serialVersionUID = -9051119597407396024L;
 
   /** The Tree object */
-  public Tree m_Tree = null;
+  protected Tree m_Tree = null;
 
   /** The header information. */
-  public Instances m_Info = null;
+  protected Instances m_Info = null;
 
   /** Minimum number of instances for leaf. */
-  public double m_MinNum = 1.0;
+  protected double m_MinNum = 1.0;
 
   /** The number of attributes considered for a split. */
-  public int m_KValue = 0;
+  protected int m_KValue = 0;
 
   /** The random seed to use. */
-  public int m_randomSeed = 1;
+  protected int m_randomSeed = 1;
 
   /** The maximum depth of the tree (0 = unlimited) */
-  public int m_MaxDepth = 0;
+  protected int m_MaxDepth = 0;
 
   /** Determines how much data is used for backfitting */
-  public int m_NumFolds = 0;
+  protected int m_NumFolds = 0;
 
   /** Whether unclassified instances are allowed */
-  public boolean m_AllowUnclassifiedInstances = false;
+  protected boolean m_AllowUnclassifiedInstances = false;
 
   /** Whether to break ties randomly. */
-  public boolean m_BreakTiesRandomly = false;
+  protected boolean m_BreakTiesRandomly = false;
 
   /** a ZeroR model in case no model can be built from the data */
-  public Classifier m_zeroR;
+  protected Classifier m_zeroR;
 
   /**
    * The minimum proportion of the total variance (over all the data) required
    * for split.
    */
-  public double m_MinVarianceProp = 1e-3;
+  protected double m_MinVarianceProp = 1e-3;
 
   /**
    * Returns a string describing classifier
@@ -695,7 +695,7 @@ public class RandomTree extends AbstractClassifier implements OptionHandler,
 
     double trainVariance = 0;
     if (data.classAttribute().isNumeric()) {
-      trainVariance = RandomTree.singleVariance(classProbs[0], totalSumSquared,
+      trainVariance = RandomTree_old.singleVariance(classProbs[0], totalSumSquared,
         totalWeight) / totalWeight;
       classProbs[0] /= totalWeight;
     }
@@ -871,33 +871,33 @@ public class RandomTree extends AbstractClassifier implements OptionHandler,
   /**
    * The inner class for dealing with the tree.
    */
-  public class Tree implements Serializable {
+  protected class Tree implements Serializable {
 
     /** For serialization */
     private static final long serialVersionUID = 3549573538656522569L;
 
     /** The subtrees appended to this tree. */
-    public Tree[] m_Successors;
+    protected Tree[] m_Successors;
 
     /** The attribute to split on. */
-    public int m_Attribute = -1;
+    protected int m_Attribute = -1;
 
     /** The split point. */
-    public double m_SplitPoint = Double.NaN;
+    protected double m_SplitPoint = Double.NaN;
 
     /** The proportions of training instances going down each branch. */
-    public double[] m_Prop = null;
+    protected double[] m_Prop = null;
 
     /**
      * Class probabilities from the training data in the nominal case. Holds the
      * mean in the numeric case.
      */
-    public double[] m_ClassDistribution = null;
+    protected double[] m_ClassDistribution = null;
 
     /**
      * Holds the sum of squared errors and the weight in the numeric case.
      */
-    public double[] m_Distribution = null;
+    protected double[] m_Distribution = null;
 
     /**
      * Backfits the given data into the tree.
@@ -924,7 +924,7 @@ public class RandomTree extends AbstractClassifier implements OptionHandler,
 
       double trainVariance = 0;
       if (data.classAttribute().isNumeric()) {
-        trainVariance = RandomTree.singleVariance(classProbs[0],
+        trainVariance = RandomTree_old.singleVariance(classProbs[0],
           totalSumSquared, totalWeight) / totalWeight;
         classProbs[0] /= totalWeight;
       }
@@ -1053,7 +1053,7 @@ public class RandomTree extends AbstractClassifier implements OptionHandler,
      * @return the leaf as string
      * @throws Exception if generation fails
      */
-    public String leafString() throws Exception {
+    protected String leafString() throws Exception {
 
       double sum = 0, maxCount = 0;
       int maxIndex = 0;
@@ -1089,7 +1089,7 @@ public class RandomTree extends AbstractClassifier implements OptionHandler,
      * @param level the current level of the tree
      * @return the generated subtree
      */
-    public String toString(int level) {
+    protected String toString(int level) {
 
       try {
         StringBuffer text = new StringBuffer();
@@ -1143,7 +1143,7 @@ public class RandomTree extends AbstractClassifier implements OptionHandler,
      * @param classProbs the class distribution
      * @throws Exception if generation fails
      */
-    public void backfitData(Instances data, double[] classProbs,
+    protected void backfitData(Instances data, double[] classProbs,
       double totalWeight) throws Exception {
 
       // Make leaf if there are no training instances
@@ -1169,7 +1169,7 @@ public class RandomTree extends AbstractClassifier implements OptionHandler,
             * inst.weight();
           totalSumOfWeights += inst.weight();
         }
-        priorVar = RandomTree.singleVariance(totalSum, totalSumSquared,
+        priorVar = RandomTree_old.singleVariance(totalSum, totalSumSquared,
           totalSumOfWeights);
       }
 
@@ -1283,7 +1283,7 @@ public class RandomTree extends AbstractClassifier implements OptionHandler,
      * @param depth the current depth
      * @throws Exception if generation fails
      */
-    public void buildTree(Instances data, double[] classProbs,
+    protected void buildTree(Instances data, double[] classProbs,
       int[] attIndicesWindow, double totalWeight, Random random, int depth,
       double minVariance) throws Exception {
 
@@ -1311,7 +1311,7 @@ public class RandomTree extends AbstractClassifier implements OptionHandler,
             * inst.weight();
           totalSumOfWeights += inst.weight();
         }
-        priorVar = RandomTree.singleVariance(totalSum, totalSumSquared,
+        priorVar = RandomTree_old.singleVariance(totalSum, totalSumSquared,
           totalSumOfWeights);
       }
 
@@ -1470,7 +1470,7 @@ public class RandomTree extends AbstractClassifier implements OptionHandler,
      * @return the subsets of instances
      * @throws Exception if something goes wrong
      */
-    public Instances[] splitData(Instances data) throws Exception {
+    protected Instances[] splitData(Instances data) throws Exception {
 
       // Allocate array of Instances objects
       Instances[] subsets = new Instances[m_Prop.length];
@@ -1541,7 +1541,7 @@ public class RandomTree extends AbstractClassifier implements OptionHandler,
      * @return
      * @throws Exception if a problem occurs
      */
-    public double numericDistribution(double[][] props, double[][][] dists,
+    protected double numericDistribution(double[][] props, double[][][] dists,
       int att, double[][] subsetWeights, Instances data, double[] vals)
       throws Exception {
 
@@ -1625,7 +1625,7 @@ public class RandomTree extends AbstractClassifier implements OptionHandler,
           Instance inst = data.instance(i);
 
           if (inst.value(att) > currSplit) {
-            currVal = RandomTree.variance(currSums, currSumSquared,
+            currVal = RandomTree_old.variance(currSums, currSumSquared,
               currSumOfWeights);
             if (currVal < bestVal) {
               bestVal = currVal;
@@ -1721,7 +1721,7 @@ public class RandomTree extends AbstractClassifier implements OptionHandler,
      * @param data the data to work with
      * @throws Exception if something goes wrong
      */
-    public double distribution(double[][] props, double[][][] dists,
+    protected double distribution(double[][] props, double[][][] dists,
       int att, Instances data) throws Exception {
 
       double splitPoint = Double.NaN;
@@ -1862,7 +1862,7 @@ public class RandomTree extends AbstractClassifier implements OptionHandler,
      * @param dist the distributions
      * @return the splitting criterion
      */
-    public double priorVal(double[][] dist) {
+    protected double priorVal(double[][] dist) {
 
       return ContingencyTables.entropyOverColumns(dist);
     }
@@ -1874,7 +1874,7 @@ public class RandomTree extends AbstractClassifier implements OptionHandler,
      * @param priorVal the splitting criterion
      * @return the gain after the split
      */
-    public double gain(double[][] dist, double priorVal) {
+    protected double gain(double[][] dist, double priorVal) {
 
       return priorVal - ContingencyTables.entropyConditionedOnRows(dist);
     }
@@ -1897,7 +1897,7 @@ public class RandomTree extends AbstractClassifier implements OptionHandler,
      * @return the next node id
      * @throws Exception if something goes wrong
      */
-    public int toGraph(StringBuffer text, int num, Tree parent)
+    protected int toGraph(StringBuffer text, int num, Tree parent)
       throws Exception {
 
       num++;
@@ -1942,7 +1942,7 @@ public class RandomTree extends AbstractClassifier implements OptionHandler,
    * @param sumOfWeights
    * @return the variance
    */
-  public static double variance(double[] s, double[] sS,
+  protected static double variance(double[] s, double[] sS,
     double[] sumOfWeights) {
 
     double var = 0;
@@ -1964,7 +1964,7 @@ public class RandomTree extends AbstractClassifier implements OptionHandler,
    * @param weight the weight
    * @return the variance
    */
-  public static double singleVariance(double s, double sS, double weight) {
+  protected static double singleVariance(double s, double sS, double weight) {
 
     return sS - ((s * s) / weight);
   }
@@ -1975,7 +1975,7 @@ public class RandomTree extends AbstractClassifier implements OptionHandler,
    * @param argv the commandline parameters
    */
   public static void main(String[] argv) {
-    runClassifier(new RandomTree(), argv);
+    runClassifier(new RandomTree_old(), argv);
   }
 }
 
