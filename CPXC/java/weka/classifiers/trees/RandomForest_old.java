@@ -146,7 +146,7 @@ import weka.gui.ProgrammaticProperty;
  * @author Richard Kirkby (rkirkby@cs.waikato.ac.nz)
  * @version $Revision$
  */
-public class RandomForest extends Bagging {
+public class RandomForest_old extends Bagging {
 
   /** for serialization */
   static final long serialVersionUID = 1116839470751428698L;
@@ -161,17 +161,13 @@ public class RandomForest extends Bagging {
   /**
    * Constructor that sets base classifier for bagging to RandomTre and default number of iterations to 100.
    */
-  public RandomForest() {
+  public RandomForest_old() {
 
     RandomTree rTree = new RandomTree();
     rTree.setDoNotCheckCapabilities(true);
     super.setClassifier(rTree);
     super.setRepresentCopiesUsingWeights(true);
     setNumIterations(defaultNumberOfIterations());
-  }
-  
-  public Classifier[] getClassifiers(){
-	  return m_Classifiers;
   }
 
   /**
@@ -641,7 +637,7 @@ public class RandomForest extends Bagging {
    * @param argv the options
    */
   public static void main(String[] argv) {
-    runClassifier(new RandomForest(), argv);
+    runClassifier(new RandomForest_old(), argv);
   }
 }
 
