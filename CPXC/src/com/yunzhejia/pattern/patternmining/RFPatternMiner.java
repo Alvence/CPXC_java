@@ -77,8 +77,7 @@ public class RFPatternMiner implements IPatternMiner {
 			conditions = new HashSet<>();
 		}
 		if (tree.m_Attribute == -1){
-			if(conditions != null && !conditions.isEmpty()){
-				System.out.println(tree.m_ClassDistribution);
+			if(conditions != null && !conditions.isEmpty() && tree.m_ClassDistribution != null){
 				if(tree.m_ClassDistribution[Utils.maxIndex(tree.m_ClassDistribution)] >= minSupport){
 					patterns.add(new Pattern(conditions));
 				}
@@ -118,11 +117,11 @@ public class RFPatternMiner implements IPatternMiner {
 	}
 	public static void main(String[] args){
 		try {
-			Instances data = DataUtils.load("data/sick.arff");
+			Instances data = DataUtils.load("data/ILPD.arff");
 			PatternSet ps = new RFPatternMiner().minePattern(data, data.numInstances()*0.1);
 			System.out.println(ps.size());
 			for(IPattern p:ps){
-//				System.out.println(pf);
+				System.out.println(p);
 			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block

@@ -4,6 +4,7 @@
 package com.yunzhejia.pattern;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 import java.util.UUID;
 
@@ -22,15 +23,59 @@ public class Pattern implements IPattern {
 	private Instances associatedData;
 	private Instances mds;
 	
-	
+	private Pattern(){}
 	public Pattern(ICondition condition) {
 		id = UUID.randomUUID().toString();
 		this.conditions = new HashSet<>();
 		this.conditions.add(condition);
 	}
-	
+	static int c = 1;
 	public Pattern(Set<ICondition> conditions) {
-		this.conditions = conditions;
+		for(ICondition con:conditions){
+			addCondition(con);
+		}
+//		this.conditions = conditions;
+//		Pattern p = new Pattern();
+//		
+//		p.conditions = conditions;
+//		System.out.println((c)+":old pattern: " + p);
+//		System.out.println((c++)+":new pattern: " + this+"\n");
+		
+	}
+	
+
+	private void addCondition(ICondition condition){
+		if (this.conditions==null){
+			this.conditions = new HashSet<>();
+		}
+		if (condition instanceof NumericCondition){
+			NumericCondition numCon = (NumericCondition)condition;
+			boolean flag = false;
+			Iterator<ICondition> it = conditions.iterator();
+			ICondition newCondition = null;
+			while(it.hasNext()){
+				ICondition existedCon = (ICondition)it.next();
+				if (condition instanceof NumericCondition){
+					NumericCondition numExistedCon = (NumericCondition)existedCon;
+					if(numExistedCon.attrIndex == numCon.attrIndex){
+						if(numCon.left<=numExistedCon.right && numCon.right >= numExistedCon.left){
+							double newleft = numCon.left>numExistedCon.left?numCon.left:numExistedCon.left;
+							double newright = numCon.right<numExistedCon.right?numCon.right:numExistedCon.right;
+							newCondition = new NumericCondition(numExistedCon.attrName,numExistedCon.attrIndex,newleft,newright);
+							flag = true;
+							it.remove();
+							break;
+						}
+					}
+				}
+			}
+			if(!flag){
+				newCondition = condition;
+			}
+			this.conditions.add(newCondition);
+		}else{
+			this.conditions.add(condition);
+		}
 	}
 
 	/**

@@ -42,7 +42,7 @@ public class ADT_Oracle2_Monitor extends AbstractClassifier{
 	/** type of local classifiers*/
 	protected ClassifierType ensembleType = ClassifierType.NAIVE_BAYES;
 	/** type of decision classifier*/
-	protected ClassifierType desicionType = ClassifierType.NAIVE_BAYES;
+	protected ClassifierType desicionType = ClassifierType.RANDOM_FOREST;
 	/** ratio to divide dataset to LargeErrSet and SmallErrSet*/
 	protected double rho = 0.5; 
 	
@@ -174,7 +174,7 @@ public class ADT_Oracle2_Monitor extends AbstractClassifier{
 		
 		
 		LEClassifier.buildClassifier(LE);
-		SEClassifier.buildClassifier(SE);
+//		SEClassifier.buildClassifier(SE);
 		SEClassifier = baseClassifier;
 		
 //		LEClassifier.buildClassifier(LE);
@@ -328,9 +328,9 @@ public class ADT_Oracle2_Monitor extends AbstractClassifier{
 		for(int i = 0; i < probs.length; i++){
 			probs[i] = 0;
 		}
-//		int oracleLabel = (int)desicionClassifier.classifyInstance(instance);
+		int oracleLabel = (int)desicionClassifier.classifyInstance(instance);
 		
-		int oracleLabel = this.getOracleLabel(instance);
+//		int oracleLabel = this.getOracleLabel(instance);
 //		System.out.println(label+"  oracle = "+oracleLabel);
 		if (oracleLabel == SE_LABEL){
 			return SEClassifier.distributionForInstance(instance);
@@ -449,7 +449,7 @@ public class ADT_Oracle2_Monitor extends AbstractClassifier{
 		DataSource source;
 		Instances data;
 		try {
-			source = new DataSource("data/ILPD.arff");
+			source = new DataSource("data/vote.arff");
 //			source = new DataSource("data/vote.arff");
 			data = source.getDataSet();
 			if (data.classIndex() == -1){
@@ -477,20 +477,20 @@ public class ADT_Oracle2_Monitor extends AbstractClassifier{
 			
 			
 			Evaluation eval = new Evaluation(testData);
-			adt.buildClassifier(trainingData);
+//			adt.buildClassifier(trainingData);
 			
-			eval.evaluateModel(adt, testData);
-//			eval.crossValidateModel(adt, data, 10, new Random(1));
+//			eval.evaluateModel(adt, testData);
+			eval.crossValidateModel(adt, data, 10, new Random(1));
 			System.out.println("accuracy of "+": " + eval.pctCorrect() + "%");
 			System.out.println("AUC of "+": " + eval.weightedAreaUnderROC());
 			System.out.println(eval.toSummaryString());
-			adt.testDecisionClassifier(testData);
+//			adt.testDecisionClassifier(data);
 			
 			AbstractClassifier cl = ClassifierGenerator.getClassifier(ClassifierType.RANDOM_FOREST);
-			cl.buildClassifier(trainingData);
+//			cl.buildClassifier(trainingData);
 			Evaluation eval1 = new Evaluation(testData);
-			eval1.evaluateModel(cl, testData);
-//			eval1.crossValidateModel(cl, data, 10, new Random(1));
+//			eval1.evaluateModel(cl, testData);
+			eval1.crossValidateModel(cl, data, 10, new Random(1));
 			System.out.println("accuracy of NBC: " + eval1.pctCorrect() + "%");
 			System.out.println("AUC of NBC: " + eval1.weightedAreaUnderROC());
 			/**/

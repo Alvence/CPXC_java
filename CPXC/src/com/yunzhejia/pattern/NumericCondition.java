@@ -4,15 +4,19 @@ import weka.core.Instance;
 
 public class NumericCondition implements ICondition {
 
-	private int attrIndex;
-	private double left;
-	private double right;
-	private String attrName;
+	int attrIndex;
+	double left;
+	double right;
+	String attrName;
 	
 	
 
 	public NumericCondition(int attrIndex, double left, double right) {
 		this(null, attrIndex, left, right);
+	}
+	
+	public NumericCondition(NumericCondition con) {
+		this(con.attrName, con.attrIndex, con.left, con.right);
 	}
 
 	

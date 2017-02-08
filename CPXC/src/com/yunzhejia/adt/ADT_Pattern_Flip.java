@@ -112,8 +112,8 @@ public class ADT_Pattern_Flip extends AbstractClassifier{
 		patternSet.contrast(LE,SE,discretizer,minRatio);
 		System.out.println("Pattern number after contrasting = "+patternSet.size());
 		//step 5 reduce the set of mined contrast pattern
-		patternSet = patternSet.filter(new SupportPatternFilter(20));
-		System.out.println("Pattern number after filtering = "+patternSet.size());
+//		patternSet = patternSet.filter(new SupportPatternFilter(10));
+//		System.out.println("Pattern number after filtering = "+patternSet.size());
 		
 		
 		LEClassifier.buildClassifier(LE);
