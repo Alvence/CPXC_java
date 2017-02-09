@@ -12,7 +12,6 @@ import java.util.Set;
 
 import com.yunzhejia.cpxc.Discretizer;
 import com.yunzhejia.cpxc.util.ClassifierGenerator;
-import com.yunzhejia.cpxc.util.DataUtils;
 import com.yunzhejia.cpxc.util.ClassifierGenerator.ClassifierType;
 import com.yunzhejia.cpxc.util.ClustererGenerator.ClustererType;
 import com.yunzhejia.partition.IPartition;
@@ -114,11 +113,10 @@ public class GreedyGlobalLocalClassifier_RFPattern extends AbstractClassifier{
 		partitions = contrastPartition(partitions, LE, SE);
 		
 		System.out.println(partitions.size());
-		partitions = filterPartition(partitions);
 //		partitions = bruteForceWeight(partitions);
 //		partitions = mergePartition(partitions);
 //		System.out.println(partitions.size());
-		
+		partitions = filterPartition(partitions);
 		if(partitions.size()>0){
 			IPartitionWeighting weighter = new SimulatedAnnealingWeighting(10000);
 			partitions = weighter.calcWeight(partitions, tempgcl, trainingData);
@@ -584,26 +582,47 @@ public class GreedyGlobalLocalClassifier_RFPattern extends AbstractClassifier{
 		
 		
 		try {
-			
-			Instances data = DataUtils.load("data/sick/train.arff");
-			Instances testData = DataUtils.load("data/sick/test.arff");
+			DataSource source;
+			Instances data;
 	
-			GreedyGlobalLocalClassifier_RFPattern adt = new GreedyGlobalLocalClassifier_RFPattern(0.05f,new ParallelCoordinatesMiner(10));
+			source = new DataSource("data/synthetic2.arff");
+//			source = new DataSource("data/banana.arff");
+//			source = new DataSource("data/iris.arff");
+			data = source.getDataSet();
+		
 			
-			Evaluation eval = new Evaluation(testData);
-			adt.buildClassifier(data);
+//			for (int bin = 2; bin < 30; bin+=2){
+			int bin = 20;
+			System.out.println(bin);
+			GreedyGlobalLocalClassifier_RFPattern adt = new GreedyGlobalLocalClassifier_RFPattern(0.05f,new ParallelCoordinatesMiner(bin));
+			
+			if (data.classIndex() == -1){
+				data.setClassIndex(data.numAttributes() - 1);
+			}
+			
+			Evaluation eval = new Evaluation(data);
+//			adt.buildClassifier(data);
 //			adt.testDecisionClassifier(data);
-			eval.evaluateModel(adt, testData);
+//			eval.evaluateModel(adt, data);
 //			System.out.println("accuracy of "+": " + eval.pctCorrect() + "%");
-//			eval.crossValidateModel(adt, data, 10, new Random(1));
+			eval.crossValidateModel(adt, data, 10, new Random(1));
 			
-			System.out.println(eval.toSummaryString());
+			if (eval.pctCorrect() > bestAcc){
+				bestNumBin = bin;
+				bestAcc = eval.pctCorrect();
+				bestAUC = eval.weightedAreaUnderROC();
+				}
+//			}
+			
+//			System.out.println(eval.toSummaryString());
 			
 			AbstractClassifier cl = ClassifierGenerator.getClassifier(GreedyGlobalLocalClassifier_RFPattern.globalType);
-			cl.buildClassifier(data);
-			Evaluation eval1 = new Evaluation(testData);
-			eval1.evaluateModel(cl, testData);
-//			eval1.crossValidateModel(cl, data, 10, new Random(1));
+//			cl.buildClassifier(data);
+			Evaluation eval1 = new Evaluation(data);
+//			eval1.evaluateModel(cl, data);
+			eval1.crossValidateModel(cl, data, 10, new Random(1));
+			System.out.println("accuracy of "+": " + bestAcc + "%");
+			System.out.println("AUC of "+": " + bestAUC);
 			System.out.println("accuracy of global: " + eval1.pctCorrect() + "%");
 			System.out.println("AUC of global: " + eval1.weightedAreaUnderROC()+"  bin="+bestNumBin);
 			/*cl.buildClassifier(data);
