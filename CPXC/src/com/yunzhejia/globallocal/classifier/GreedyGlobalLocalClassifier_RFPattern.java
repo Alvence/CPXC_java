@@ -103,10 +103,10 @@ public class GreedyGlobalLocalClassifier_RFPattern extends AbstractClassifier{
 //		writeData(LE);
 		PatternSet ps = patternMiner.minePattern(decisionData, minSupp * trainingData.numInstances());
 		System.out.println(ps.size());
-		int c=1;
-		for(IPattern p : ps){
-			System.out.println((c++)+":   "+p);
-		}
+//		int c=1;
+//		for(IPattern p : ps){
+//			System.out.println((c++)+":   "+p);
+//		}
 //		partitions = pairwisePartition(ps,trainingData);
 		partitions = singlewisePartition(ps,trainingData);
 
@@ -118,11 +118,12 @@ public class GreedyGlobalLocalClassifier_RFPattern extends AbstractClassifier{
 //		System.out.println(partitions.size());
 		partitions = filterPartition(partitions);
 		if(partitions.size()>0){
-			IPartitionWeighting weighter = new SimulatedAnnealingWeighting(10000);
+			IPartitionWeighting weighter = new SimulatedAnnealingWeighting(1000);
 			partitions = weighter.calcWeight(partitions, tempgcl, trainingData);
 		}
 		System.out.println(partitions.size());
 		for (IPartition par:partitions){
+			if(par.getWeight()!=0)
 			System.out.println(par);
 		}
 //		
