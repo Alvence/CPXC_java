@@ -586,7 +586,7 @@ public class GreedyGlobalLocalClassifier_RFPattern extends AbstractClassifier{
 			DataSource source;
 			Instances data;
 	
-			source = new DataSource("data/synthetic2.arff");
+			source = new DataSource("data/mushroom.arff");
 //			source = new DataSource("data/banana.arff");
 //			source = new DataSource("data/iris.arff");
 			data = source.getDataSet();
