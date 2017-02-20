@@ -78,10 +78,10 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 //	    System.out.println("training size="+trainingData.size()+"  validation size="+validationData.size());
 //	    System.out.println(validationData);
 	    AbstractClassifier tempgcl = ClassifierGenerator.getClassifier(globalType);
-	    Evaluation eval = new Evaluation(validationData);
+	    Evaluation eval = new Evaluation(trainingData);
 	    tempgcl.buildClassifier(trainingData);
 //		adt.testDecisionClassifier(data);
-		eval.evaluateModel(tempgcl, validationData);
+		eval.evaluateModel(tempgcl, trainingData);
 	    globalAcc = eval.pctCorrect();
 	    
 	    
