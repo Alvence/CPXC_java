@@ -291,10 +291,10 @@ public class CPXC extends AbstractClassifier{
 	
 	
 	public static void main(String[] args){
-		String[] files = {"data/sick.arff"};
+		String[] files = {"data/mushroom.arff"};
 		for (String file:files){
 			//runTest(file);
-			AbstractClassifier cpxc = new CPXC(ClassifierType.NAIVE_BAYES,ClassifierType.DECISION_TREE, 0.45, 0.02,3);
+			AbstractClassifier cpxc = new CPXC(ClassifierType.NAIVE_BAYES,ClassifierType.DECISION_TREE, 0.45, 0.02,5);
 			DataSource source;
 			Instances data;
 			try {
@@ -312,7 +312,7 @@ public class CPXC extends AbstractClassifier{
 				Evaluation eval = new Evaluation(data);
 //				cpxc.buildClassifier(data);
 //				eval.evaluateModel(cpxc, data);
-				eval.crossValidateModel(cpxc, data, 10, new Random(1));
+				eval.crossValidateModel(cpxc, data, 7, new Random(1));
 				
 				System.out.println("accuracy of "+file+": " + eval.pctCorrect() + "%");
 				System.out.println("AUC of "+file+": " + eval.weightedAreaUnderROC());
