@@ -101,19 +101,17 @@ public class ScatterPlotDemo3 extends ApplicationFrame {
      * @throws Exception 
      */   
     public static void main(String[] args) throws Exception {   
-    	Instances data = DataUtils.load("data/synthetic2.arff");
-    	Instances data1 = new Instances(data,0);
-    	Instances data2 = new Instances(data,0);
-    	for (Instance ins: data){
-    		if (ins.classValue() == 0){
-    			data1.add(ins);
-    		}else{
-    			data2.add(ins);
-    		}
-    	}
+    	Instances data = DataUtils.load("data/banana.arff");
     	List<Instances> datas = new ArrayList<>();
-    	datas.add(data1);
-    	datas.add(data2);
+    	for(int i = 0; i < data.numClasses();i++){
+    		datas.add(new Instances(data,0));
+    	}
+    	
+    	for (Instance ins: data){
+    		int index = (int)ins.classValue();
+    		datas.get(index).add(ins);
+    	}
+    	
     	ScatterPlotDemo3.render(ScatterPlotDemo3.createChart(datas, 0, 1));;
     }   
    

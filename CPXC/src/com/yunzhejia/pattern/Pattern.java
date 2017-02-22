@@ -55,7 +55,7 @@ public class Pattern implements IPattern {
 			ICondition newCondition = null;
 			while(it.hasNext()){
 				ICondition existedCon = (ICondition)it.next();
-				if (condition instanceof NumericCondition){
+				if (existedCon instanceof NumericCondition){
 					NumericCondition numExistedCon = (NumericCondition)existedCon;
 					if(numExistedCon.attrIndex == numCon.attrIndex){
 						if(numCon.left<=numExistedCon.right && numCon.right >= numExistedCon.left){

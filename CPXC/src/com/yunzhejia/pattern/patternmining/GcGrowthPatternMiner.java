@@ -124,9 +124,9 @@ public static void main(String[] args){
 	try {
 		DataSource source;
 		Instances data;
-		source = new DataSource("data/vote.arff");
+//		source = new DataSource("data/vote.arff");
 //		source = new DataSource("data/blood.arff");
-//		source = new DataSource("data/iris.arff");
+		source = new DataSource("data/iris.arff");
 		data = source.getDataSet();
 		
 		if (data.classIndex() == -1){

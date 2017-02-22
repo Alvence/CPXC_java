@@ -182,7 +182,7 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 			Instance ins = data.get(i);
 			if (errs.get(i) > k){
 				LE.add(ins);
-			}else{
+			}else if(errs.get(i) < 1 - k){
 				SE.add(ins);
 			}
 		}
@@ -226,7 +226,7 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 		}
 		double threshold = sum/errs.size() * rho;
 		
-		return threshold;
+		return 0.5;
 	}
 	private List<IPartition> pairwisePartition(PatternSet ps, Instances data) throws Exception {
 		List<IPartition> partitions = new ArrayList<>();
@@ -562,8 +562,8 @@ public class GreedyGlobalLocalClassifier extends AbstractClassifier{
 			DataSource source;
 			Instances data;
 	
-			source = new DataSource("data/synthetic2.arff");
-//			source = new DataSource("data/banana.arff");
+//			source = new DataSource("data/ILPD.arff");
+			source = new DataSource("data/banana.arff");
 //			source = new DataSource("data/iris.arff");
 			data = source.getDataSet();
 		

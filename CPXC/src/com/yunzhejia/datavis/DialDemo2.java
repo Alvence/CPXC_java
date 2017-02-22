@@ -121,9 +121,6 @@ public class DialDemo2 extends JFrame
 							e.printStackTrace();
 						}
 					
-            		
-                	
-                	
                 	setLayout(new BorderLayout());
                 	resetSeries(500);
                         //ChartFactory.create
@@ -165,7 +162,7 @@ public class DialDemo2 extends JFrame
 
         public static void main(String args[]) throws Exception
         {
-        		Instances data = DataUtils.load("data/synthetic2.arff");
+        		Instances data = DataUtils.load("data/banana.arff");
                 DialDemo2 dialdemo2 = new DialDemo2(data);
                 dialdemo2.pack();
                 dialdemo2.setVisible(true);
