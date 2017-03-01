@@ -30,7 +30,7 @@ import weka.core.Instances;
 import weka.core.Utils;
 import weka.core.converters.ConverterUtils.DataSource;
 
-public class ADT_Oracle extends AbstractClassifier{
+public class ADT_Oracle_with_known_data extends AbstractClassifier{
 	private static final long serialVersionUID = 3636935337536598456L;
 	
 	public static final int LE_LABEL = 0;
@@ -51,6 +51,9 @@ public class ADT_Oracle extends AbstractClassifier{
 	public transient AbstractClassifier desicionClassifier;
 	protected transient AbstractClassifier LEClassifier;
 	protected transient AbstractClassifier SEClassifier;
+	
+	protected Instances LE;
+	protected Instances SE;
 	
 	protected Instances oracleLE;
 	protected Instances oracleSE;
@@ -101,20 +104,20 @@ public class ADT_Oracle extends AbstractClassifier{
 	
 	//protected transient HashMap<Pattern, LocalClassifier> ensembles;
 	
-	public ADT_Oracle(int l){
+	public ADT_Oracle_with_known_data(int l){
 		super();
 		layer = l;
 	}
 	
-	public ADT_Oracle(){
+	public ADT_Oracle_with_known_data(){
 		this(0);
 	}
 	
 	
 	@Override
 	public void buildClassifier(Instances data) throws Exception {
-		Instances LE = new Instances(data,0);
-		Instances SE = new Instances(data,0);
+		LE = new Instances(data,0);
+		SE = new Instances(data,0);
 		
 		baseClassifier = ClassifierGenerator.getClassifier(baseType);
 		desicionClassifier = ClassifierGenerator.getClassifier(desicionType);
@@ -214,6 +217,8 @@ public class ADT_Oracle extends AbstractClassifier{
 		return newData;
 	}
 	
+	
+	
 	public void testDecisionClassifier(Instances data) throws Exception{
 		double err = 0;
 		for (Instance ins:data){
@@ -291,6 +296,38 @@ public class ADT_Oracle extends AbstractClassifier{
 		}
 		return newData;
 	}
+	
+	private double distance(Instance ins1, Instance ins2){
+		double sum = 0.0;
+		for (int i = 0; i < ins1.numAttributes()-1;i++){
+			sum += (ins1.value(i) - ins2.value(i))*(ins1.value(i) - ins2.value(i));
+		}
+		sum = Math.sqrt(sum);
+		return sum;
+	}
+	
+	public int getLabel(Instance instance){
+		int label = SE_LABEL;
+		double minSE = 1000;
+		double minLE = 1000;
+		for (Instance ins:SE){
+			double dis = distance(ins, instance);
+			if (dis<minSE){
+				minSE = dis;
+			}
+		}
+		
+		for (Instance ins:LE){
+			double dis = distance(ins, instance);
+			if (dis<minLE){
+				minLE = dis;
+			}
+		}
+		if (minLE<minSE){
+			label = LE_LABEL;
+		}
+		return label;
+	}
 
 	@Override
 	public double[] distributionForInstance(Instance instance)throws Exception{
@@ -300,7 +337,8 @@ public class ADT_Oracle extends AbstractClassifier{
 		}
 //		int oracleLabel = (int)desicionClassifier.classifyInstance(instance);
 		
-		int oracleLabel = this.getOracleLabel(instance);
+		int oracleLabel = this.getLabel(instance);
+//		int oracleLabel = this.getOracleLabel(instance);
 //		System.out.println(label+"  oracle = "+oracleLabel);
 		if (oracleLabel == SE_LABEL){
 			return SEClassifier.distributionForInstance(instance);
@@ -414,11 +452,11 @@ public class ADT_Oracle extends AbstractClassifier{
 	}
 	*/
 	public static void main(String[] args){
-		ADT_Oracle adt = new ADT_Oracle(5);
+		ADT_Oracle_with_known_data adt = new ADT_Oracle_with_known_data(5);
 		DataSource source;
 		Instances data;
 		try {
-			source = new DataSource("data/blood.arff");
+			source = new DataSource("data/bloodNorm.arff");
 //			source = new DataSource("data/vote.arff");
 			data = source.getDataSet();
 			if (data.classIndex() == -1){
