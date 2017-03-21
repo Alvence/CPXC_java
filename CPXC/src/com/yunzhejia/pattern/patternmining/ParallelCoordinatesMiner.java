@@ -162,5 +162,11 @@ public class ParallelCoordinatesMiner implements IPatternMiner, Serializable{
 		}
 	}
 
+	@Override
+	public PatternSet minePattern(Instances data, double minSupp, double minRatio, int classIndex) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 	
 }

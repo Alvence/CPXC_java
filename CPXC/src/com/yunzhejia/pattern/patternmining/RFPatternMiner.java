@@ -128,4 +128,10 @@ public class RFPatternMiner implements IPatternMiner {
 			e.printStackTrace();
 		}
 	}
+
+	@Override
+	public PatternSet minePattern(Instances data, double minSupp, double minRatio, int classIndex) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

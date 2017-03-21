@@ -149,4 +149,11 @@ public static void main(String[] args){
 	}
 }
 
+
+@Override
+public PatternSet minePattern(Instances data, double minSupp, double minRatio, int classIndex) {
+	// TODO Auto-generated method stub
+	return null;
+}
+
 }

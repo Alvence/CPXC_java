@@ -37,7 +37,7 @@ public class ScatterPlotDemo3 extends ApplicationFrame {
         super(title);   
     }   
             
-    private static JFreeChart createChart(Instances data, int xIndex, int yIndex) {   
+    public static JFreeChart createChart(Instances data, int xIndex, int yIndex) {   
     	XYSeries series = new XYSeries(0);
     	for (Instance instance:data){
     		series.add(instance.value(xIndex), instance.value(yIndex));

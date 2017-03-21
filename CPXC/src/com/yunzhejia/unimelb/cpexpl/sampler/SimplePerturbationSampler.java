@@ -26,7 +26,7 @@ public class SimplePerturbationSampler implements Sampler {
 		
 		
 		for (int i = 0 ; i < instance.numAttributes(); i++){
-			if (Math.random()>0.5){
+			if (Math.random()>0.5 || i == data.classIndex()){
 				continue;
 			}
 			else{

@@ -149,6 +149,10 @@ public class Pattern implements IPattern {
 			return false;
 		return true;
 	}
+	@Override
+	public double support() {
+		return mds.size()*1.0/associatedData.size();
+	}
 
 	
 	

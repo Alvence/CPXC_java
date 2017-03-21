@@ -22,4 +22,5 @@ public interface IPattern {
 	public Instances matchingDataSet(Instances data);
 	
 	public double support(Instances data);
+	public double support();
 }

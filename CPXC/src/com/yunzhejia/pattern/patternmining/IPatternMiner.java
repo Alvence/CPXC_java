@@ -20,4 +20,6 @@ public interface IPatternMiner {
 	public PatternSet minePattern(Instances data, double minSupp);
 	
 	public PatternSet minePattern(Instances data, double minSupp, int featureId);
+	
+	public PatternSet minePattern(Instances data, double minSupp, double minRatio, int classIndex);
 }
