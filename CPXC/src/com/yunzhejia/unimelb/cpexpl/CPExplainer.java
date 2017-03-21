@@ -2,6 +2,9 @@ package com.yunzhejia.unimelb.cpexpl;
 
 import java.util.List;
 
+import org.jfree.data.DataUtilities;
+
+import com.yunzhejia.cpxc.util.DataUtils;
 import com.yunzhejia.unimelb.cpexpl.sampler.Sampler;
 import com.yunzhejia.unimelb.cpexpl.sampler.SimplePerturbationSampler;
 
@@ -38,5 +41,19 @@ public class CPExplainer {
 	private Instances sampleNeighbours(Instance instance) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+	
+	
+	public static void main(String[] args){
+		CPExplainer app = new CPExplainer();
+		try {
+			Instances data = DataUtils.load("data/mushroom.arff");
+			app.getExplanations(null, null, data, 50, 3, 0.01, 5);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
 	}
 }
