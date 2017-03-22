@@ -1,13 +1,18 @@
 package com.yunzhejia.pattern.patternmining;
 
+import com.yunzhejia.cpxc.Discretizer;
 import com.yunzhejia.pattern.IPattern;
 import com.yunzhejia.pattern.PatternSet;
 
 import weka.core.Instance;
 import weka.core.Instances;
 
-public class RFContrastPatternMiner implements IPatternMiner {
+public class GcGrowthContrastPatternMiner implements IPatternMiner {
 
+	IPatternMiner gcMiner = null;
+	public GcGrowthContrastPatternMiner(Discretizer discretizer){
+		gcMiner = new GcGrowthPatternMiner(discretizer);
+	}
 	@Override
 	public PatternSet minePattern(Instances data, double minSupp) {
 		return null;
@@ -21,8 +26,7 @@ public class RFContrastPatternMiner implements IPatternMiner {
 
 	@Override
 	public PatternSet minePattern(Instances data, double minSupp, double minRatio, int classIndex) {
-		IPatternMiner rfMiner = new RFPatternMiner();
-		PatternSet ps = rfMiner.minePattern(data, minSupp);
+		PatternSet ps = gcMiner.minePattern(data, minSupp);
 		
 		Instances pos = new Instances(data,0);
 		Instances neg = new Instances(data,0);

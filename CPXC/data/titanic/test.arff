@@ -1,0 +1,14 @@
+@relation titanic-test
+
+
+@attribute passengerId numeric
+@attribute pclass {1,2,3}
+@attribute sex {male, female}
+@attribute age numeric
+@attribute sibsp numeric
+@attribute parch numeric
+@attribute fare numeric
+@attribute embarked {C, Q, S}
+@attribute survival {0,1}
+
+@data

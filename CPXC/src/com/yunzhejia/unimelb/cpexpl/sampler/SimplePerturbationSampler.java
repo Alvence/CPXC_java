@@ -26,7 +26,7 @@ public class SimplePerturbationSampler implements Sampler {
 		
 		
 		for (int i = 0 ; i < instance.numAttributes(); i++){
-			if (Math.random()>0.5 || i == data.classIndex()){
+			if (rand.nextDouble()>0.5 || i == data.classIndex()){
 				continue;
 			}
 			else{
@@ -55,6 +55,6 @@ public class SimplePerturbationSampler implements Sampler {
 	private double perturbNumericValue(Instances data, Instance instance, int attrIndex) {
 		double max = data.attributeStats(attrIndex).numericStats.max;
 		double min = data.attributeStats(attrIndex).numericStats.min;
-		return (Math.random() * (max - min)) + min;
+		return (rand.nextDouble() * (max - min)) + min;
 	}
 }

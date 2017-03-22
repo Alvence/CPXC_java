@@ -52,7 +52,7 @@ public class ScatterPlotDemo3 extends ApplicationFrame {
         return chart;   
     }   
     
-    private static JFreeChart createChart(List<Instances> datasets, int xIndex, int yIndex) {   
+    public static JFreeChart createChart(List<Instances> datasets, int xIndex, int yIndex) {   
     	DefaultXYDataset ds = new DefaultXYDataset();
     	int count = 0;
     	for (Instances data:datasets){

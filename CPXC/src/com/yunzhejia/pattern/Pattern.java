@@ -22,6 +22,7 @@ public class Pattern implements IPattern {
 	private Set<ICondition> conditions;
 	private Instances associatedData;
 	private Instances mds;
+	private double ratio;
 	
 	private Pattern(){}
 	public Pattern(ICondition condition) {
@@ -152,6 +153,14 @@ public class Pattern implements IPattern {
 	@Override
 	public double support() {
 		return mds.size()*1.0/associatedData.size();
+	}
+	@Override
+	public double ratio() {
+		return ratio;
+	}
+	@Override
+	public void setRatio(double r) {
+		ratio = r;
 	}
 
 	

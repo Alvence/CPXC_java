@@ -23,4 +23,6 @@ public interface IPattern {
 	
 	public double support(Instances data);
 	public double support();
+	public double ratio();
+	public void setRatio(double r);
 }
