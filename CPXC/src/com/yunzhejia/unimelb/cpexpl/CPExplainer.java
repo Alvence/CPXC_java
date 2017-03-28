@@ -12,8 +12,9 @@ import com.yunzhejia.pattern.IPattern;
 import com.yunzhejia.pattern.PatternSet;
 import com.yunzhejia.pattern.patternmining.GcGrowthContrastPatternMiner;
 import com.yunzhejia.pattern.patternmining.IPatternMiner;
+import com.yunzhejia.pattern.patternmining.RFPatternMiner;
+import com.yunzhejia.unimelb.cpexpl.sampler.PatternBasedSampler;
 import com.yunzhejia.unimelb.cpexpl.sampler.Sampler;
-import com.yunzhejia.unimelb.cpexpl.sampler.SimplePerturbationSampler;
 
 import weka.classifiers.AbstractClassifier;
 import weka.core.Instance;
@@ -25,9 +26,16 @@ public class CPExplainer {
 		List<Explanation> ret = null;
 		System.out.println("instance being tested: " + instance+" classification="+cl.classifyInstance(instance));
 		//step 1, sample the neighbours from the instance
+		/*
 		Sampler sampler = new SimplePerturbationSampler();
+		*/
+		IPatternMiner pm = new RFPatternMiner();
+		PatternSet ps = pm.minePattern(headerInfo, minSupp);
+		Sampler sampler = new PatternBasedSampler(ps);
+		
 		Instances samples = sampler.samplingFromInstance(headerInfo, instance, N);
 		
+		System.out.println(samples);
 		//step 2, label the samples using the classifier cl
 		samples = labelSample(samples, cl);
 		

@@ -40,7 +40,15 @@ public class PatternSet extends AbstractList<IPattern> implements Serializable{
 		return filter.filter(this);
 	}*/
 	
-	
+	public PatternSet getMatchingPatterns(Instance instance){
+		PatternSet ret = new PatternSet();
+		for (IPattern pattern : this.patterns){
+			if (!pattern.match(instance)){
+				ret.add(pattern);
+			}
+		}
+		return ret;
+	}
 	
 	public Instances getNoMatchingData(Instances data){
 		Instances ret = new Instances(data,0);
