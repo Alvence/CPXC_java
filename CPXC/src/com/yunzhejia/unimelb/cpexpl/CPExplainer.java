@@ -11,8 +11,8 @@ import com.yunzhejia.datavis.ScatterPlotDemo3;
 import com.yunzhejia.pattern.IPattern;
 import com.yunzhejia.pattern.PatternSet;
 import com.yunzhejia.pattern.patternmining.GcGrowthContrastPatternMiner;
+import com.yunzhejia.pattern.patternmining.GcGrowthPatternMiner;
 import com.yunzhejia.pattern.patternmining.IPatternMiner;
-import com.yunzhejia.pattern.patternmining.RFPatternMiner;
 import com.yunzhejia.unimelb.cpexpl.sampler.PatternBasedSampler;
 import com.yunzhejia.unimelb.cpexpl.sampler.Sampler;
 
@@ -29,16 +29,25 @@ public class CPExplainer {
 		/*
 		Sampler sampler = new SimplePerturbationSampler();
 		*/
-		IPatternMiner pm = new RFPatternMiner();
+		 Discretizer discretizer0 = new Discretizer();
+			discretizer0.initialize(headerInfo);
+		IPatternMiner pm = new GcGrowthPatternMiner(discretizer0);
 		PatternSet ps = pm.minePattern(headerInfo, minSupp);
 		Sampler sampler = new PatternBasedSampler(ps);
 		
+		for(int i = 0; i < K && i < ps.size(); i++){
+			IPattern p = ps.get(i);
+			System.out.println(p);
+		}
+		
+		
 		Instances samples = sampler.samplingFromInstance(headerInfo, instance, N);
 		
-		System.out.println(samples);
+//		System.out.println(samples);
 		//step 2, label the samples using the classifier cl
 		samples = labelSample(samples, cl);
 		
+		/*
 		List<Instances> tmp = new ArrayList<>();
 		Instances tmp1= new Instances(headerInfo,0);
 		tmp1.add(instance);
@@ -47,6 +56,8 @@ public class CPExplainer {
 		tmp.add(samples);
 		
 		ScatterPlotDemo3.render(ScatterPlotDemo3.createChart(tmp, 0, 1));;
+		*/
+		
 		//step 3, mine the contrast patterns from the newly labelled samples.
 		 Discretizer discretizer = new Discretizer();
 		discretizer.initialize(headerInfo);
@@ -56,7 +67,7 @@ public class CPExplainer {
 		
 		patternSet=sort(patternSet);
 		
-		
+		patternSet = patternSet.getMatchingPatterns(instance);
 		//step 4, select K patterns and convert them to explanations.
 		for(int i = 0; i < K && i < patternSet.size(); i++){
 			IPattern p = patternSet.get(i);
@@ -90,11 +101,11 @@ public class CPExplainer {
 	public static void main(String[] args){
 		CPExplainer app = new CPExplainer();
 		try {
-			Instances data = DataUtils.load("data/synthetic2.arff");
-//			Instances data = DataUtils.load("data/titanic/train.arff");
-			AbstractClassifier cl = ClassifierGenerator.getClassifier(ClassifierType.RANDOM_FOREST);
+//			Instances data = DataUtils.load("data/balloon.arff");
+			Instances data = DataUtils.load("data/titanic/train.arff");
+			AbstractClassifier cl = ClassifierGenerator.getClassifier(ClassifierType.NAIVE_BAYES);
 			cl.buildClassifier(data);
-			app.getExplanations(cl, data.get(1), data, 100, 0.1, 5, 10);
+			app.getExplanations(cl, data.get(1), data, 100, 0.01, 5, 10);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

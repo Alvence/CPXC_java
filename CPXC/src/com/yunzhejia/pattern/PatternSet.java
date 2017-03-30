@@ -43,7 +43,7 @@ public class PatternSet extends AbstractList<IPattern> implements Serializable{
 	public PatternSet getMatchingPatterns(Instance instance){
 		PatternSet ret = new PatternSet();
 		for (IPattern pattern : this.patterns){
-			if (!pattern.match(instance)){
+			if (pattern.match(instance)){
 				ret.add(pattern);
 			}
 		}

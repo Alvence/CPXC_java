@@ -22,6 +22,7 @@ public class PatternBasedSampler implements Sampler {
 	public Instances samplingFromInstance(Instances headerInfo, Instance instance, int N) {
 		Instances ret = new Instances(headerInfo,0);
 		PatternSet mp = ps.getMatchingPatterns(instance);
+		System.out.println(mp.size()+" out of "+ps.size());
 		while(ret.numInstances()<N){
 			Instance sample = perturb(headerInfo, instance);
 			if(mp.match(sample)){
@@ -67,7 +68,9 @@ public class PatternBasedSampler implements Sampler {
 	private double perturbNumericValue(Instances data, Instance instance, int attrIndex) {
 		double max = data.attributeStats(attrIndex).numericStats.max;
 		double min = data.attributeStats(attrIndex).numericStats.min;
-		return (rand.nextDouble() * (max - min)) + min;
+		double unit = data.attributeStats(attrIndex).numericStats.max / data.attributeStats(attrIndex).numericStats.mean;
+		return instance.value(attrIndex)+ rand.nextGaussian();
+//		return (rand.nextDouble() * (max - min)) + min;
 	}
 
 }
