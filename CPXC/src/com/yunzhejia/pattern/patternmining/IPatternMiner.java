@@ -17,9 +17,11 @@ public interface IPatternMiner {
 	 * @param minSupp
 	 * @return
 	 */
-	public PatternSet minePattern(Instances data, double minSupp);
+	public PatternSet minePattern(Instances data, double minSupp) throws Exception;
 	
-	public PatternSet minePattern(Instances data, double minSupp, int featureId);
+	public PatternSet minePattern(Instances data, double minSupp, int featureId) throws Exception;
 	
-	public PatternSet minePattern(Instances data, double minSupp, double minRatio, int classIndex);
+	public PatternSet minePattern(Instances data, double minSupp, double minRatio, int classIndex) throws Exception;
+	
+	public PatternSet minePattern(Instances data, double minSupp, double minRatio, int classIndex, boolean flag) throws Exception;
 }

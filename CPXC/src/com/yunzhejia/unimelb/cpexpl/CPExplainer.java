@@ -1,13 +1,11 @@
 package com.yunzhejia.unimelb.cpexpl;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.yunzhejia.cpxc.Discretizer;
 import com.yunzhejia.cpxc.util.ClassifierGenerator;
 import com.yunzhejia.cpxc.util.ClassifierGenerator.ClassifierType;
 import com.yunzhejia.cpxc.util.DataUtils;
-import com.yunzhejia.datavis.ScatterPlotDemo3;
 import com.yunzhejia.pattern.IPattern;
 import com.yunzhejia.pattern.PatternSet;
 import com.yunzhejia.pattern.patternmining.GcGrowthContrastPatternMiner;
@@ -24,7 +22,7 @@ public class CPExplainer {
 
 	public List<Explanation> getExplanations(AbstractClassifier cl, Instance instance, Instances headerInfo, int N, double minSupp, double minRatio, int K) throws Exception{
 		List<Explanation> ret = null;
-		System.out.println("instance being tested: " + instance+" classification="+cl.classifyInstance(instance));
+		System.out.println("instance being tested: " + instance+" classification="+  cl.classifyInstance(instance));
 		//step 1, sample the neighbours from the instance
 		/*
 		Sampler sampler = new SimplePerturbationSampler();
@@ -34,11 +32,6 @@ public class CPExplainer {
 		IPatternMiner pm = new GcGrowthPatternMiner(discretizer0);
 		PatternSet ps = pm.minePattern(headerInfo, minSupp);
 		Sampler sampler = new PatternBasedSampler(ps);
-		
-		for(int i = 0; i < K && i < ps.size(); i++){
-			IPattern p = ps.get(i);
-			System.out.println(p);
-		}
 		
 		
 		Instances samples = sampler.samplingFromInstance(headerInfo, instance, N);
@@ -63,19 +56,31 @@ public class CPExplainer {
 		discretizer.initialize(headerInfo);
 //		IPatternMiner patternMiner = new RFContrastPatternMiner();
 		IPatternMiner patternMiner = new GcGrowthContrastPatternMiner(discretizer);
-		PatternSet patternSet = patternMiner.minePattern(samples, minSupp, minRatio, (int)cl.classifyInstance(instance));
+		PatternSet patternSet = patternMiner.minePattern(samples, minSupp, minRatio, (int)cl.classifyInstance(instance), true);
 		
-		patternSet=sort(patternSet);
-		
-		patternSet = patternSet.getMatchingPatterns(instance);
 		//step 4, select K patterns and convert them to explanations.
-		for(int i = 0; i < K && i < patternSet.size(); i++){
-			IPattern p = patternSet.get(i);
-			System.out.println(p + "  sup=" + p.support()+" ratio="+p.ratio());
-		}
+		patternSet=sort(patternSet);
+		patternSet = patternSet.getMatchingPatterns(instance);
+		
+		print_pattern(patternSet,K,"positive");
+		
+		
+		
+		patternSet = patternMiner.minePattern(samples, minSupp, minRatio, (int)cl.classifyInstance(instance), false);
+		patternSet=sort(patternSet);
+		print_pattern(patternSet,K,"negative");
+		
 		
 		
 		return ret;
+	}
+	
+	public void print_pattern(PatternSet ps, int K, String name){
+		System.out.println(name);
+		for(int i = 0; i < K && i < ps.size(); i++){
+			IPattern p = ps.get(i);
+			System.out.println(p + "  sup=" + p.support()+" ratio="+p.ratio());
+		}
 	}
 	
 	private PatternSet sort(PatternSet ps){
@@ -101,11 +106,11 @@ public class CPExplainer {
 	public static void main(String[] args){
 		CPExplainer app = new CPExplainer();
 		try {
-//			Instances data = DataUtils.load("data/balloon.arff");
+//			Instances data = DataUtils.load("data/vote.arff");
 			Instances data = DataUtils.load("data/titanic/train.arff");
 			AbstractClassifier cl = ClassifierGenerator.getClassifier(ClassifierType.NAIVE_BAYES);
 			cl.buildClassifier(data);
-			app.getExplanations(cl, data.get(6), data, 100, 0.01, 5, 10);
+			app.getExplanations(cl, data.get(1), data, 1000, 0.01, 5, 10);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

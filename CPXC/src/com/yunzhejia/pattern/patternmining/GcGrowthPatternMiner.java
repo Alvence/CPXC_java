@@ -156,4 +156,11 @@ public PatternSet minePattern(Instances data, double minSupp, double minRatio, i
 	return null;
 }
 
+
+@Override
+public PatternSet minePattern(Instances data, double minSupp, double minRatio, int classIndex, boolean flag)
+		throws Exception {
+	throw new Exception("Unsupport operation");
+}
+
 }

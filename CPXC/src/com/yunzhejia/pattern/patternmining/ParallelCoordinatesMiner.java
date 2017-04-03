@@ -163,9 +163,14 @@ public class ParallelCoordinatesMiner implements IPatternMiner, Serializable{
 	}
 
 	@Override
-	public PatternSet minePattern(Instances data, double minSupp, double minRatio, int classIndex) {
-		// TODO Auto-generated method stub
-		return null;
+	public PatternSet minePattern(Instances data, double minSupp, double minRatio, int classIndex) throws Exception {
+		throw new Exception("Unsupport operation");
+	}
+
+	@Override
+	public PatternSet minePattern(Instances data, double minSupp, double minRatio, int classIndex, boolean flag)
+			throws Exception {
+		throw new Exception("Unsupport operation");
 	}
 
 	
