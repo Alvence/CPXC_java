@@ -105,7 +105,7 @@ public class CPExplainer {
 			Instances data = DataUtils.load("data/titanic/train.arff");
 			AbstractClassifier cl = ClassifierGenerator.getClassifier(ClassifierType.NAIVE_BAYES);
 			cl.buildClassifier(data);
-			app.getExplanations(cl, data.get(1), data, 100, 0.01, 5, 10);
+			app.getExplanations(cl, data.get(6), data, 100, 0.01, 5, 10);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
