@@ -92,6 +92,11 @@ public class NumericCondition implements ICondition {
 			return false;
 		return true;
 	}
+
+	@Override
+	public int getAttrIndex() {
+		return attrIndex;
+	}
 	
 	
 }

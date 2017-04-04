@@ -18,4 +18,6 @@ public interface ICondition {
 	 * @throws Throw an exception is the value type does not match.
 	 */
 	public boolean match(Instance ins);
+	
+	public int getAttrIndex();
 }

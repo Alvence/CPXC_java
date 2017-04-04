@@ -76,6 +76,11 @@ public class NominalCondition implements ICondition {
 			return false;
 		return true;
 	}
+
+	@Override
+	public int getAttrIndex() {
+		return attrIndex;
+	}
 	
 	
 }

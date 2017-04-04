@@ -162,6 +162,10 @@ public class Pattern implements IPattern {
 	public void setRatio(double r) {
 		ratio = r;
 	}
+	@Override
+	public Set<ICondition> getConditions() {
+		return conditions;
+	}
 
 	
 	

@@ -3,6 +3,8 @@
  */
 package com.yunzhejia.pattern;
 
+import java.util.Set;
+
 import weka.core.Instance;
 import weka.core.Instances;
 
@@ -25,4 +27,5 @@ public interface IPattern {
 	public double support();
 	public double ratio();
 	public void setRatio(double r);
+	public Set<ICondition> getConditions();
 }

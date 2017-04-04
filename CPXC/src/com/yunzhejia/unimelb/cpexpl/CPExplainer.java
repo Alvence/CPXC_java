@@ -1,11 +1,16 @@
 package com.yunzhejia.unimelb.cpexpl;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import com.yunzhejia.cpxc.Discretizer;
 import com.yunzhejia.cpxc.util.ClassifierGenerator;
 import com.yunzhejia.cpxc.util.ClassifierGenerator.ClassifierType;
 import com.yunzhejia.cpxc.util.DataUtils;
+import com.yunzhejia.pattern.ICondition;
 import com.yunzhejia.pattern.IPattern;
 import com.yunzhejia.pattern.PatternSet;
 import com.yunzhejia.pattern.patternmining.GcGrowthContrastPatternMiner;
@@ -59,18 +64,23 @@ public class CPExplainer {
 		PatternSet patternSet = patternMiner.minePattern(samples, minSupp, minRatio, (int)cl.classifyInstance(instance), true);
 		
 		//step 4, select K patterns and convert them to explanations.
-		patternSet=sort(patternSet);
+//		patternSet=sort(patternSet);
+		patternSet = sortByConfidence(cl, instance, patternSet);
 		patternSet = patternSet.getMatchingPatterns(instance);
-		
-		print_pattern(patternSet,K,"positive");
-		
+//		print_pattern(patternSet,K,"positive");
+		for(int i = 0; i < K && i < patternSet.size(); i++){
+			IPattern p = patternSet.get(i);
+			System.out.println(p + "  sup=" + p.support()+" ratio="+p.ratio());
+			System.out.println("With pattern   "+predictionByPattern(cl, instance, p));
+			System.out.println("Original   "+prediction(cl, instance));
+			System.out.println("Without pattern   "+predictionByRemovingPattern(cl, instance, p));
+			System.out.println();
+		}
 		
 		
 		patternSet = patternMiner.minePattern(samples, minSupp, minRatio, (int)cl.classifyInstance(instance), false);
 		patternSet=sort(patternSet);
 		print_pattern(patternSet,K,"negative");
-		
-		
 		
 		return ret;
 	}
@@ -82,6 +92,82 @@ public class CPExplainer {
 			System.out.println(p + "  sup=" + p.support()+" ratio="+p.ratio());
 		}
 	}
+	
+	//Get the prediction using only features appearing in the pattern
+	public Prediction predictionByPattern(AbstractClassifier cl, Instance instance, IPattern pattern) throws Exception{
+		Prediction pred = new Prediction();
+		
+		Instance ins = (Instance)instance.copy();
+
+		Set<Integer> attrs = new HashSet<>();
+		for (ICondition condition:pattern.getConditions()){
+			attrs.add(condition.getAttrIndex());
+		}
+		
+		for (int i = 0 ; i < ins.numAttributes(); i++){
+			if (!attrs.contains(i)){
+				ins.setMissing(i);
+			}
+		}
+//		System.out.println(ins);
+		pred.classIndex = cl.classifyInstance(ins);
+		pred.prob = cl.distributionForInstance(ins)[(int)pred.classIndex];
+		
+		return pred;
+	}
+	
+	
+	public Prediction prediction(AbstractClassifier cl, Instance instance) throws Exception{
+		Prediction pred = new Prediction();
+		pred.classIndex = cl.classifyInstance(instance);
+		pred.prob = cl.distributionForInstance(instance)[(int)pred.classIndex];
+		return pred;
+	}
+	
+	//Get the prediction without features appearing in the pattern
+		public Prediction predictionByRemovingPattern(AbstractClassifier cl, Instance instance, IPattern pattern) throws Exception{
+			Prediction pred = new Prediction();
+			
+			Instance ins = (Instance)instance.copy();
+
+			Set<Integer> attrs = new HashSet<>();
+			for (ICondition condition:pattern.getConditions()){
+				attrs.add(condition.getAttrIndex());
+			}
+			
+			for (int i = 0 ; i < ins.numAttributes(); i++){
+				if (attrs.contains(i)){
+					ins.setMissing(i);
+				}
+			}
+//			System.out.println(ins);
+			pred.classIndex = cl.classifyInstance(ins);
+			pred.prob = cl.distributionForInstance(ins)[(int)pred.classIndex];
+			
+			return pred;
+		}
+	
+	
+	private PatternSet sortByConfidence(AbstractClassifier cl, Instance instance, PatternSet ps) throws Exception{
+		PatternSet ret = new PatternSet();
+		
+//		double[] scores = new double[ps.size()];
+		Map<IPattern, Double> scores = new HashMap<>(); 
+		for(int i = 0; i < ps.size(); i++){
+//			scores.put(ps.get(i), predictionByPattern(cl, instance, ps.get(i)).prob);
+			scores.put(ps.get(i), prediction(cl, instance).prob - predictionByRemovingPattern(cl, instance, ps.get(i)).prob);
+		}
+		
+		for(int i = 0; i < ps.size(); i++){
+			IPattern p = ps.get(i);
+			int index = 0;
+			while(ret.size()>index && (scores.get(ret.get(index))+ret.get(index).support()/2) > (scores.get(p)+p.support()/2)){
+				index++;
+			}
+			ret.add(index, p);
+		}
+		return ret;
+	} 
 	
 	private PatternSet sort(PatternSet ps){
 		PatternSet ret = new PatternSet();
@@ -110,12 +196,20 @@ public class CPExplainer {
 			Instances data = DataUtils.load("data/titanic/train.arff");
 			AbstractClassifier cl = ClassifierGenerator.getClassifier(ClassifierType.NAIVE_BAYES);
 			cl.buildClassifier(data);
-			app.getExplanations(cl, data.get(1), data, 1000, 0.01, 5, 10);
+			app.getExplanations(cl, data.get(1), data, 500, 0.01, 10, 10);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}		
+	}
+	
+	class Prediction{
+		double classIndex;
+		double prob;
+		
+		@Override
+		public String toString(){
+			return "ClassIndex = "+classIndex+"  Prob="+prob;
 		}
-		
-		
 	}
 }
