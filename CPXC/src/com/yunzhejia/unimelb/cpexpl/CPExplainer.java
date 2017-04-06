@@ -64,8 +64,8 @@ public class CPExplainer {
 		PatternSet patternSet = patternMiner.minePattern(samples, minSupp, minRatio, (int)cl.classifyInstance(instance), true);
 		
 		//step 4, select K patterns and convert them to explanations.
-//		patternSet=sort(patternSet);
-		patternSet = sortByConfidence(cl, instance, patternSet);
+		patternSet=sort(patternSet);
+//		patternSet = sortByConfidence(cl, instance, patternSet);
 		patternSet = patternSet.getMatchingPatterns(instance);
 //		print_pattern(patternSet,K,"positive");
 		for(int i = 0; i < K && i < patternSet.size(); i++){
@@ -142,7 +142,7 @@ public class CPExplainer {
 			}
 //			System.out.println(ins);
 			pred.classIndex = cl.classifyInstance(ins);
-			pred.prob = cl.distributionForInstance(ins)[(int)pred.classIndex];
+			pred.prob = cl.distributionForInstance(ins)[(int)cl.classifyInstance(instance)];
 			
 			return pred;
 		}
@@ -196,7 +196,7 @@ public class CPExplainer {
 			Instances data = DataUtils.load("data/titanic/train.arff");
 			AbstractClassifier cl = ClassifierGenerator.getClassifier(ClassifierType.NAIVE_BAYES);
 			cl.buildClassifier(data);
-			app.getExplanations(cl, data.get(1), data, 500, 0.01, 10, 10);
+			app.getExplanations(cl, data.get(1), data, 2000, 0.01, 10, 10);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
