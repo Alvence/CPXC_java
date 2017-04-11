@@ -1,13 +1,18 @@
 package com.yunzhejia.pattern.patternmining;
 
+import com.yunzhejia.cpxc.Discretizer;
 import com.yunzhejia.pattern.IPattern;
 import com.yunzhejia.pattern.PatternSet;
 
 import weka.core.Instance;
 import weka.core.Instances;
 
-public class RFContrastPatternMiner implements IPatternMiner {
+public class AprioriContrastPatternMiner implements IPatternMiner {
 
+	IPatternMiner apriori = null;
+	public AprioriContrastPatternMiner(Discretizer discretizer){
+		apriori = new AprioriPatternMiner(discretizer);
+	}
 	@Override
 	public PatternSet minePattern(Instances data, double minSupp) {
 		return null;
@@ -23,12 +28,9 @@ public class RFContrastPatternMiner implements IPatternMiner {
 	public PatternSet minePattern(Instances data, double minSupp, double minRatio, int classIndex) throws Exception {
 		return minePattern(data,minSupp,minRatio,classIndex,true);
 	}
-
 	@Override
-	public PatternSet minePattern(Instances data, double minSupp, double minRatio, int classIndex, boolean flag)
-			throws Exception {
-		IPatternMiner rfMiner = new RFPatternMiner();
-		PatternSet ps = rfMiner.minePattern(data, minSupp);
+	public PatternSet minePattern(Instances data, double minSupp, double minRatio, int classIndex, boolean flag) throws Exception {
+		PatternSet ps = apriori.minePattern(data, minSupp);
 		Instances pos = new Instances(data,0);
 		Instances neg = new Instances(data,0);
 		for (Instance ins:data){
@@ -47,10 +49,14 @@ public class RFContrastPatternMiner implements IPatternMiner {
 			}
 		}
 		
-//		System.out.println("pos="+pos.size()+"   neg="+neg.size() +  "   pps="+ps.size());
+//		PatternSet pps = apriori.minePattern(pos, minSupp);
+//		PatternSet nps = gcMiner.minePattern(neg, minSupp);
+		
+//		System.out.println("pos="+pos.size()+"   neg="+neg.size() +  "   pps="+pps.size());
 		PatternSet newPs = new PatternSet();
 		for(IPattern p:ps){
-//			System.out.println(p+ "  supp="+p.support(pos) +"  suppneg= "+p.support(neg));
+//			System.out.println(p+ "  supp="+p.support(pos));
+//			System.out.println("pos="+p.support(pos)+"  "+p.matchingDataSet(pos).size());
 			if(p.support(neg)!=0){
 				if(p.support(pos)/p.support(neg)>=minRatio){
 					p.setRatio(p.support(pos)/p.support(neg));
@@ -63,7 +69,6 @@ public class RFContrastPatternMiner implements IPatternMiner {
 				}
 			}
 		}
-//		System.out.println(newPs.size());
 		return newPs;
 	}
 

@@ -1,11 +1,10 @@
 package com.yunzhejia.cpxc.util;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.FileReader;
 import java.io.FileWriter;
 
 import weka.core.Instances;
+import weka.core.converters.ConverterUtils.DataSource;
 
 public class DataUtils {
 	 /**
@@ -16,15 +15,21 @@ public class DataUtils {
 	    * @throws Exception  if somethings goes wrong
 	    */
 	   public static Instances load(String filename) throws Exception {
-	     Instances       result;
-	     BufferedReader  reader;
+	     Instances       data = null;
+	     /*BufferedReader  reader;
 	 
 	     reader = new BufferedReader(new FileReader(filename));
-	     result = new Instances(reader);
-	     result.setClassIndex(result.numAttributes() - 1);
+	     data = new Instances(reader);
+	     data.setClassIndex(data.numAttributes() - 1);
 	     reader.close();
-	 
-	     return result;
+	 	*/
+	     
+	     DataSource source = new DataSource(filename);
+	     data = source.getDataSet();
+	     if (data.classIndex() == -1){
+	    	   data.setClassIndex(data.numAttributes() - 1);
+	     }
+	     return data;
 	   }
 	/**
 	    * saves the data to the specified file

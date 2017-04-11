@@ -939,6 +939,10 @@ public class Apriori extends AbstractAssociator implements OptionHandler,
     }
     return options;
   }
+  
+  public ArrayList<ArrayList<Object>> getLargeitems(){
+	  return m_Ls;
+  }
 
   /**
    * Outputs the size of all the generated sets of itemsets and the rules.

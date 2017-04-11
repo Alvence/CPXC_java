@@ -98,6 +98,25 @@ public class Discretizer implements Serializable{
 		return getDiscretizedInstance(ins," ");
 	}
 	
+	public String getDiscretizedInstanceKeepMissingValue(Instance ins, String delimeter){
+		String ret = "";
+		for (int j = 0; j < ins.numAttributes(); j++){
+			if (j == ins.classIndex() ){
+				continue;
+			}
+			if(ins.isMissing(j)){
+				ret += "?"+ (j==ins.numAttributes()-2?"":delimeter);
+				continue;
+			}
+			if (ins.attribute(j).isNumeric()){
+				ret += getDiscretizedValue(j, ins.value(j))+(j<<SHIFT_SIZE)+ (j==ins.numAttributes()-2?"":delimeter);
+			}else{
+				ret += getDiscretizedValue(j, ins.stringValue(j))+(j<<SHIFT_SIZE)+ (j==ins.numAttributes()-2?"":delimeter);
+			}
+		}
+		return ret;
+	}
+	
 	public String getDiscretizedInstance(Instance ins, String delimeter){
 		String ret = "";
 		for (int j = 0; j < ins.numAttributes(); j++){
@@ -105,9 +124,9 @@ public class Discretizer implements Serializable{
 				continue;
 			}
 			if (ins.attribute(j).isNumeric()){
-				ret += getDiscretizedValue(j, ins.value(j))+(j<<SHIFT_SIZE)+ (j==ins.numAttributes()-1?"":delimeter);
+				ret += getDiscretizedValue(j, ins.value(j))+(j<<SHIFT_SIZE)+ (j==ins.numAttributes()-2?"":delimeter);
 			}else{
-				ret += getDiscretizedValue(j, ins.stringValue(j))+(j<<SHIFT_SIZE)+ (j==ins.numAttributes()-1?"":delimeter);
+				ret += getDiscretizedValue(j, ins.stringValue(j))+(j<<SHIFT_SIZE)+ (j==ins.numAttributes()-2?"":delimeter);
 			}
 		}
 		return ret;

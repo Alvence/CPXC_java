@@ -22,7 +22,7 @@ public class PatternBasedSampler implements Sampler {
 	public Instances samplingFromInstance(Instances headerInfo, Instance instance, int N) {
 		Instances ret = new Instances(headerInfo,0);
 		PatternSet mp = ps.getMatchingPatterns(instance);
-		System.out.println(mp.size()+" out of "+ps.size());
+//		System.out.println(mp.size()+" out of "+ps.size());
 		while(ret.numInstances()<N){
 			Instance sample = perturb(headerInfo, instance);
 			if(mp.match(sample)){
@@ -31,12 +31,10 @@ public class PatternBasedSampler implements Sampler {
 		}
 		return ret;
 	}
-	
 	private Instance perturb(Instances data, Instance instance){
 		//uniformly select number of features to be perturbed.
 		
 		Instance newIns = (Instance)instance.copy();
-		
 		
 		for (int i = 0 ; i < instance.numAttributes(); i++){
 			if (rand.nextDouble()>0.5 || i == data.classIndex()){
@@ -68,8 +66,10 @@ public class PatternBasedSampler implements Sampler {
 	private double perturbNumericValue(Instances data, Instance instance, int attrIndex) {
 		double max = data.attributeStats(attrIndex).numericStats.max;
 		double min = data.attributeStats(attrIndex).numericStats.min;
+		double std = data.attributeStats(attrIndex).numericStats.stdDev;
+		double mean = data.attributeStats(attrIndex).numericStats.mean;
 		double unit = data.attributeStats(attrIndex).numericStats.max / data.attributeStats(attrIndex).numericStats.mean;
-		return instance.value(attrIndex)+ rand.nextGaussian();
+		return (instance.isMissing(attrIndex)?mean:instance.value(attrIndex))+ rand.nextGaussian()*std;
 //		return (rand.nextDouble() * (max - min)) + min;
 	}
 

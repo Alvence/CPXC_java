@@ -15,39 +15,81 @@ import com.yunzhejia.cpxc.util.DataUtils;
 import com.yunzhejia.pattern.ICondition;
 import com.yunzhejia.pattern.IPattern;
 import com.yunzhejia.pattern.PatternSet;
+import com.yunzhejia.pattern.patternmining.AprioriContrastPatternMiner;
+import com.yunzhejia.pattern.patternmining.AprioriPatternMiner;
+import com.yunzhejia.pattern.patternmining.GcGrowthContrastPatternMiner;
+import com.yunzhejia.pattern.patternmining.GcGrowthPatternMiner;
 import com.yunzhejia.pattern.patternmining.IPatternMiner;
 import com.yunzhejia.pattern.patternmining.RFContrastPatternMiner;
 import com.yunzhejia.pattern.patternmining.RFPatternMiner;
 import com.yunzhejia.unimelb.cpexpl.sampler.AddNoisyFeatureToData;
+import com.yunzhejia.unimelb.cpexpl.sampler.PatternBasedSampler;
 import com.yunzhejia.unimelb.cpexpl.sampler.Sampler;
 import com.yunzhejia.unimelb.cpexpl.sampler.SimplePerturbationSampler;
 
 import weka.classifiers.AbstractClassifier;
+import weka.classifiers.Evaluation;
 import weka.core.Instance;
 import weka.core.Instances;
 
 public class CPExplainer {
+	public enum FPStrategy{RF,GCGROWTH,APRIORI};
+	public enum CPStrategy{RF,GCGROWTH,APRIORI};
+	public enum SamplingStrategy{RANDOM,PATTERN_BASED_RANDOM};
+	public enum PatternSortingStrategy{SUPPORT, PROBDIFF_AND_SUPP};
+	public static boolean DEBUG= false;
 
-	public List<IPattern> getExplanations(AbstractClassifier cl, Instance instance, Instances headerInfo, int N, double minSupp, double minRatio, int K) throws Exception{
+	public List<IPattern> getExplanations(FPStrategy fpStrategy, SamplingStrategy samplingStrategy, CPStrategy cpStrategy, PatternSortingStrategy patternSortingStrategy,
+			AbstractClassifier cl, Instance instance, Instances headerInfo, int N, double minSupp, double minRatio, int K, boolean debug) throws Exception{
+		//debug mode?
+		DEBUG = debug;
+		
 		List<IPattern> ret = new ArrayList<>();
-		System.out.println("instance being tested: " + instance+" classification="+  cl.classifyInstance(instance));
+//		System.out.println("instance being tested: " + instance+" classification="+  cl.classifyInstance(instance));
 		//step 1, sample the neighbours from the instance
 		/*
 		Sampler sampler = new SimplePerturbationSampler();
 		*/
-		 Discretizer discretizer0 = new Discretizer();
-			discretizer0.initialize(headerInfo);
-//		IPatternMiner pm = new GcGrowthPatternMiner(discretizer0);
-		IPatternMiner pm = new RFPatternMiner();
-		PatternSet ps = pm.minePattern(headerInfo, minSupp);
-//		Sampler sampler = new PatternBasedSampler(ps);
-		Sampler sampler = new SimplePerturbationSampler();
+		Sampler sampler = null;
+		IPatternMiner pm = null;
 		
+		Discretizer discretizer0 = new Discretizer();
+		switch(samplingStrategy){
+		case RANDOM:
+			sampler = new SimplePerturbationSampler();
+			break;
+		case PATTERN_BASED_RANDOM:
+			switch(fpStrategy){
+			case RF:
+				pm = new RFPatternMiner();
+				break;
+			case GCGROWTH:
+				discretizer0.initialize(headerInfo);
+				pm = new GcGrowthPatternMiner(discretizer0);
+				break;
+			case APRIORI:
+				discretizer0.initialize(headerInfo);
+				pm = new AprioriPatternMiner(discretizer0);
+				break;
+			default:
+				break;
+			}
+			PatternSet ps = pm.minePattern(headerInfo, minSupp);
+			sampler = new PatternBasedSampler(ps);
+			break;
+		default:
+			break;
+		}
 		Instances samples = sampler.samplingFromInstance(headerInfo, instance, N);
-		
 //		System.out.println(samples);
+		
 		//step 2, label the samples using the classifier cl
 		samples = labelSample(samples, cl);
+		
+		if(DEBUG){
+			System.out.println("sample size = "+samples.size());
+//			System.out.println(samples);
+		}
 		
 		/*
 		List<Instances> tmp = new ArrayList<>();
@@ -61,24 +103,52 @@ public class CPExplainer {
 		*/
 		
 		//step 3, mine the contrast patterns from the newly labelled samples.
-		 Discretizer discretizer = new Discretizer();
-		discretizer.initialize(headerInfo);
-		IPatternMiner patternMiner = new RFContrastPatternMiner();
-//		IPatternMiner patternMiner = new GcGrowthContrastPatternMiner(discretizer);
+		Discretizer discretizer = new Discretizer();
+		IPatternMiner patternMiner = null;
+		switch(cpStrategy){
+		case RF:
+			patternMiner = new RFContrastPatternMiner();
+			break;
+		case GCGROWTH:
+			discretizer.initialize(headerInfo);
+			patternMiner = new GcGrowthContrastPatternMiner(discretizer);
+			break;
+		case APRIORI:
+			discretizer.initialize(headerInfo);
+			patternMiner = new AprioriContrastPatternMiner(discretizer);
+			break;
+		default:
+			break;
+		}
 		PatternSet patternSet = patternMiner.minePattern(samples, minSupp, minRatio, (int)cl.classifyInstance(instance), true);
 		
-		//step 4, select K patterns and convert them to explanations.
-		patternSet=sort(patternSet);
-//		patternSet = sortByConfidence(cl, instance, patternSet);
 		patternSet = patternSet.getMatchingPatterns(instance);
+		
+		if(DEBUG){
+			System.out.println("size of patterns = "+patternSet.size());
+		}
+		//step 4, select K patterns and convert them to explanations.
+		switch(patternSortingStrategy){
+		case SUPPORT:
+			patternSet=sortBySupport(patternSet);
+			break;
+		case PROBDIFF_AND_SUPP:
+			patternSet = sortByProbDiffAndSupp(cl, instance, patternSet);
+			break;
+		default:
+			break;
+		}
+		
 //		print_pattern(patternSet,K,"positive");
 		for(int i = 0; i < K && i < patternSet.size(); i++){
 			IPattern p = patternSet.get(i);
-//			System.out.println(p + "  sup=" + p.support()+" ratio="+p.ratio());
-//			System.out.println("With pattern   "+predictionByPattern(cl, instance, p));
-//			System.out.println("Original   "+prediction(cl, instance));
-//			System.out.println("Without pattern   "+predictionByRemovingPattern(cl, instance, p));
-//			System.out.println();
+			if (DEBUG){
+				System.out.println(p + "  sup=" + p.support()+" ratio="+p.ratio());
+				System.out.println("With pattern   "+predictionByPattern(cl, instance, p));
+				System.out.println("Original   "+prediction(cl, instance));
+				System.out.println("Without pattern   "+predictionByRemovingPattern(cl, instance, p));
+				System.out.println();
+			}
 			ret.add(p);
 		}
 		
@@ -153,9 +223,8 @@ public class CPExplainer {
 		}
 	
 	
-	private PatternSet sortByConfidence(AbstractClassifier cl, Instance instance, PatternSet ps) throws Exception{
+	private PatternSet sortByProbDiffAndSupp(AbstractClassifier cl, Instance instance, PatternSet ps) throws Exception{
 		PatternSet ret = new PatternSet();
-		
 //		double[] scores = new double[ps.size()];
 		Map<IPattern, Double> scores = new HashMap<>(); 
 		for(int i = 0; i < ps.size(); i++){
@@ -174,7 +243,7 @@ public class CPExplainer {
 		return ret;
 	} 
 	
-	private PatternSet sort(PatternSet ps){
+	private PatternSet sortBySupport(PatternSet ps){
 		PatternSet ret = new PatternSet();
 		for(IPattern p:ps){
 			int index = 0;
@@ -195,10 +264,22 @@ public class CPExplainer {
 	}
 	
 	public static void main(String[] args){
+		String[] files = {"balloon.arff","banana.arff", "blood.arff", 
+				"diabetes.arff","haberman.arff","hepatitis.arff","iris.arff","labor.arff",
+				"mushroom.arff","sick.arff","titanic.arff","vote.arff"};
+		int[] numsOfExpl = {1,5,10};
+		int[] numsOfSamples={1000,2000,5000};
+		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.LOGISTIC, ClassifierType.NAIVE_BAYES};
 		CPExplainer app = new CPExplainer();
 		try {
-			Instances data = DataUtils.load("data/balloon.arff");
-//			Instances data = DataUtils.load("data/titanic/train.arff");
+			for(int numOfSamples:numsOfSamples){
+			for(String file:files){
+				for(ClassifierType type:typesOfClassifier){
+					for(int numOfExpl:numsOfExpl){
+			
+						try{
+//			Instances data = DataUtils.load("data/synthetic2.arff");
+			Instances data = DataUtils.load("data/"+file);
 			int numGoldFeature = data.numAttributes();
 			Set<Integer> goldFeatures = new HashSet<>();
 			for(int i = 0; i < numGoldFeature-1; i++){
@@ -214,15 +295,52 @@ public class CPExplainer {
 			Instances train = data.trainCV(5, 1);
 			Instances test = data.testCV(5, 1);
 			
-			AbstractClassifier cl = ClassifierGenerator.getClassifier(ClassifierType.LOGISTIC);
+			AbstractClassifier cl = ClassifierGenerator.getClassifier(type);
 			cl.buildClassifier(train);
 			double precision = 0;
+			
+			
+			int count=0;
 			for(Instance ins:test){
-				List<IPattern> expls = app.getExplanations(cl, ins, data, 2000, 0.01, 10, 1);
-				precision += ExplEvaluation.eval(expls, goldFeatures);
+				try{
+				List<IPattern> expls = app.getExplanations(FPStrategy.APRIORI, SamplingStrategy.PATTERN_BASED_RANDOM, 
+						CPStrategy.APRIORI, PatternSortingStrategy.PROBDIFF_AND_SUPP,
+						cl, ins, data, numOfSamples, 0.01, 10, numOfExpl, false);
+				if (expls.size()!=0){
+					precision += ExplEvaluation.eval(expls, goldFeatures);
+//					System.out.println(expls.size()+"  precision="+precision);
+					count++;
+				}else{
+//					System.err.println("No explanations!");
+				}
+				}catch(Exception e){
+					continue;
+				}
 			}
-			System.out.println("precision = "+precision/test.numInstances());
-			//calc gold features
+			Evaluation eval = new Evaluation(train);
+			eval.evaluateModel(cl, test);
+			
+			System.out.println("numOfSample="+numOfSamples+"   "+file+"  cl="+type+"  NumExpl="+numOfExpl+"  precision = "+(count==0?0:precision/count)+"   acc="+eval.correct()*1.0/test.numInstances());
+			}catch(Exception e){
+				e.printStackTrace();
+//				continue;
+			}
+			/*
+			Instance ins = test.get(12);
+//			ins.setValue(0, 15.634462);
+//			ins.setValue(1, 16.646118);
+//			ins.setValue(2, 3);
+//			ins.setClassValue(1);
+			List<IPattern> expls = app.getExplanations(FPStrategy.RF, SamplingStrategy.PATTERN_BASED_RANDOM, 
+					CPStrategy.RF, PatternSortingStrategy.PROBDIFF_AND_SUPP,
+					cl, ins, data, 2000, 0.01, 10, 5, true);
+			precision += ExplEvaluation.eval(expls, goldFeatures);
+			System.out.println(expls.size()+"  precision="+precision);
+			*/
+			
+			
+					}}}}
+			
 			
 			
 		} catch (Exception e) {
