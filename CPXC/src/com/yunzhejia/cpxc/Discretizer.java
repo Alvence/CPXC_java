@@ -152,7 +152,7 @@ public class Discretizer implements Serializable{
 		weka.filters.supervised.attribute.Discretize.useFilter(data, discretizer);
 		
 		for(int index: cuttingPointAttributes){
-			System.out.println("attr" + index + "  " + Arrays.toString(discretizer.getCutPoints(index)));
+//			System.out.println("attr" + index + "  " + Arrays.toString(discretizer.getCutPoints(index)));
 			List<Double> points = new ArrayList<Double>();
 			for (double point: discretizer.getCutPoints(index)){
 				points.add(point);
