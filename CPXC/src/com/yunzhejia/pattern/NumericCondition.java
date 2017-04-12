@@ -11,6 +11,14 @@ public class NumericCondition implements ICondition {
 	
 	
 
+	public double getLeft() {
+		return left;
+	}
+
+	public double getRight() {
+		return right;
+	}
+
 	public NumericCondition(int attrIndex, double left, double right) {
 		this(null, attrIndex, left, right);
 	}

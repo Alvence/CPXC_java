@@ -52,7 +52,6 @@ public class CPExplainer {
 		*/
 		Sampler sampler = null;
 		IPatternMiner pm = null;
-		
 		Discretizer discretizer0 = new Discretizer();
 		switch(samplingStrategy){
 		case RANDOM:
@@ -264,12 +263,16 @@ public class CPExplainer {
 	}
 	
 	public static void main(String[] args){
-		String[] files = {"balloon.arff","banana.arff", "blood.arff", 
-				"diabetes.arff","haberman.arff","hepatitis.arff","iris.arff","labor.arff",
-				"mushroom.arff","sick.arff","titanic.arff","vote.arff"};
-		int[] numsOfExpl = {1,5,10};
-		int[] numsOfSamples={1000,2000,5000};
-		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.LOGISTIC, ClassifierType.NAIVE_BAYES};
+//		String[] files = {"balloon.arff","banana.arff", "blood.arff", 
+//				"diabetes.arff","haberman.arff","hepatitis.arff","iris.arff","labor.arff",
+//				"mushroom.arff","sick.arff","titanic.arff","vote.arff"};
+		String[] files = {"balloon.arff", "blood.arff", "diabetes.arff","haberman.arff","iris.arff","labor.arff"};
+//		int[] numsOfExpl = {1,5,10};
+//		int[] numsOfSamples={2000,1000,5000};
+//		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.LOGISTIC, ClassifierType.NAIVE_BAYES};
+		int[] numsOfExpl = {5};
+		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.LOGISTIC};
+		int[] numsOfSamples={500};
 		CPExplainer app = new CPExplainer();
 		try {
 			for(int numOfSamples:numsOfSamples){
@@ -303,8 +306,8 @@ public class CPExplainer {
 			int count=0;
 			for(Instance ins:test){
 				try{
-				List<IPattern> expls = app.getExplanations(FPStrategy.APRIORI, SamplingStrategy.PATTERN_BASED_RANDOM, 
-						CPStrategy.APRIORI, PatternSortingStrategy.PROBDIFF_AND_SUPP,
+				List<IPattern> expls = app.getExplanations(FPStrategy.RF, SamplingStrategy.PATTERN_BASED_RANDOM, 
+						CPStrategy.RF, PatternSortingStrategy.PROBDIFF_AND_SUPP,
 						cl, ins, data, numOfSamples, 0.01, 10, numOfExpl, false);
 				if (expls.size()!=0){
 					precision += ExplEvaluation.eval(expls, goldFeatures);
@@ -314,7 +317,8 @@ public class CPExplainer {
 //					System.err.println("No explanations!");
 				}
 				}catch(Exception e){
-					continue;
+					throw e;
+//					e.printStackTrace();
 				}
 			}
 			Evaluation eval = new Evaluation(train);
@@ -322,7 +326,8 @@ public class CPExplainer {
 			
 			System.out.println("numOfSample="+numOfSamples+"   "+file+"  cl="+type+"  NumExpl="+numOfExpl+"  precision = "+(count==0?0:precision/count)+"   acc="+eval.correct()*1.0/test.numInstances());
 			}catch(Exception e){
-				e.printStackTrace();
+				throw e;
+//				e.printStackTrace();
 //				continue;
 			}
 			/*

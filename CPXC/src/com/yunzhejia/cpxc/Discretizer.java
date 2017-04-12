@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+import com.yunzhejia.cpxc.util.DataUtils;
 import com.yunzhejia.cpxc.util.OutputUtils;
 
 import weka.core.Attribute;
@@ -169,7 +170,6 @@ public class Discretizer implements Serializable{
 		discretizer.setInputFormat(data);
 		discretizer.setBins(defaultBin);
 		weka.filters.supervised.attribute.Discretize.useFilter(data, discretizer);
-		
 		for(int index: cuttingPointAttributes){
 //			System.out.println("attr" + index + "  " + Arrays.toString(discretizer.getCutPoints(index)));
 			List<Double> points = new ArrayList<Double>();
