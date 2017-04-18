@@ -36,7 +36,7 @@ public class AddNoisyFeatureToData {
 
 	public static void main(String[] args) {
 		try {
-			Instances data = DataUtils.load("data/titanic/train.arff");
+			Instances data = DataUtils.load("data/balloon_synthetic.arff");
 			Random rand = new Random(0);
 			int numOfNewAttr = data.numAttributes()/2;
 			
@@ -48,6 +48,7 @@ public class AddNoisyFeatureToData {
 				for (int j = 0; j < data.numInstances();j++){
 					data.get(j).setValue(data.numAttributes()-2, rand.nextInt(10));
 				}
+				data.randomize(new Random(1));
 			}
 			
 			DataUtils.save(data, "tmp/newData.arff");

@@ -287,12 +287,14 @@ public class CPExplainer {
 //		String[] files = {"balloon.arff","banana.arff", "blood.arff", 
 //				"diabetes.arff","haberman.arff","hepatitis.arff","iris.arff","labor.arff",
 //				"mushroom.arff","sick.arff","titanic.arff","vote.arff"};
-		String[] files = {"balloon.arff", "blood.arff", "diabetes.arff","haberman.arff","iris.arff","labor.arff"};
+//		String[] files = {"balloon.arff", "blood.arff", "diabetes.arff","haberman.arff","iris.arff","labor.arff"};
 //		int[] numsOfExpl = {1,5,10};
 //		int[] numsOfSamples={2000,1000,5000};
 //		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.LOGISTIC, ClassifierType.NAIVE_BAYES};
+		
+		String[] files = {"balloon_synthetic.arff"};
 		int[] numsOfExpl = {5};
-		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.LOGISTIC};
+		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.RANDOM_FOREST};
 		int[] numsOfSamples={500};
 		CPExplainer app = new CPExplainer();
 		try {
@@ -319,17 +321,19 @@ public class CPExplainer {
 			Instances train = data.trainCV(5, 1);
 			Instances test = data.testCV(5, 1);
 			
-			AbstractClassifier cl = ClassifierGenerator.getClassifier(type);
+//			AbstractClassifier cl = ClassifierGenerator.getClassifier(type);
+			AbstractClassifier cl = new BalloonClassifier();
 			cl.buildClassifier(train);
 			double precision = 0;
 			
 			
 			int count=0;
-			for(Instance ins:test){
+			Instance ins = test.get(0);
+//			for(Instance ins:test){
 				try{
 				List<IPattern> expls = app.getExplanations(FPStrategy.RF, SamplingStrategy.PATTERN_BASED_PERTURBATION, 
 						CPStrategy.RF, PatternSortingStrategy.PROBDIFF_AND_SUPP,
-						cl, ins, data, numOfSamples, 0.01, 10, numOfExpl, false);
+						cl, ins, data, numOfSamples, 0.01, 10, numOfExpl, true);
 				if (expls.size()!=0){
 					precision += ExplEvaluation.eval(expls, goldFeatures);
 //					System.out.println(expls.size()+"  precision="+precision);
@@ -341,7 +345,7 @@ public class CPExplainer {
 					throw e;
 //					e.printStackTrace();
 				}
-			}
+//			}
 			Evaluation eval = new Evaluation(train);
 			eval.evaluateModel(cl, test);
 			
