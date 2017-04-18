@@ -23,6 +23,7 @@ import com.yunzhejia.pattern.patternmining.IPatternMiner;
 import com.yunzhejia.pattern.patternmining.RFContrastPatternMiner;
 import com.yunzhejia.pattern.patternmining.RFPatternMiner;
 import com.yunzhejia.unimelb.cpexpl.sampler.AddNoisyFeatureToData;
+import com.yunzhejia.unimelb.cpexpl.sampler.PatternBasedPerturbationSampler;
 import com.yunzhejia.unimelb.cpexpl.sampler.PatternBasedSampler;
 import com.yunzhejia.unimelb.cpexpl.sampler.Sampler;
 import com.yunzhejia.unimelb.cpexpl.sampler.SimplePerturbationSampler;
@@ -35,7 +36,7 @@ import weka.core.Instances;
 public class CPExplainer {
 	public enum FPStrategy{RF,GCGROWTH,APRIORI};
 	public enum CPStrategy{RF,GCGROWTH,APRIORI};
-	public enum SamplingStrategy{RANDOM,PATTERN_BASED_RANDOM};
+	public enum SamplingStrategy{RANDOM,PATTERN_BASED_RANDOM,PATTERN_BASED_PERTURBATION};
 	public enum PatternSortingStrategy{SUPPORT, PROBDIFF_AND_SUPP};
 	public static boolean DEBUG= false;
 
@@ -52,6 +53,7 @@ public class CPExplainer {
 		*/
 		Sampler sampler = null;
 		IPatternMiner pm = null;
+		PatternSet ps = null;
 		Discretizer discretizer0 = new Discretizer();
 		switch(samplingStrategy){
 		case RANDOM:
@@ -73,8 +75,27 @@ public class CPExplainer {
 			default:
 				break;
 			}
-			PatternSet ps = pm.minePattern(headerInfo, minSupp);
+			ps = pm.minePattern(headerInfo, minSupp);
 			sampler = new PatternBasedSampler(ps);
+			break;
+		case PATTERN_BASED_PERTURBATION:
+			switch(fpStrategy){
+			case RF:
+				pm = new RFPatternMiner();
+				break;
+			case GCGROWTH:
+				discretizer0.initialize(headerInfo);
+				pm = new GcGrowthPatternMiner(discretizer0);
+				break;
+			case APRIORI:
+				discretizer0.initialize(headerInfo);
+				pm = new AprioriPatternMiner(discretizer0);
+				break;
+			default:
+				break;
+			}
+			ps = pm.minePattern(headerInfo, minSupp);
+			sampler = new PatternBasedPerturbationSampler(ps);
 			break;
 		default:
 			break;
@@ -306,7 +327,7 @@ public class CPExplainer {
 			int count=0;
 			for(Instance ins:test){
 				try{
-				List<IPattern> expls = app.getExplanations(FPStrategy.RF, SamplingStrategy.PATTERN_BASED_RANDOM, 
+				List<IPattern> expls = app.getExplanations(FPStrategy.RF, SamplingStrategy.PATTERN_BASED_PERTURBATION, 
 						CPStrategy.RF, PatternSortingStrategy.PROBDIFF_AND_SUPP,
 						cl, ins, data, numOfSamples, 0.01, 10, numOfExpl, false);
 				if (expls.size()!=0){

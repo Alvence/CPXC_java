@@ -24,10 +24,12 @@ public class PatternBasedPerturbationSampler implements Sampler {
 	public Instances samplingFromInstance(Instances headerInfo, Instance instance, int N) {
 		List<Integer> slots = new ArrayList<>();
 		PatternSet mp = ps.getMatchingPatterns(instance);
+		int count = 0;
 		for(IPattern p:mp){
 			for(int i = 0 ;i < p.support(headerInfo)*100;i++){
-				slots.add(i);
+				slots.add(count);
 			}
+			count++;
 		}
 		
 		Instances ret = new Instances(headerInfo,0);
@@ -35,7 +37,7 @@ public class PatternBasedPerturbationSampler implements Sampler {
 //		System.out.println(mp.size()+" out of "+ps.size());
 		while(ret.numInstances()<N){
 			int index = rand.nextInt(slots.size());
-			IPattern p = mp.get(index);
+			IPattern p = mp.get(slots.get(index));
 			Instance sample = perturb(headerInfo, instance, p);
 			if(mp.match(sample)){
 				ret.add(sample);
@@ -54,9 +56,12 @@ public class PatternBasedPerturbationSampler implements Sampler {
 					double left = numCond.getLeft();
 					double right = numCond.getRight();
 					if (left == Double.MIN_VALUE){
-						left = data.attribute(i).
+						left = data.attributeStats(i).numericStats.min;
 					}
-					double newValue = 
+					if (right == Double.MAX_VALUE){
+						right = data.attributeStats(i).numericStats.max;
+					}
+					double newValue = left+(right-left)*rand.nextDouble();
 					newIns.setValue(i, newValue);
 				}
 			}
