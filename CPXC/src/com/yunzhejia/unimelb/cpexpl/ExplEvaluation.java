@@ -1,7 +1,7 @@
 package com.yunzhejia.unimelb.cpexpl;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -30,5 +30,28 @@ public class ExplEvaluation {
 		averagePrecision = averagePrecision/precisions.size();
 //		System.out.println("averagePrecision = "+averagePrecision);
 		return averagePrecision;
+	}
+	
+	public static double evalRecall(List<IPattern> explanations, Set<Integer> goldFeatures){
+		List<Double> recalls = new ArrayList<>();
+		List<Double> precisions = new ArrayList<>();
+		Set<Integer> features = new HashSet<>();
+		
+		double recall = 0;
+		for(IPattern pattern: explanations){
+			for(ICondition condition:pattern.getConditions()){
+				features.add(condition.getAttrIndex());
+			}
+		}
+		int tp = 0;
+		int fp = 0;
+		for(int f:features){
+			if(goldFeatures.contains(f)){
+				fp++;
+			}
+		}
+		recall = fp*1.0/goldFeatures.size();
+//		System.out.println("averagePrecision = "+averagePrecision);
+		return recall;
 	}
 }

@@ -13,7 +13,7 @@ public class AddNoisyFeatureToData {
 		Instances ret = new Instances(data);
 		try {
 			Random rand = new Random(0);
-			int numOfNewAttr = ret.numAttributes()/2;
+			int numOfNewAttr = ret.numAttributes();
 			
 			for(int i = 0 ; i < numOfNewAttr; i++){
 			
