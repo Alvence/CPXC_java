@@ -46,7 +46,7 @@ public class CPExplainer {
 		DEBUG = debug;
 		
 		List<IPattern> ret = new ArrayList<>();
-//		System.out.println("instance being tested: " + instance+" classification="+  cl.classifyInstance(instance));
+		System.out.println("instance being tested: " + instance+" classification="+  cl.classifyInstance(instance));
 		//step 1, sample the neighbours from the instance
 		/*
 		Sampler sampler = new SimplePerturbationSampler();
@@ -328,11 +328,11 @@ public class CPExplainer {
 			
 			
 			int count=0;
-			Instance ins = test.get(0);
+			Instance ins = test.get(1);
 //			for(Instance ins:test){
 				try{
-				List<IPattern> expls = app.getExplanations(FPStrategy.RF, SamplingStrategy.PATTERN_BASED_PERTURBATION, 
-						CPStrategy.RF, PatternSortingStrategy.PROBDIFF_AND_SUPP,
+				List<IPattern> expls = app.getExplanations(FPStrategy.APRIORI, SamplingStrategy.PATTERN_BASED_PERTURBATION, 
+						CPStrategy.APRIORI, PatternSortingStrategy.PROBDIFF_AND_SUPP,
 						cl, ins, data, numOfSamples, 0.01, 10, numOfExpl, true);
 				if (expls.size()!=0){
 					precision += ExplEvaluation.eval(expls, goldFeatures);
