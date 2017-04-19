@@ -291,17 +291,19 @@ public class CPExplainer {
 //				"diabetes.arff","haberman.arff","hepatitis.arff","iris.arff","labor.arff",
 //				"mushroom.arff","sick.arff","titanic.arff","vote.arff"};
 //		String[] files = {"balloon.arff", "blood.arff", "diabetes.arff","haberman.arff","iris.arff","labor.arff"};
-		int[] numsOfExpl = {1,5,10};
-//		int[] numsOfSamples={1000,2000,5000};
-		CPStrategy[] miningStrategies = {CPStrategy.APRIORI,CPStrategy.RF};
+//		int[] numsOfExpl = {1,5,10};
+		int[] numsOfSamples={10,200,500,1000};
+//		CPStrategy[] miningStrategies = {CPStrategy.APRIORI,CPStrategy.RF};
 		SamplingStrategy[] samplingStrategies = {SamplingStrategy.RANDOM,SamplingStrategy.PATTERN_BASED_RANDOM,SamplingStrategy.PATTERN_BASED_PERTURBATION};
 //		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.LOGISTIC, ClassifierType.NAIVE_BAYES};
 		
-//		String[] files = {"balloon_synthetic.arff"};
-		String[] files = {"balloon.arff"};
-//		int[] numsOfExpl = {5};
-		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.LOGISTIC};
-		int[] numsOfSamples={1000};
+		String[] files = {"balloon_synthetic.arff"};
+//		String[] files = {"balloon.arff"};
+		int[] numsOfExpl = {5};
+		CPStrategy[] miningStrategies = {CPStrategy.APRIORI};
+//		SamplingStrategy[] samplingStrategies = {SamplingStrategy.PATTERN_BASED_PERTURBATION};
+		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.RANDOM_FOREST};
+//		int[] numsOfSamples={1000};
 		CPExplainer app = new CPExplainer();
 		try {
 			for(CPStrategy miningStrategy : miningStrategies)
@@ -329,8 +331,8 @@ public class CPExplainer {
 			Instances train = data.trainCV(5, 1);
 			Instances test = data.testCV(5, 1);
 			
-			AbstractClassifier cl = ClassifierGenerator.getClassifier(type);
-//			AbstractClassifier cl = new BalloonClassifier();
+//			AbstractClassifier cl = ClassifierGenerator.getClassifier(type);
+			AbstractClassifier cl = new BalloonClassifier();
 //			AbstractClassifier cl = new Synthetic3Classifier();
 			cl.buildClassifier(train);
 			double precision = 0;
@@ -338,7 +340,7 @@ public class CPExplainer {
 			
 			int count=0;
 //			Instance ins = test.get(7);
-//			ins.setValue(0, "2");
+//			ins.setValue(0, "1");
 //			ins.setValue(1, "YELLOW");
 //			ins.setValue(2, "LARGE");
 //			ins.setValue(3, "STRETCH");
