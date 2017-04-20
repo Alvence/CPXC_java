@@ -12,7 +12,7 @@ import com.yunzhejia.cpxc.Discretizer;
 import com.yunzhejia.cpxc.util.ClassifierGenerator;
 import com.yunzhejia.cpxc.util.ClassifierGenerator.ClassifierType;
 import com.yunzhejia.cpxc.util.DataUtils;
-import com.yunzhejia.datavis.ScatterPlotDemo3;
+import com.yunzhejia.cpxc.util.OverlapCalculation;
 import com.yunzhejia.pattern.ICondition;
 import com.yunzhejia.pattern.IPattern;
 import com.yunzhejia.pattern.PatternSet;
@@ -104,6 +104,10 @@ public class CPExplainer {
 		}
 		Instances samples = sampler.samplingFromInstance(headerInfo, instance, N);
 //		System.out.println(samples);
+		
+		Sampler sampler1 = new SimplePerturbationSampler();
+		Instances samples2 = sampler1.samplingFromInstance(headerInfo, instance, N);
+		OverlapCalculation.calcOverlap(samples, samples2);
 		
 		//step 2, label the samples using the classifier cl
 		samples = labelSample(samples, cl);
@@ -292,22 +296,22 @@ public class CPExplainer {
 //				"mushroom.arff","sick.arff","titanic.arff","vote.arff"};
 //		String[] files = {"balloon.arff", "blood.arff", "diabetes.arff","haberman.arff","iris.arff","labor.arff"};
 //		int[] numsOfExpl = {1,5,10};
-		int[] numsOfSamples={10,200,500,1000};
+//		int[] numsOfSamples={10,200,500,1000};
 //		CPStrategy[] miningStrategies = {CPStrategy.APRIORI,CPStrategy.RF};
-		SamplingStrategy[] samplingStrategies = {SamplingStrategy.RANDOM,SamplingStrategy.PATTERN_BASED_RANDOM,SamplingStrategy.PATTERN_BASED_PERTURBATION};
+//		SamplingStrategy[] samplingStrategies = {SamplingStrategy.RANDOM,SamplingStrategy.PATTERN_BASED_RANDOM,SamplingStrategy.PATTERN_BASED_PERTURBATION};
 //		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.LOGISTIC, ClassifierType.NAIVE_BAYES};
 		
-		String[] files = {"balloon_synthetic.arff"};
-//		String[] files = {"balloon.arff"};
+//		String[] files = {"banana.arff"};
+		String[] files = {"iris.arff"};
 		int[] numsOfExpl = {5};
 		CPStrategy[] miningStrategies = {CPStrategy.APRIORI};
-//		SamplingStrategy[] samplingStrategies = {SamplingStrategy.PATTERN_BASED_PERTURBATION};
+		SamplingStrategy[] samplingStrategies = {SamplingStrategy.PATTERN_BASED_RANDOM};
 		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.RANDOM_FOREST};
-//		int[] numsOfSamples={1000};
+		int[] numsOfSamples={1000};
 		CPExplainer app = new CPExplainer();
 		try {
-			for(CPStrategy miningStrategy : miningStrategies)
-			for(SamplingStrategy samplingStrategy:samplingStrategies)
+			for(CPStrategy miningStrategy : miningStrategies){
+			for(SamplingStrategy samplingStrategy:samplingStrategies){
 			for(int numOfSamples:numsOfSamples){
 			for(String file:files){
 				for(ClassifierType type:typesOfClassifier){
@@ -331,22 +335,22 @@ public class CPExplainer {
 			Instances train = data.trainCV(5, 1);
 			Instances test = data.testCV(5, 1);
 			
-//			AbstractClassifier cl = ClassifierGenerator.getClassifier(type);
-			AbstractClassifier cl = new BalloonClassifier();
+			AbstractClassifier cl = ClassifierGenerator.getClassifier(type);
+//			AbstractClassifier cl = new BalloonClassifier();
 //			AbstractClassifier cl = new Synthetic3Classifier();
 			cl.buildClassifier(train);
 			double precision = 0;
 			double recall = 0;
 			
 			int count=0;
-//			Instance ins = test.get(7);
+			Instance ins = test.get(1);
 //			ins.setValue(0, "1");
 //			ins.setValue(1, "YELLOW");
 //			ins.setValue(2, "LARGE");
 //			ins.setValue(3, "STRETCH");
 //			ins.setValue(4, "CHILD");
 //			ins.setClassValue(1);
-			for(Instance ins:test){
+//			for(Instance ins:test){
 				try{
 				List<IPattern> expls = app.getExplanations(FPStrategy.APRIORI, samplingStrategy, 
 						miningStrategy, PatternSortingStrategy.PROBDIFF_AND_SUPP,
@@ -363,7 +367,7 @@ public class CPExplainer {
 					throw e;
 //					e.printStackTrace();
 				}
-			}
+//			}
 			Evaluation eval = new Evaluation(train);
 			eval.evaluateModel(cl, test);
 			
@@ -387,7 +391,7 @@ public class CPExplainer {
 			*/
 			
 			
-					}}}}
+					}}}}}}
 			
 			
 			
