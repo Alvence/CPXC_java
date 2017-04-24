@@ -112,6 +112,8 @@ public class CPExplainer {
 		//step 2, label the samples using the classifier cl
 		samples = labelSample(samples, cl);
 		
+		
+		
 		if(DEBUG){
 			System.out.println("sample size = "+samples.size());
 //			System.out.println(samples);
@@ -294,7 +296,7 @@ public class CPExplainer {
 //		String[] files = {"balloon.arff","banana.arff", "blood.arff", 
 //				"diabetes.arff","haberman.arff","hepatitis.arff","iris.arff","labor.arff",
 //				"mushroom.arff","sick.arff","titanic.arff","vote.arff"};
-//		String[] files = {"balloon.arff", "blood.arff", "diabetes.arff","haberman.arff","iris.arff","labor.arff"};
+		String[] files = {"balloon.arff", "blood.arff", "diabetes.arff","haberman.arff","iris.arff","labor.arff"};
 //		int[] numsOfExpl = {1,5,10};
 //		int[] numsOfSamples={10,200,500,1000};
 //		CPStrategy[] miningStrategies = {CPStrategy.APRIORI,CPStrategy.RF};
@@ -302,10 +304,10 @@ public class CPExplainer {
 //		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.LOGISTIC, ClassifierType.NAIVE_BAYES};
 		
 //		String[] files = {"banana.arff"};
-		String[] files = {"iris.arff"};
+//		String[] files = {"iris.arff"};
 		int[] numsOfExpl = {5};
 		CPStrategy[] miningStrategies = {CPStrategy.APRIORI};
-		SamplingStrategy[] samplingStrategies = {SamplingStrategy.PATTERN_BASED_RANDOM};
+		SamplingStrategy[] samplingStrategies = {SamplingStrategy.PATTERN_BASED_PERTURBATION};
 		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.RANDOM_FOREST};
 		int[] numsOfSamples={1000};
 		CPExplainer app = new CPExplainer();

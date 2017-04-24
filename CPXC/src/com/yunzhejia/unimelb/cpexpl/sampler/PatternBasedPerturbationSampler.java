@@ -106,7 +106,9 @@ public class PatternBasedPerturbationSampler implements Sampler {
 		double std = data.attributeStats(attrIndex).numericStats.stdDev;
 		double mean = data.attributeStats(attrIndex).numericStats.mean;
 		double unit = data.attributeStats(attrIndex).numericStats.max / data.attributeStats(attrIndex).numericStats.mean;
-		return (instance.isMissing(attrIndex)?mean:instance.value(attrIndex))+ rand.nextGaussian()*std;
+		double val = (instance.isMissing(attrIndex)?mean:instance.value(attrIndex))+ rand.nextGaussian()*std;
+		val = ((int)(val*100))/100.00;
+		return val;
 //		return (rand.nextDouble() * (max - min)) + min;
 	}
 

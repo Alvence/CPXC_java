@@ -53,8 +53,14 @@ public class SimplePerturbationSampler implements Sampler {
 	}
 
 	private double perturbNumericValue(Instances data, Instance instance, int attrIndex) {
+		
 		double max = data.attributeStats(attrIndex).numericStats.max;
 		double min = data.attributeStats(attrIndex).numericStats.min;
-		return (rand.nextDouble() * (max - min)) + min;
+		double std = data.attributeStats(attrIndex).numericStats.stdDev;
+		double mean = data.attributeStats(attrIndex).numericStats.mean;
+		double unit = data.attributeStats(attrIndex).numericStats.max / data.attributeStats(attrIndex).numericStats.mean;
+		double val = (instance.isMissing(attrIndex)?mean:instance.value(attrIndex))+ rand.nextGaussian()*std;
+		val = ((int)(val*100))/100.00;
+		return val;
 	}
 }
