@@ -21,7 +21,7 @@ public class AddNoisyFeatureToData {
 				ret.insertAttributeAt(newAttr, ret.numAttributes()-1);
 			
 				for (int j = 0; j < ret.numInstances();j++){
-					ret.get(j).setValue(ret.numAttributes()-2, rand.nextInt(10));
+					ret.get(j).setValue(ret.numAttributes()-2, rand.nextInt(100));
 				}
 			}
 			

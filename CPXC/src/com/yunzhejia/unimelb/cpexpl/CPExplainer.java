@@ -12,7 +12,6 @@ import com.yunzhejia.cpxc.Discretizer;
 import com.yunzhejia.cpxc.util.ClassifierGenerator;
 import com.yunzhejia.cpxc.util.ClassifierGenerator.ClassifierType;
 import com.yunzhejia.cpxc.util.DataUtils;
-import com.yunzhejia.cpxc.util.OverlapCalculation;
 import com.yunzhejia.pattern.ICondition;
 import com.yunzhejia.pattern.IPattern;
 import com.yunzhejia.pattern.PatternSet;
@@ -105,9 +104,9 @@ public class CPExplainer {
 		Instances samples = sampler.samplingFromInstance(headerInfo, instance, N);
 //		System.out.println(samples);
 		
-		Sampler sampler1 = new SimplePerturbationSampler();
-		Instances samples2 = sampler1.samplingFromInstance(headerInfo, instance, N);
-		OverlapCalculation.calcOverlap(samples, samples2);
+//		Sampler sampler1 = new SimplePerturbationSampler();
+//		Instances samples2 = sampler1.samplingFromInstance(headerInfo, instance, N);
+//		OverlapCalculation.calcOverlap(samples, samples2);
 		
 		//step 2, label the samples using the classifier cl
 		samples = labelSample(samples, cl);
@@ -296,19 +295,19 @@ public class CPExplainer {
 //		String[] files = {"balloon.arff","banana.arff", "blood.arff", 
 //				"diabetes.arff","haberman.arff","hepatitis.arff","iris.arff","labor.arff",
 //				"mushroom.arff","sick.arff","titanic.arff","vote.arff"};
-		String[] files = {"balloon.arff", "blood.arff", "diabetes.arff","haberman.arff","iris.arff","labor.arff"};
+//		String[] files = {"balloon.arff", "blood.arff", "diabetes.arff","haberman.arff","iris.arff","labor.arff"};
 //		int[] numsOfExpl = {1,5,10};
 //		int[] numsOfSamples={10,200,500,1000};
 //		CPStrategy[] miningStrategies = {CPStrategy.APRIORI,CPStrategy.RF};
 //		SamplingStrategy[] samplingStrategies = {SamplingStrategy.RANDOM,SamplingStrategy.PATTERN_BASED_RANDOM,SamplingStrategy.PATTERN_BASED_PERTURBATION};
 //		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.LOGISTIC, ClassifierType.NAIVE_BAYES};
 		
-//		String[] files = {"banana.arff"};
+		String[] files = {"balloon_synthetic.arff"};
 //		String[] files = {"iris.arff"};
 		int[] numsOfExpl = {5};
-		CPStrategy[] miningStrategies = {CPStrategy.APRIORI};
+		CPStrategy[] miningStrategies = {CPStrategy.RF};
 		SamplingStrategy[] samplingStrategies = {SamplingStrategy.PATTERN_BASED_PERTURBATION};
-		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.RANDOM_FOREST};
+		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.LOGISTIC};
 		int[] numsOfSamples={1000};
 		CPExplainer app = new CPExplainer();
 		try {
@@ -329,7 +328,7 @@ public class CPExplainer {
 			}
 			
 //			Instances data = DataUtils.load("tmp/newData.arff");
-			data = AddNoisyFeatureToData.generateNoisyData(data);
+//			data = AddNoisyFeatureToData.generateNoisyData(data);
 			
 			Random random = new Random(0);
 			//split the data into train and test
@@ -337,26 +336,28 @@ public class CPExplainer {
 			Instances train = data.trainCV(5, 1);
 			Instances test = data.testCV(5, 1);
 			
-			AbstractClassifier cl = ClassifierGenerator.getClassifier(type);
-//			AbstractClassifier cl = new BalloonClassifier();
+//			AbstractClassifier cl = ClassifierGenerator.getClassifier(type);
+//			AbstractClassifier cl = new Synthetic_8RuleClassifier();
+//			AbstractClassifier cl = new Synthetic_8Classifier();
+			AbstractClassifier cl = new BalloonClassifier();
 //			AbstractClassifier cl = new Synthetic3Classifier();
 			cl.buildClassifier(train);
 			double precision = 0;
 			double recall = 0;
 			
 			int count=0;
-			Instance ins = test.get(1);
-//			ins.setValue(0, "1");
-//			ins.setValue(1, "YELLOW");
-//			ins.setValue(2, "LARGE");
-//			ins.setValue(3, "STRETCH");
-//			ins.setValue(4, "CHILD");
-//			ins.setClassValue(1);
+			Instance ins = test.get(3);
+			ins.setValue(0, "2");
+			ins.setValue(1, "PURPLE");
+			ins.setValue(2, "SMALL");
+			ins.setValue(3, "STRETCH");
+			ins.setValue(4, "CHILD");
+			ins.setClassValue(1);
 //			for(Instance ins:test){
 				try{
 				List<IPattern> expls = app.getExplanations(FPStrategy.APRIORI, samplingStrategy, 
 						miningStrategy, PatternSortingStrategy.PROBDIFF_AND_SUPP,
-						cl, ins, data, numOfSamples, 0.1, 10, numOfExpl, false);
+						cl, ins, data, numOfSamples, 0.1, 10, numOfExpl, true);
 				if (expls.size()!=0){
 					precision += ExplEvaluation.eval(expls, goldFeatures);
 					recall += ExplEvaluation.evalRecall(expls, goldFeatures);
