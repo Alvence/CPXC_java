@@ -41,7 +41,7 @@ public class SyntheticDataGenerator {
 	}
 	
 	public static void main(String[] args) {
-		try {
+		/*try {
 			Instances data = DataUtils.load("data/synthetic3.arff");
 			List<Instances> datas = new ArrayList<>();
 	    	for(int i = 0; i < data.numClasses();i++){
@@ -59,7 +59,7 @@ public class SyntheticDataGenerator {
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		}*/
 	}
 
 }

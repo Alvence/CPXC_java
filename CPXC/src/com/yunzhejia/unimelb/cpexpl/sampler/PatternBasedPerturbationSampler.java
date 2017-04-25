@@ -38,13 +38,41 @@ public class PatternBasedPerturbationSampler implements Sampler {
 		while(ret.numInstances()<N){
 			int index = rand.nextInt(slots.size());
 			IPattern p = mp.get(slots.get(index));
-			Instance sample = perturb(headerInfo, instance, p);
+			boolean flag = false;
+			while (!flag){
+//			Instance sample = perturb(headerInfo, instance, p);
+			Instance sample = perturb(headerInfo, instance);
 			if(mp.match(sample)){
 				ret.add(sample);
+				flag = true;
+			}
 			}
 		}
 		return ret;
 	}
+	
+	private Instance perturb(Instances data, Instance instance){
+		//uniformly select number of features to be perturbed.
+		
+		Instance newIns = (Instance)instance.copy();
+		
+		for (int i = 0 ; i < instance.numAttributes(); i++){
+			if (rand.nextDouble()>0.5 || i == data.classIndex()){
+				continue;
+			}
+			else{
+				if (data.attribute(i).isNumeric()){
+					double newValue =  perturbNumericValue(data,instance,i);
+					newIns.setValue(i, newValue);
+				}else{
+					String newValue =  perturbNonimalValue(data,instance,i);
+					newIns.setValue(i, newValue);
+				}
+			}
+		}
+		return newIns;
+	}
+	
 	private Instance perturb(Instances data, Instance instance, IPattern p) {
 		Instance newIns = (Instance)instance.copy();
 		
