@@ -12,6 +12,7 @@ import com.yunzhejia.cpxc.Discretizer;
 import com.yunzhejia.cpxc.util.ClassifierGenerator;
 import com.yunzhejia.cpxc.util.ClassifierGenerator.ClassifierType;
 import com.yunzhejia.cpxc.util.DataUtils;
+import com.yunzhejia.cpxc.util.OverlapCalculation;
 import com.yunzhejia.pattern.ICondition;
 import com.yunzhejia.pattern.IPattern;
 import com.yunzhejia.pattern.PatternSet;
@@ -22,6 +23,8 @@ import com.yunzhejia.pattern.patternmining.GcGrowthPatternMiner;
 import com.yunzhejia.pattern.patternmining.IPatternMiner;
 import com.yunzhejia.pattern.patternmining.RFContrastPatternMiner;
 import com.yunzhejia.pattern.patternmining.RFPatternMiner;
+import com.yunzhejia.unimelb.cpexpl.patternselection.IPatternSelection;
+import com.yunzhejia.unimelb.cpexpl.patternselection.ProbDiffPatternSelection;
 import com.yunzhejia.unimelb.cpexpl.sampler.AddNoisyFeatureToData;
 import com.yunzhejia.unimelb.cpexpl.sampler.PatternBasedPerturbationSampler;
 import com.yunzhejia.unimelb.cpexpl.sampler.PatternBasedSampler;
@@ -37,7 +40,7 @@ public class CPExplainer {
 	public enum FPStrategy{RF,GCGROWTH,APRIORI};
 	public enum CPStrategy{RF,GCGROWTH,APRIORI};
 	public enum SamplingStrategy{RANDOM,PATTERN_BASED_RANDOM,PATTERN_BASED_PERTURBATION};
-	public enum PatternSortingStrategy{SUPPORT, PROBDIFF_AND_SUPP};
+	public enum PatternSortingStrategy{SUPPORT, PROBDIFF_AND_SUPP, OBJECTIVE_FUNCTION, NONE};
 	public static boolean DEBUG= false;
 
 	public List<IPattern> getExplanations(FPStrategy fpStrategy, SamplingStrategy samplingStrategy, CPStrategy cpStrategy, PatternSortingStrategy patternSortingStrategy,
@@ -104,9 +107,9 @@ public class CPExplainer {
 		Instances samples = sampler.samplingFromInstance(headerInfo, instance, N);
 //		System.out.println(samples);
 		
-//		Sampler sampler1 = new SimplePerturbationSampler();
-//		Instances samples2 = sampler1.samplingFromInstance(headerInfo, instance, N);
-//		OverlapCalculation.calcOverlap(samples, samples2);
+		Sampler sampler1 = new SimplePerturbationSampler();
+		Instances samples2 = sampler1.samplingFromInstance(headerInfo, instance, N);
+		OverlapCalculation.calcOverlap(samples, samples2);
 		
 		//step 2, label the samples using the classifier cl
 		samples = labelSample(samples, cl);
@@ -162,6 +165,9 @@ public class CPExplainer {
 		case PROBDIFF_AND_SUPP:
 			patternSet = sortByProbDiffAndSupp(cl, instance, patternSet);
 			break;
+		case OBJECTIVE_FUNCTION:
+			IPatternSelection selector = new ProbDiffPatternSelection(1000);
+			patternSet = selector.select(instance, patternSet, cl, K, samples);
 		default:
 			break;
 		}
@@ -171,18 +177,18 @@ public class CPExplainer {
 			IPattern p = patternSet.get(i);
 			if (DEBUG){
 				System.out.println(p + "  sup=" + p.support()+" ratio="+p.ratio());
-				System.out.println("With pattern   "+predictionByPattern(cl, instance, p));
-				System.out.println("Original   "+prediction(cl, instance));
-				System.out.println("Without pattern   "+predictionByRemovingPattern(cl, instance, p));
+//				System.out.println("With pattern   "+predictionByPattern(cl, instance, p));
+//				System.out.println("Original   "+prediction(cl, instance));
+//				System.out.println("Without pattern   "+predictionByRemovingPattern(cl, instance, p));
 				System.out.println();
 			}
 			ret.add(p);
 		}
 		
 		if (DEBUG){
-		patternSet = patternMiner.minePattern(samples, minSupp, minRatio, (int)cl.classifyInstance(instance), false);
-		patternSet=sortBySupport(patternSet);
-		print_pattern(patternSet,K,"negative");
+//		patternSet = patternMiner.minePattern(samples, minSupp, minRatio, (int)cl.classifyInstance(instance), false);
+//		patternSet=sortBySupport(patternSet);
+//		print_pattern(patternSet,K,"negative");
 		}
 		
 		return ret;
@@ -302,12 +308,12 @@ public class CPExplainer {
 //		SamplingStrategy[] samplingStrategies = {SamplingStrategy.RANDOM,SamplingStrategy.PATTERN_BASED_RANDOM,SamplingStrategy.PATTERN_BASED_PERTURBATION};
 //		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.LOGISTIC, ClassifierType.NAIVE_BAYES};
 		
-		String[] files = {"balloon_synthetic.arff"};
+		String[] files = {"synthetic3.arff"};
 //		String[] files = {"iris.arff"};
 		int[] numsOfExpl = {5};
 		CPStrategy[] miningStrategies = {CPStrategy.RF};
 		SamplingStrategy[] samplingStrategies = {SamplingStrategy.PATTERN_BASED_PERTURBATION};
-		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.LOGISTIC};
+		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.RANDOM_FOREST};
 		int[] numsOfSamples={1000};
 		CPExplainer app = new CPExplainer();
 		try {
@@ -339,25 +345,27 @@ public class CPExplainer {
 //			AbstractClassifier cl = ClassifierGenerator.getClassifier(type);
 //			AbstractClassifier cl = new Synthetic_8RuleClassifier();
 //			AbstractClassifier cl = new Synthetic_8Classifier();
-			AbstractClassifier cl = new BalloonClassifier();
-//			AbstractClassifier cl = new Synthetic3Classifier();
+//			AbstractClassifier cl = new BalloonClassifier();
+			AbstractClassifier cl = new Synthetic3Classifier();
 			cl.buildClassifier(train);
 			double precision = 0;
 			double recall = 0;
 			
 			int count=0;
-			Instance ins = test.get(3);
-			ins.setValue(0, "2");
-			ins.setValue(1, "PURPLE");
-			ins.setValue(2, "SMALL");
-			ins.setValue(3, "STRETCH");
-			ins.setValue(4, "CHILD");
-			ins.setClassValue(1);
+			Instance ins = test.get(1);
+			ins.setValue(0, "1");
+			ins.setValue(1, 5.6);
+			ins.setValue(2, 6.9);
+//			ins.setValue(1, "PURPLE");
+//			ins.setValue(2, "SMALL");
+//			ins.setValue(3, "STRETCH");
+//			ins.setValue(4, "CHILD");
+			ins.setClassValue(0);
 //			for(Instance ins:test){
 				try{
 				List<IPattern> expls = app.getExplanations(FPStrategy.APRIORI, samplingStrategy, 
-						miningStrategy, PatternSortingStrategy.PROBDIFF_AND_SUPP,
-						cl, ins, data, numOfSamples, 0.1, 10, numOfExpl, true);
+						miningStrategy, PatternSortingStrategy.OBJECTIVE_FUNCTION,
+						cl, ins, data, numOfSamples, 0.01, 10, numOfExpl, true);
 				if (expls.size()!=0){
 					precision += ExplEvaluation.eval(expls, goldFeatures);
 					recall += ExplEvaluation.evalRecall(expls, goldFeatures);

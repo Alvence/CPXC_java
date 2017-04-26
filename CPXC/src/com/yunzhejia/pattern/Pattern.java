@@ -32,6 +32,7 @@ public class Pattern implements IPattern {
 	}
 	static int c = 1;
 	public Pattern(Set<ICondition> conditions) {
+		id = UUID.randomUUID().toString();
 		for(ICondition con:conditions){
 			addCondition(con);
 		}
@@ -51,31 +52,47 @@ public class Pattern implements IPattern {
 		}
 		if (condition instanceof NumericCondition){
 			NumericCondition numCon = (NumericCondition)condition;
-			boolean flag = false;
+			boolean flag = true;
 			Iterator<ICondition> it = conditions.iterator();
 			ICondition newCondition = null;
 			while(it.hasNext()){
 				ICondition existedCon = (ICondition)it.next();
-				if (existedCon instanceof NumericCondition){
+				if (existedCon.getAttrIndex() == numCon.getAttrIndex() && existedCon instanceof NumericCondition){
+					flag = false;
 					NumericCondition numExistedCon = (NumericCondition)existedCon;
-					if(numExistedCon.attrIndex == numCon.attrIndex){
 						if(numCon.left<=numExistedCon.right && numCon.right >= numExistedCon.left){
 							double newleft = numCon.left>numExistedCon.left?numCon.left:numExistedCon.left;
 							double newright = numCon.right<numExistedCon.right?numCon.right:numExistedCon.right;
 							newCondition = new NumericCondition(numExistedCon.attrName,numExistedCon.attrIndex,newleft,newright);
-							flag = true;
+							it.remove();
+							break;
+						}else{
 							it.remove();
 							break;
 						}
+				}
+			}
+			if(flag){
+				this.conditions.add(condition);
+			}else if(newCondition!=null){
+				this.conditions.add(newCondition);
+			}
+			
+		}else{
+			NominalCondition nomCon = (NominalCondition)condition;
+			for(ICondition c:conditions){
+				if (c.getAttrIndex() == nomCon.getAttrIndex() && c instanceof NominalCondition){
+					if (((NominalCondition)c).getValue().equals(((NominalCondition)nomCon).getValue())){
+						return;
+					}else{
+						this.conditions.remove(c);
+						return;
 					}
 				}
 			}
-			if(!flag){
-				newCondition = condition;
+			if(!this.conditions.contains(nomCon)){
+				this.conditions.add(condition);
 			}
-			this.conditions.add(newCondition);
-		}else{
-			this.conditions.add(condition);
 		}
 	}
 
@@ -165,6 +182,96 @@ public class Pattern implements IPattern {
 	@Override
 	public Set<ICondition> getConditions() {
 		return conditions;
+	}
+	@Override
+	public IPattern conjuction(IPattern p) {
+//		Set<ICondition> cond = new HashSet<>();
+//		cond.addAll(conditions);
+//		cond.addAll(p.getConditions());
+//		return new Pattern(cond);
+		Set<ICondition> cond = new HashSet<>();
+		Set<ICondition> newC = new HashSet<>();
+		for(ICondition c:conditions){
+			cond.add(c.copy());
+		}
+		Iterator<ICondition> it = p.getConditions().iterator();
+		while(it.hasNext()){
+			ICondition c = it.next();
+			boolean flag = true;
+			for(ICondition con:cond){
+				if (con instanceof NumericCondition){
+				double left = ((NumericCondition)con).getLeft();
+				double right = ((NumericCondition)con).getRight();
+				
+					if (c.getAttrIndex() == con.getAttrIndex() && c instanceof NumericCondition){
+						if (((NumericCondition)c).getRight() >= left && ((NumericCondition)c).getLeft() <= right){
+							double newleft = ((NumericCondition)con).left< ((NumericCondition)c).left? ((NumericCondition)c).left:((NumericCondition)con).left;
+							double newright = ((NumericCondition)con).right> ((NumericCondition)c).right? ((NumericCondition)c).right:((NumericCondition)con).right;
+							flag = false;
+//							it.remove();
+//							newC.add(newCondition);
+							((NumericCondition) con).left =newleft;
+							((NumericCondition) con).right = newright;
+							newC.add(con);
+						}
+					
+				}
+				
+				}else{
+					if(!cond.contains(c)){
+						flag = false;
+					}
+				}
+			}
+			if(flag){
+				newC.add(c);
+			}
+		}
+		Pattern pattern = new Pattern();
+		pattern.conditions = newC;
+		return pattern;
+	}
+	@Override
+	public IPattern disjuction(IPattern p) {
+		Set<ICondition> cond = new HashSet<>();
+		Set<ICondition> newC = new HashSet<>();
+		for(ICondition c:conditions){
+			cond.add(c.copy());
+		}
+		for(ICondition c:p.getConditions()){
+			boolean flag = true;
+			for(ICondition con:cond){
+				if (con instanceof NumericCondition){
+				double left = ((NumericCondition)con).getLeft();
+				double right = ((NumericCondition)con).getRight();
+				
+					if (c.getAttrIndex() == con.getAttrIndex() && c instanceof NumericCondition){
+						if (((NumericCondition)c).getRight() >= left && ((NumericCondition)c).getLeft() <= right){
+							double newleft = ((NumericCondition)con).left> ((NumericCondition)c).left? ((NumericCondition)c).left:((NumericCondition)con).left;
+							double newright = ((NumericCondition)con).right< ((NumericCondition)c).right? ((NumericCondition)c).right:((NumericCondition)con).right;
+							flag = false;
+//							it.remove();
+//							newC.add(newCondition);
+							((NumericCondition) con).left =newleft;
+							((NumericCondition) con).right = newright;
+						}
+					
+				}
+				
+				}else{
+					if(cond.contains(c)){
+						flag = false;
+					}
+				}
+			}
+			if(flag){
+				newC.add(c);
+			}
+		}
+		cond.addAll(newC);
+		Pattern pattern = new Pattern();
+		pattern.conditions = cond;
+		return pattern;
 	}
 
 	

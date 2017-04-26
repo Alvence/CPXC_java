@@ -28,4 +28,6 @@ public interface IPattern {
 	public double ratio();
 	public void setRatio(double r);
 	public Set<ICondition> getConditions();
+	public IPattern conjuction(IPattern p);
+	public IPattern disjuction(IPattern p);
 }

@@ -17,14 +17,40 @@ public class NominalCondition implements ICondition {
 	/**
 	 * 
 	 */
+	
+	
 	public NominalCondition(int attrIndex, String value) {
 		this(null, attrIndex, value);
 	}
 	
+	public String getValue() {
+		return value;
+	}
+
+	public void setValue(String value) {
+		this.value = value;
+	}
+
+	public String getAttrName() {
+		return attrName;
+	}
+
+	public void setAttrName(String attrName) {
+		this.attrName = attrName;
+	}
+
+	public void setAttrIndex(int attrIndex) {
+		this.attrIndex = attrIndex;
+	}
+
 	public NominalCondition(String attrName, int attrIndex, String value) {
 		this.attrName = attrName;
 		this.attrIndex = attrIndex;
 		this.value = value;
+	}
+
+	public NominalCondition(NominalCondition nominalCondition) {
+		this(nominalCondition.attrName,nominalCondition.attrIndex,nominalCondition.value);
 	}
 
 	/* (non-Javadoc)
@@ -80,6 +106,11 @@ public class NominalCondition implements ICondition {
 	@Override
 	public int getAttrIndex() {
 		return attrIndex;
+	}
+
+	@Override
+	public ICondition copy() {
+		return new NominalCondition(this);
 	}
 	
 	

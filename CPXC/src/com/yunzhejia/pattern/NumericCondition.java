@@ -47,9 +47,9 @@ public class NumericCondition implements ICondition {
 //		}
 		if (left==Double.MIN_VALUE && insVal <= right){
 			return true;
-		} else if (right==Double.MAX_VALUE && insVal > left){
+		} else if (right==Double.MAX_VALUE && insVal >= left){
 			return true;
-		} else if (left!=Double.MIN_VALUE && right!=Double.MAX_VALUE && insVal<=right && insVal > left){
+		} else if (left!=Double.MIN_VALUE && right!=Double.MAX_VALUE && insVal<=right && insVal >= left){
 			return true;
 		}
 		return false;
@@ -57,7 +57,7 @@ public class NumericCondition implements ICondition {
  
 	@Override
 	public String toString(){
-		return (left==Double.MIN_VALUE?"":left+"<")+ attrName + 
+		return (left==Double.MIN_VALUE?"":left+"<=")+ attrName + 
 				(right==Double.MAX_VALUE?"":"<="+right);
 //		return left+"<"+attrName+"<"+right;
 	}
@@ -104,6 +104,11 @@ public class NumericCondition implements ICondition {
 	@Override
 	public int getAttrIndex() {
 		return attrIndex;
+	}
+
+	@Override
+	public ICondition copy() {
+		return new NumericCondition(this);
 	}
 	
 	

@@ -20,4 +20,6 @@ public interface ICondition {
 	public boolean match(Instance ins);
 	
 	public int getAttrIndex();
+	
+	public ICondition copy();
 }
