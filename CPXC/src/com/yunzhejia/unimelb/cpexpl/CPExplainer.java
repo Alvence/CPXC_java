@@ -107,10 +107,10 @@ public class CPExplainer {
 		Instances samples = sampler.samplingFromInstance(headerInfo, instance, N);
 //		System.out.println(samples);
 		
-		Sampler sampler1 = new SimplePerturbationSampler();
-		Instances samples2 = sampler1.samplingFromInstance(headerInfo, instance, N);
-		OverlapCalculation.calcOverlap(samples, samples2);
-		
+//		Sampler sampler1 = new SimplePerturbationSampler();
+//		Instances samples2 = sampler1.samplingFromInstance(headerInfo, instance, N);
+//		OverlapCalculation.calcOverlap(samples, samples2);
+//		
 		//step 2, label the samples using the classifier cl
 		samples = labelSample(samples, cl);
 		
@@ -153,6 +153,11 @@ public class CPExplainer {
 		PatternSet patternSet = patternMiner.minePattern(samples, minSupp, minRatio, (int)cl.classifyInstance(instance), true);
 		
 		patternSet = patternSet.getMatchingPatterns(instance);
+		
+//		int ind = 1;
+//		for(IPattern p:patternSet){
+//			System.out.println((ind++)+": "+p);
+//		}
 		
 		if(DEBUG){
 			System.out.println("size of patterns = "+patternSet.size());
@@ -308,12 +313,12 @@ public class CPExplainer {
 //		SamplingStrategy[] samplingStrategies = {SamplingStrategy.RANDOM,SamplingStrategy.PATTERN_BASED_RANDOM,SamplingStrategy.PATTERN_BASED_PERTURBATION};
 //		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.LOGISTIC, ClassifierType.NAIVE_BAYES};
 		
-		String[] files = {"synthetic3.arff"};
+		String[] files = {"synthetic/synthetic_LOG3.arff"};
 //		String[] files = {"iris.arff"};
 		int[] numsOfExpl = {5};
 		CPStrategy[] miningStrategies = {CPStrategy.RF};
-		SamplingStrategy[] samplingStrategies = {SamplingStrategy.PATTERN_BASED_PERTURBATION};
-		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.RANDOM_FOREST};
+		SamplingStrategy[] samplingStrategies = {SamplingStrategy.RANDOM};
+		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.LOGISTIC};
 		int[] numsOfSamples={1000};
 		CPExplainer app = new CPExplainer();
 		try {
@@ -342,25 +347,25 @@ public class CPExplainer {
 			Instances train = data.trainCV(5, 1);
 			Instances test = data.testCV(5, 1);
 			
-//			AbstractClassifier cl = ClassifierGenerator.getClassifier(type);
+			AbstractClassifier cl = ClassifierGenerator.getClassifier(type);
 //			AbstractClassifier cl = new Synthetic_8RuleClassifier();
 //			AbstractClassifier cl = new Synthetic_8Classifier();
 //			AbstractClassifier cl = new BalloonClassifier();
-			AbstractClassifier cl = new Synthetic3Classifier();
+//			AbstractClassifier cl = new Synthetic3Classifier();
 			cl.buildClassifier(train);
 			double precision = 0;
 			double recall = 0;
 			
 			int count=0;
 			Instance ins = test.get(1);
-			ins.setValue(0, "1");
-			ins.setValue(1, 5.6);
-			ins.setValue(2, 6.9);
+//			ins.setValue(0, 69);
+//			ins.setValue(1, 0.1);
+//			ins.setValue(2, 0.1);
 //			ins.setValue(1, "PURPLE");
 //			ins.setValue(2, "SMALL");
 //			ins.setValue(3, "STRETCH");
 //			ins.setValue(4, "CHILD");
-			ins.setClassValue(0);
+//			ins.setClassValue(1);
 //			for(Instance ins:test){
 				try{
 				List<IPattern> expls = app.getExplanations(FPStrategy.APRIORI, samplingStrategy, 

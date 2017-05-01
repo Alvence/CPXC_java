@@ -42,7 +42,8 @@ public class SyntheticDataGenerator {
 	
 	public static void LOG(int N){
 		Random random = new Random(1);
-		double[] coef = {1.0,1.5,-2.0,3.0,-0.5,3,-2.5,-2,1};
+//		double[] coef = {1.0,1.5,-2.0,3.0,-0.5,3,-2.5,-2,1};
+		double[] coef = {1, -1, 1, 0};
 		for(int i = 0; i < N; i++){
 			double sum=0.0;
 			for(int a = 0; a< coef.length-1; a++){
@@ -82,7 +83,7 @@ public class SyntheticDataGenerator {
 	
 	
 	public static void main(String[] args) {
-		rules(1000);
+		LOG(1000);
 		/*try {
 			Instances data = DataUtils.load("data/synthetic3.arff");
 			List<Instances> datas = new ArrayList<>();
