@@ -21,12 +21,16 @@
 
 package weka.gui.knowledgeflow.steps;
 
+import java.awt.BorderLayout;
+
+import javax.swing.BorderFactory;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+
 import weka.gui.knowledgeflow.StepEditorDialog;
 import weka.knowledgeflow.steps.Note;
 import weka.knowledgeflow.steps.Step;
-
-import javax.swing.*;
-import java.awt.*;
 
 /**
  * Editor dialog for Notes

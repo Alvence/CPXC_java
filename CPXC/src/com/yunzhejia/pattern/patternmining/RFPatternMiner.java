@@ -2,7 +2,6 @@ package com.yunzhejia.pattern.patternmining;
 
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -20,8 +19,6 @@ import weka.classifiers.trees.RandomForest;
 import weka.classifiers.trees.RandomTree;
 import weka.classifiers.trees.RandomTree.Tree;
 import weka.core.Instances;
-import weka.core.Utils;
-import weka.core.converters.ConverterUtils.DataSource;
 
 public class RFPatternMiner implements IPatternMiner {
 	
@@ -39,7 +36,7 @@ public class RFPatternMiner implements IPatternMiner {
 				Set<IPattern> patterns = new HashSet<>();
 				generatePatterns(tree.m_Tree, tree.m_Info, patterns,null, minSupp );
 				for (IPattern pattern:patterns){
-					if (!patternSet.contains(pattern)){
+					if ((!patternSet.contains(pattern))&&pattern.support(data)>minSupp){
 						patternSet.add(pattern);
 					}
 				}
@@ -49,7 +46,10 @@ public class RFPatternMiner implements IPatternMiner {
 			e.printStackTrace();
 		}
 		
-		
+//		int ind = 1;
+//		for(IPattern p:patternSet){
+//			System.out.println((ind++)+": "+p);
+//		}
 		return new PatternSet(patternSet);
 	}
 
@@ -76,12 +76,17 @@ public class RFPatternMiner implements IPatternMiner {
 		if (conditions == null){
 			conditions = new HashSet<>();
 		}
+		if(conditions != null && !conditions.isEmpty() ){
+//			System.out.println("con= "+conditions);
+			patterns.add(new Pattern(conditions));
+		}
 		if (tree.m_Attribute == -1){
-			if(conditions != null && !conditions.isEmpty() && tree.m_ClassDistribution != null){
-				if(tree.m_ClassDistribution[Utils.maxIndex(tree.m_ClassDistribution)] >= minSupport){
-					patterns.add(new Pattern(conditions));
-				}
-			}
+//			if(conditions != null && !conditions.isEmpty() && tree.m_ClassDistribution != null){
+//				if(tree.m_ClassDistribution[Utils.maxIndex(tree.m_ClassDistribution)] >= minSupport){
+//					patterns.add(new Pattern(conditions));
+//				}
+//			}
+			
 		}else if (m_Info.attribute(tree.m_Attribute).isNominal()) {
 
 	          // For nominal attributes

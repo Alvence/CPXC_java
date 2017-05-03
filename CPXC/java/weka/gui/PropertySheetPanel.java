@@ -67,8 +67,14 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingConstants;
 
-import weka.core.*;
+import weka.core.Capabilities;
 import weka.core.Capabilities.Capability;
+import weka.core.CapabilitiesHandler;
+import weka.core.Environment;
+import weka.core.EnvironmentHandler;
+import weka.core.MultiInstanceCapabilitiesHandler;
+import weka.core.OptionMetadata;
+import weka.core.Utils;
 import weka.gui.beans.GOECustomizer;
 
 /**

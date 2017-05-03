@@ -21,19 +21,20 @@
 
 package weka.gui;
 
-import weka.core.Instances;
-import weka.gui.arffviewer.ArffPanel;
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
+import java.awt.Frame;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import java.awt.BorderLayout;
-import java.awt.FlowLayout;
-import java.awt.Frame;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+
+import weka.core.Instances;
+import weka.gui.arffviewer.ArffPanel;
 
 /**
  * A downsized version of the ArffViewer, displaying only one Instances-Object.

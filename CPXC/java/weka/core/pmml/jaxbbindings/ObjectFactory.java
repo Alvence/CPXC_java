@@ -9,6 +9,7 @@
 package weka.core.pmml.jaxbbindings;
 
 import java.util.List;
+
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.annotation.XmlElementDecl;
 import javax.xml.bind.annotation.XmlRegistry;

@@ -21,6 +21,17 @@
 
 package weka.gui.knowledgeflow;
 
+import java.awt.BorderLayout;
+import java.awt.Image;
+import java.awt.Toolkit;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
+import javax.swing.JFrame;
+
 import weka.core.Defaults;
 import weka.core.Environment;
 import weka.core.Memory;
@@ -34,14 +45,6 @@ import weka.gui.PerspectiveManager;
 import weka.knowledgeflow.BaseExecutionEnvironment;
 import weka.knowledgeflow.ExecutionEnvironment;
 import weka.knowledgeflow.KFDefaults;
-
-import javax.swing.*;
-import java.awt.*;
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 
 /**
  * Main Knowledge Flow application class

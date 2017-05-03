@@ -22,7 +22,6 @@
 package weka.core;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Enumeration;
 
 import weka.core.Debug.Random;

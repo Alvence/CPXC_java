@@ -21,6 +21,22 @@
 
 package weka.gui.knowledgeflow;
 
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.swing.JFileChooser;
+import javax.swing.JMenu;
+import javax.swing.JOptionPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JToggleButton;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.filechooser.FileFilter;
+
 import weka.core.Defaults;
 import weka.core.Environment;
 import weka.core.Instances;
@@ -41,21 +57,6 @@ import weka.knowledgeflow.KFDefaults;
 import weka.knowledgeflow.LoggingLevel;
 import weka.knowledgeflow.StepManagerImpl;
 import weka.knowledgeflow.steps.MemoryBasedDataSource;
-
-import javax.swing.JFileChooser;
-import javax.swing.JMenu;
-import javax.swing.JOptionPane;
-import javax.swing.JSplitPane;
-import javax.swing.JTabbedPane;
-import javax.swing.JToggleButton;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import javax.swing.filechooser.FileFilter;
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Main perspective for the Knowledge flow application

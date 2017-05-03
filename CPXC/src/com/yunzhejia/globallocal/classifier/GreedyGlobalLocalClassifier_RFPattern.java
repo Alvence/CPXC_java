@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
-import com.yunzhejia.cpxc.Discretizer;
 import com.yunzhejia.cpxc.util.ClassifierGenerator;
 import com.yunzhejia.cpxc.util.ClassifierGenerator.ClassifierType;
 import com.yunzhejia.cpxc.util.ClustererGenerator.ClustererType;
@@ -20,7 +19,6 @@ import com.yunzhejia.partition.Partition;
 import com.yunzhejia.partition.SimulatedAnnealingWeighting;
 import com.yunzhejia.pattern.IPattern;
 import com.yunzhejia.pattern.PatternSet;
-import com.yunzhejia.pattern.patternmining.GcGrowthPatternMiner;
 import com.yunzhejia.pattern.patternmining.IPatternMiner;
 import com.yunzhejia.pattern.patternmining.ParallelCoordinatesMiner;
 import com.yunzhejia.pattern.patternmining.RFPatternMiner;

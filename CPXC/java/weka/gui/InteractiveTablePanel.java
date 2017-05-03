@@ -20,6 +20,9 @@
 
 package weka.gui;
 
+import java.awt.BorderLayout;
+import java.awt.Component;
+
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -27,8 +30,6 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumn;
-import java.awt.BorderLayout;
-import java.awt.Component;
 
 /**
  * Provides a panel using an interactive table model.

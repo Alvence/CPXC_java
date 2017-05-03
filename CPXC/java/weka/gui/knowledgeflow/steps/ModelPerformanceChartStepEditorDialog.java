@@ -21,6 +21,20 @@
 
 package weka.gui.knowledgeflow.steps;
 
+import java.awt.BorderLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Set;
+
+import javax.swing.BorderFactory;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+
 import weka.core.PluginManager;
 import weka.gui.EnvironmentField;
 import weka.gui.PropertySheetPanel;
@@ -29,12 +43,6 @@ import weka.gui.beans.WekaOffscreenChartRenderer;
 import weka.gui.knowledgeflow.GOEStepEditorDialog;
 import weka.knowledgeflow.steps.ModelPerformanceChart;
 import weka.knowledgeflow.steps.Step;
-
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.Set;
 
 /**
  * Step editor dialog for the ModelPerformanceChart step

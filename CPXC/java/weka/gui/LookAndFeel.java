@@ -21,14 +21,6 @@
 
 package weka.gui;
 
-import weka.core.Environment;
-import weka.core.Settings;
-import weka.core.Utils;
-
-import javax.swing.JOptionPane;
-import javax.swing.UIDefaults;
-import javax.swing.UIManager;
-import javax.swing.UIManager.LookAndFeelInfo;
 import java.awt.Dimension;
 import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
@@ -37,6 +29,15 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
+
+import javax.swing.JOptionPane;
+import javax.swing.UIDefaults;
+import javax.swing.UIManager;
+import javax.swing.UIManager.LookAndFeelInfo;
+
+import weka.core.Environment;
+import weka.core.Settings;
+import weka.core.Utils;
 
 /**
  * A little helper class for setting the Look and Feel of the user interface.

@@ -1,9 +1,9 @@
 package com.yunzhejia.pattern.patternmining;
 
-import com.yunzhejia.pattern.Pattern;
 import com.yunzhejia.pattern.ICondition;
 import com.yunzhejia.pattern.IPattern;
 import com.yunzhejia.pattern.NumericCondition;
+import com.yunzhejia.pattern.Pattern;
 import com.yunzhejia.pattern.PatternSet;
 
 import weka.core.Instances;

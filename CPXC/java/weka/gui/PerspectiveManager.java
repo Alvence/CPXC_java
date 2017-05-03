@@ -21,16 +21,12 @@
 
 package weka.gui;
 
-import weka.core.Copyright;
-import weka.core.Defaults;
-import weka.core.Environment;
-import weka.core.Settings;
-import weka.core.logging.Logger;
-import weka.core.PluginManager;
-import weka.gui.knowledgeflow.MainKFPerspectiveToolBar;
+import static weka.gui.knowledgeflow.StepVisual.loadIcon;
 
-import javax.swing.*;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.FlowLayout;
+import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
@@ -47,7 +43,29 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static weka.gui.knowledgeflow.StepVisual.loadIcon;
+import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JToggleButton;
+import javax.swing.JToolBar;
+import javax.swing.KeyStroke;
+
+import weka.core.Copyright;
+import weka.core.Defaults;
+import weka.core.Environment;
+import weka.core.PluginManager;
+import weka.core.Settings;
+import weka.core.logging.Logger;
+import weka.gui.knowledgeflow.MainKFPerspectiveToolBar;
 
 /**
  * Manages perspectives and the main menu bar (if visible), holds the currently

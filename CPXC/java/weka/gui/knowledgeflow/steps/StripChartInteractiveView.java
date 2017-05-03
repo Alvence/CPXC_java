@@ -21,6 +21,23 @@
 
 package weka.gui.knowledgeflow.steps;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
+import java.awt.Image;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.swing.BorderFactory;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.border.TitledBorder;
+
 import weka.core.Defaults;
 import weka.core.Environment;
 import weka.core.Settings;
@@ -28,14 +45,6 @@ import weka.core.Utils;
 import weka.gui.knowledgeflow.BaseInteractiveViewer;
 import weka.gui.visualize.PrintableComponent;
 import weka.knowledgeflow.steps.StripChart;
-
-import javax.swing.*;
-import javax.swing.border.TitledBorder;
-import java.awt.*;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Implements the actual strip chart view

@@ -11,8 +11,6 @@ import com.yunzhejia.cpxc.Discretizer;
 import com.yunzhejia.cpxc.LocalClassifier;
 import com.yunzhejia.cpxc.pattern.Pattern;
 import com.yunzhejia.cpxc.pattern.PatternSet;
-import com.yunzhejia.cpxc.pattern.SupportPatternFilter;
-import com.yunzhejia.cpxc.pattern.TERPatternFilter;
 import com.yunzhejia.cpxc.util.ClassifierGenerator;
 import com.yunzhejia.cpxc.util.ClassifierGenerator.ClassifierType;
 
@@ -20,8 +18,6 @@ import weka.classifiers.AbstractClassifier;
 import weka.classifiers.Evaluation;
 import weka.core.Instance;
 import weka.core.Instances;
-import weka.core.Utils;
-import weka.core.Capabilities.Capability;
 import weka.core.converters.ConverterUtils.DataSource;
 
 public class CAEC extends AbstractClassifier{

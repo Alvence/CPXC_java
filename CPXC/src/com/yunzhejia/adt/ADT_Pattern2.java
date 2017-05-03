@@ -1,7 +1,6 @@
 package com.yunzhejia.adt;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -21,7 +20,6 @@ import weka.core.Instances;
 import weka.core.Utils;
 import weka.core.converters.ArffSaver;
 import weka.core.converters.ConverterUtils.DataSource;
-import weka.core.pmml.jaxbbindings.Output;
 
 public class ADT_Pattern2 extends AbstractClassifier{
 	private static final long serialVersionUID = 3636935337536598456L;

@@ -21,19 +21,20 @@
 
 package weka.gui.knowledgeflow;
 
-import weka.core.Utils;
-import weka.core.WekaException;
-import weka.core.PluginManager;
-import weka.knowledgeflow.Flow;
-import weka.knowledgeflow.JSONFlowLoader;
-
-import javax.swing.JOptionPane;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+
+import javax.swing.JOptionPane;
+
+import weka.core.PluginManager;
+import weka.core.Utils;
+import weka.core.WekaException;
+import weka.knowledgeflow.Flow;
+import weka.knowledgeflow.JSONFlowLoader;
 
 /**
  * Manages all things template-related

@@ -21,37 +21,6 @@
 
 package weka.gui.experiment;
 
-import weka.classifiers.Classifier;
-import weka.core.xml.KOML;
-import weka.experiment.CSVResultListener;
-import weka.experiment.ClassifierSplitEvaluator;
-import weka.experiment.CrossValidationResultProducer;
-import weka.experiment.DatabaseResultListener;
-import weka.experiment.Experiment;
-import weka.experiment.InstancesResultListener;
-import weka.experiment.PropertyNode;
-import weka.experiment.RandomSplitResultProducer;
-import weka.experiment.RegressionSplitEvaluator;
-import weka.experiment.SplitEvaluator;
-import weka.gui.DatabaseConnectionDialog;
-import weka.gui.ExtensionFileFilter;
-
-import javax.swing.BorderFactory;
-import javax.swing.ButtonGroup;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.filechooser.FileFilter;
 import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -70,6 +39,38 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.beans.PropertyDescriptor;
 import java.io.File;
+
+import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.filechooser.FileFilter;
+
+import weka.classifiers.Classifier;
+import weka.core.xml.KOML;
+import weka.experiment.CSVResultListener;
+import weka.experiment.ClassifierSplitEvaluator;
+import weka.experiment.CrossValidationResultProducer;
+import weka.experiment.DatabaseResultListener;
+import weka.experiment.Experiment;
+import weka.experiment.InstancesResultListener;
+import weka.experiment.PropertyNode;
+import weka.experiment.RandomSplitResultProducer;
+import weka.experiment.RegressionSplitEvaluator;
+import weka.experiment.SplitEvaluator;
+import weka.gui.DatabaseConnectionDialog;
+import weka.gui.ExtensionFileFilter;
 
 /** 
  * This panel controls the configuration of an experiment.

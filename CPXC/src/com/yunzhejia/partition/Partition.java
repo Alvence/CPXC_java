@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import com.yunzhejia.cpxc.util.ClassifierGenerator;
 import com.yunzhejia.pattern.IPattern;
 
 import weka.classifiers.AbstractClassifier;

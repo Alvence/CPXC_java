@@ -21,16 +21,17 @@
 
 package weka.gui.knowledgeflow.steps;
 
-import weka.gui.knowledgeflow.StepEditorDialog;
-import weka.knowledgeflow.StepManager;
-import weka.knowledgeflow.StepManagerImpl;
-import weka.knowledgeflow.steps.Block;
+import java.awt.BorderLayout;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
-import java.awt.BorderLayout;
-import java.util.List;
+
+import weka.gui.knowledgeflow.StepEditorDialog;
+import weka.knowledgeflow.StepManager;
+import weka.knowledgeflow.StepManagerImpl;
+import weka.knowledgeflow.steps.Block;
 
 /**
  * Step editor dialog for the Block step

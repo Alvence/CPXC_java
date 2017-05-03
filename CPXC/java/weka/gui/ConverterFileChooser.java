@@ -20,14 +20,14 @@
 
 package weka.gui;
 
-import weka.core.Capabilities;
-import weka.core.Instances;
-import weka.core.converters.AbstractFileLoader;
-import weka.core.converters.AbstractFileSaver;
-import weka.core.converters.AbstractLoader;
-import weka.core.converters.AbstractSaver;
-import weka.core.converters.ConverterUtils;
-import weka.core.converters.FileSourcedConverter;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.io.File;
+import java.util.Vector;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -37,14 +37,15 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.filechooser.FileFilter;
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.io.File;
-import java.util.Vector;
+
+import weka.core.Capabilities;
+import weka.core.Instances;
+import weka.core.converters.AbstractFileLoader;
+import weka.core.converters.AbstractFileSaver;
+import weka.core.converters.AbstractLoader;
+import weka.core.converters.AbstractSaver;
+import weka.core.converters.ConverterUtils;
+import weka.core.converters.FileSourcedConverter;
 
 /**
  * A specialized JFileChooser that lists all available file Loaders and Savers.

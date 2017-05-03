@@ -21,13 +21,14 @@
 
 package weka.gui.visualize;
 
+import java.awt.Color;
+import java.util.Properties;
+
+import javax.swing.JOptionPane;
+
 import weka.core.Defaults;
 import weka.core.Settings;
 import weka.core.Utils;
-
-import javax.swing.JOptionPane;
-import java.awt.Color;
-import java.util.Properties;
 
 /**
  * This class contains utility routines for visualization

@@ -21,23 +21,6 @@
 
 package weka.gui.knowledgeflow;
 
-import weka.core.EnvironmentHandler;
-import weka.core.Instances;
-import weka.core.WekaException;
-import weka.core.converters.FileSourcedConverter;
-import weka.gui.Perspective;
-import weka.gui.knowledgeflow.VisibleLayout.LayoutOperation;
-import weka.gui.visualize.PrintablePanel;
-import weka.knowledgeflow.KFDefaults;
-import weka.knowledgeflow.StepManager;
-import weka.knowledgeflow.StepManagerImpl;
-import weka.knowledgeflow.steps.Loader;
-import weka.knowledgeflow.steps.Note;
-
-import javax.swing.JComponent;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -67,6 +50,24 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import javax.swing.JComponent;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+
+import weka.core.EnvironmentHandler;
+import weka.core.Instances;
+import weka.core.WekaException;
+import weka.core.converters.FileSourcedConverter;
+import weka.gui.Perspective;
+import weka.gui.knowledgeflow.VisibleLayout.LayoutOperation;
+import weka.gui.visualize.PrintablePanel;
+import weka.knowledgeflow.KFDefaults;
+import weka.knowledgeflow.StepManager;
+import weka.knowledgeflow.StepManagerImpl;
+import weka.knowledgeflow.steps.Loader;
+import weka.knowledgeflow.steps.Note;
 
 /**
  * Provides a panel just for laying out a Knowledge Flow graph. Also listens for

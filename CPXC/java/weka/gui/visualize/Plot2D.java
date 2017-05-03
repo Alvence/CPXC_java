@@ -21,14 +21,6 @@
 
 package weka.gui.visualize;
 
-import weka.core.Environment;
-import weka.core.Instance;
-import weka.core.Instances;
-import weka.core.Settings;
-import weka.core.Utils;
-
-import javax.swing.JFrame;
-import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
@@ -42,6 +34,15 @@ import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.Vector;
+
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+
+import weka.core.Environment;
+import weka.core.Instance;
+import weka.core.Instances;
+import weka.core.Settings;
+import weka.core.Utils;
 
 /**
  * This class plots datasets in two dimensions. It can also plot classifier

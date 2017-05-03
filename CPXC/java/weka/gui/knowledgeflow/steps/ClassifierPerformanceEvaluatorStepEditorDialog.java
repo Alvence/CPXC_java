@@ -21,18 +21,19 @@
 
 package weka.gui.knowledgeflow.steps;
 
-import weka.gui.EvaluationMetricSelectionDialog;
-import weka.gui.knowledgeflow.GOEStepEditorDialog;
-import weka.knowledgeflow.steps.ClassifierPerformanceEvaluator;
-import weka.knowledgeflow.steps.Step;
-
-import javax.swing.JButton;
-import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.swing.JButton;
+import javax.swing.JPanel;
+
+import weka.gui.EvaluationMetricSelectionDialog;
+import weka.gui.knowledgeflow.GOEStepEditorDialog;
+import weka.knowledgeflow.steps.ClassifierPerformanceEvaluator;
+import weka.knowledgeflow.steps.Step;
 
 /**
  * GUI step editor dialog for the ClassifierPerformanceEvaluator step

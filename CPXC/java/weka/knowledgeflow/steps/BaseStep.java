@@ -21,6 +21,10 @@
 
 package weka.knowledgeflow.steps;
 
+import java.io.Serializable;
+import java.lang.annotation.Annotation;
+import java.util.Map;
+
 import weka.core.Defaults;
 import weka.core.Instances;
 import weka.core.WekaException;
@@ -30,10 +34,6 @@ import weka.knowledgeflow.Data;
 import weka.knowledgeflow.LoggingLevel;
 import weka.knowledgeflow.StepManager;
 import weka.knowledgeflow.StepManagerImpl;
-
-import java.io.Serializable;
-import java.lang.annotation.Annotation;
-import java.util.Map;
 
 /**
  * Base class for implementations of Step to use. Provides handy functions that

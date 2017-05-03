@@ -20,6 +20,8 @@
 
 package weka.gui.explorer;
 
+import java.awt.BorderLayout;
+
 import weka.core.Defaults;
 import weka.core.Instances;
 import weka.core.Settings;
@@ -28,8 +30,6 @@ import weka.gui.PerspectiveInfo;
 import weka.gui.explorer.Explorer.ExplorerPanel;
 import weka.gui.visualize.MatrixPanel;
 import weka.gui.visualize.VisualizeUtils;
-
-import java.awt.BorderLayout;
 
 /**
  * A slightly extended MatrixPanel for better support in the Explorer.

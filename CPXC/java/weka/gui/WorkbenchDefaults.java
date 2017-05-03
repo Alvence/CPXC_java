@@ -21,10 +21,10 @@
 
 package weka.gui;
 
+import java.util.List;
+
 import weka.core.Defaults;
 import weka.core.Settings;
-
-import java.util.List;
 
 /**
  * Default settings for the Workbench app.

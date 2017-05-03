@@ -21,20 +21,24 @@
 
 package weka.gui.knowledgeflow.steps;
 
-import weka.core.WekaException;
-import weka.gui.ResultHistoryPanel;
-import weka.gui.knowledgeflow.BaseInteractiveViewer;
-import weka.knowledgeflow.steps.BoundaryPlotter;
-
-import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.Map;
+
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.ListSelectionModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+
+import weka.core.WekaException;
+import weka.gui.ResultHistoryPanel;
+import weka.gui.knowledgeflow.BaseInteractiveViewer;
+import weka.knowledgeflow.steps.BoundaryPlotter;
 
 /**
  * Interactive viewer component for the boundary plotter step

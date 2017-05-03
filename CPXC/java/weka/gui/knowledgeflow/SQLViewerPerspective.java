@@ -20,6 +20,13 @@
 
 package weka.gui.knowledgeflow;
 
+import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.JButton;
+import javax.swing.JPanel;
+
 import weka.core.Defaults;
 import weka.core.converters.DatabaseLoader;
 import weka.gui.AbstractPerspective;
@@ -31,11 +38,6 @@ import weka.gui.sql.event.ConnectionListener;
 import weka.knowledgeflow.KFDefaults;
 import weka.knowledgeflow.StepManagerImpl;
 import weka.knowledgeflow.steps.Loader;
-
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 /**
  * Perspective that wraps the {@code SQLViewer) component

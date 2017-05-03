@@ -21,14 +21,6 @@
 
 package weka.gui.experiment;
 
-import weka.core.Memory;
-import weka.experiment.Experiment;
-import weka.gui.AbstractPerspective;
-import weka.gui.LookAndFeel;
-import weka.gui.PerspectiveInfo;
-
-import javax.swing.JFrame;
-import javax.swing.JTabbedPane;
 import java.awt.BorderLayout;
 import java.awt.Image;
 import java.awt.Toolkit;
@@ -36,6 +28,15 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+
+import javax.swing.JFrame;
+import javax.swing.JTabbedPane;
+
+import weka.core.Memory;
+import weka.experiment.Experiment;
+import weka.gui.AbstractPerspective;
+import weka.gui.LookAndFeel;
+import weka.gui.PerspectiveInfo;
 
 /**
  * The main class for the experiment environment. Lets the user create, open,

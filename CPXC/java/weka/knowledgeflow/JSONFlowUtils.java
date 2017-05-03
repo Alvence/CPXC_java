@@ -21,21 +21,6 @@
 
 package weka.knowledgeflow;
 
-import weka.core.EnumHelper;
-import weka.core.Environment;
-import weka.core.EnvironmentHandler;
-import weka.core.OptionHandler;
-import weka.core.Settings;
-import weka.core.Utils;
-import weka.core.WekaException;
-import weka.core.json.JSONNode;
-import weka.gui.FilePropertyMetadata;
-import weka.knowledgeflow.steps.ClassAssigner;
-import weka.knowledgeflow.steps.NotPersistable;
-import weka.knowledgeflow.steps.Saver;
-import weka.knowledgeflow.steps.Step;
-import weka.knowledgeflow.steps.TrainingSetMaker;
-
 import java.beans.BeanInfo;
 import java.beans.Beans;
 import java.beans.Introspector;
@@ -59,6 +44,21 @@ import java.lang.reflect.Method;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import weka.core.EnumHelper;
+import weka.core.Environment;
+import weka.core.EnvironmentHandler;
+import weka.core.OptionHandler;
+import weka.core.Settings;
+import weka.core.Utils;
+import weka.core.WekaException;
+import weka.core.json.JSONNode;
+import weka.gui.FilePropertyMetadata;
+import weka.knowledgeflow.steps.ClassAssigner;
+import weka.knowledgeflow.steps.NotPersistable;
+import weka.knowledgeflow.steps.Saver;
+import weka.knowledgeflow.steps.Step;
+import weka.knowledgeflow.steps.TrainingSetMaker;
 
 /**
  * Utilities for building and saving flows from JSON data

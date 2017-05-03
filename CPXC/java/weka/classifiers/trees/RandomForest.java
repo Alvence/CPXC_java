@@ -29,22 +29,14 @@ import java.util.Vector;
 import weka.classifiers.AbstractClassifier;
 import weka.classifiers.Classifier;
 import weka.classifiers.meta.Bagging;
-import weka.core.AdditionalMeasureProducer;
-import weka.core.Aggregateable;
 import weka.core.Capabilities;
-import weka.core.Instance;
-import weka.core.Instances;
 import weka.core.Option;
 import weka.core.OptionHandler;
-import weka.core.PartitionGenerator;
-import weka.core.Randomizable;
 import weka.core.RevisionUtils;
 import weka.core.TechnicalInformation;
 import weka.core.TechnicalInformation.Field;
 import weka.core.TechnicalInformation.Type;
-import weka.core.TechnicalInformationHandler;
 import weka.core.Utils;
-import weka.core.WeightedInstancesHandler;
 import weka.gui.ProgrammaticProperty;
 
 /**

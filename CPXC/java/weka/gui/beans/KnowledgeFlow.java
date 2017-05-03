@@ -21,11 +21,11 @@
 
 package weka.gui.beans;
 
-import weka.core.Copyright;
-import weka.core.Version;
-
 import java.util.Arrays;
 import java.util.List;
+
+import weka.core.Copyright;
+import weka.core.Version;
 
 /**
  * Startup class for the KnowledgeFlow. Displays a splash screen.

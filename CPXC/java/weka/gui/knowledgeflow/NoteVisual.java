@@ -21,15 +21,16 @@
 
 package weka.gui.knowledgeflow;
 
-import weka.knowledgeflow.StepManagerImpl;
-import weka.knowledgeflow.steps.Note;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Graphics;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Graphics;
+
+import weka.knowledgeflow.StepManagerImpl;
+import weka.knowledgeflow.steps.Note;
 
 /**
  * Visual representation for the Note "step".

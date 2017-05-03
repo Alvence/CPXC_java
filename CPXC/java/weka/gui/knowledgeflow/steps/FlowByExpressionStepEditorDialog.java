@@ -21,20 +21,9 @@
 
 package weka.gui.knowledgeflow.steps;
 
-import weka.core.Instances;
-import weka.core.WekaException;
-import weka.gui.EnvironmentField;
-import weka.gui.knowledgeflow.StepEditorDialog;
-import weka.knowledgeflow.StepManager;
-import weka.knowledgeflow.steps.FlowByExpression;
-
-import javax.swing.*;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.DefaultTreeSelectionModel;
-import javax.swing.tree.TreePath;
-import javax.swing.tree.TreeSelectionModel;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
@@ -42,6 +31,29 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.List;
+
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+import javax.swing.JTree;
+import javax.swing.SwingConstants;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.DefaultTreeSelectionModel;
+import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeSelectionModel;
+
+import weka.core.Instances;
+import weka.core.WekaException;
+import weka.gui.EnvironmentField;
+import weka.gui.knowledgeflow.StepEditorDialog;
+import weka.knowledgeflow.StepManager;
+import weka.knowledgeflow.steps.FlowByExpression;
 
 /**
  * Step editor dialog for the FlowByExpression step

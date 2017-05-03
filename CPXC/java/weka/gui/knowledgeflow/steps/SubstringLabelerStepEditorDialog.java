@@ -21,11 +21,12 @@
 
 package weka.gui.knowledgeflow.steps;
 
-import weka.gui.EnvironmentField;
-import weka.gui.JListHelper;
-import weka.gui.beans.SubstringLabelerRules;
-import weka.gui.knowledgeflow.StepEditorDialog;
-import weka.knowledgeflow.steps.SubstringLabeler;
+import java.awt.BorderLayout;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
@@ -38,12 +39,12 @@ import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import java.awt.BorderLayout;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
+
+import weka.gui.EnvironmentField;
+import weka.gui.JListHelper;
+import weka.gui.beans.SubstringLabelerRules;
+import weka.gui.knowledgeflow.StepEditorDialog;
+import weka.knowledgeflow.steps.SubstringLabeler;
 
 /**
  * Step editor dialog for the SubstringLabeler step

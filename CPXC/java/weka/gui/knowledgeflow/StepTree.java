@@ -21,24 +21,6 @@
 
 package weka.gui.knowledgeflow;
 
-import weka.core.PluginManager;
-import weka.core.Utils;
-import weka.core.WekaException;
-import weka.gui.GenericObjectEditor;
-import weka.gui.GenericPropertiesCreator;
-import weka.gui.HierarchyPropertyParser;
-import weka.gui.knowledgeflow.VisibleLayout.LayoutOperation;
-import weka.knowledgeflow.steps.KFStep;
-import weka.knowledgeflow.steps.Step;
-import weka.knowledgeflow.steps.WekaAlgorithmWrapper;
-
-import javax.swing.Icon;
-import javax.swing.JTree;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeCellRenderer;
-import javax.swing.tree.DefaultTreeSelectionModel;
-import javax.swing.tree.TreePath;
-import javax.swing.tree.TreeSelectionModel;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.event.InputEvent;
@@ -55,6 +37,25 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+
+import javax.swing.Icon;
+import javax.swing.JTree;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeCellRenderer;
+import javax.swing.tree.DefaultTreeSelectionModel;
+import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeSelectionModel;
+
+import weka.core.PluginManager;
+import weka.core.Utils;
+import weka.core.WekaException;
+import weka.gui.GenericObjectEditor;
+import weka.gui.GenericPropertiesCreator;
+import weka.gui.HierarchyPropertyParser;
+import weka.gui.knowledgeflow.VisibleLayout.LayoutOperation;
+import weka.knowledgeflow.steps.KFStep;
+import weka.knowledgeflow.steps.Step;
+import weka.knowledgeflow.steps.WekaAlgorithmWrapper;
 
 /**
  * Subclass of JTree for displaying available steps.

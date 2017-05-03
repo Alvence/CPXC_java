@@ -21,11 +21,12 @@
 
 package weka.gui.knowledgeflow;
 
-import weka.core.WekaEnumeration;
+import java.util.Enumeration;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
-import java.util.Enumeration;
+
+import weka.core.WekaEnumeration;
 
 /**
  * Subclass of {@code DefaultMutableTreeNode} that can hide itself in a

@@ -20,12 +20,14 @@
 
 package weka.gui.knowledgeflow;
 
-import weka.core.Utils;
-import weka.core.WekaException;
-import weka.knowledgeflow.Flow;
+import static weka.gui.knowledgeflow.StepVisual.loadIcon;
 
-import javax.swing.*;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.MenuItem;
+import java.awt.PopupMenu;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
@@ -39,7 +41,26 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static weka.gui.knowledgeflow.StepVisual.loadIcon;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComponent;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JToggleButton;
+import javax.swing.JToolBar;
+import javax.swing.KeyStroke;
+
+import weka.core.Utils;
+import weka.core.WekaException;
+import weka.knowledgeflow.Flow;
 
 /**
  * Class that provides the main editing widget toolbar and menu items

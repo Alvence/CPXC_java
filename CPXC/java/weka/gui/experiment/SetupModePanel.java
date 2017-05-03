@@ -21,16 +21,17 @@
 
 package weka.gui.experiment;
 
-import weka.experiment.Experiment;
-
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeListener;
+
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+
+import weka.experiment.Experiment;
 
 /** 
  * This panel switches between simple and advanced experiment setup panels.

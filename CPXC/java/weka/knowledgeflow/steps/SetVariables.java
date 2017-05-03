@@ -21,15 +21,15 @@
 
 package weka.knowledgeflow.steps;
 
-import weka.core.Environment;
-import weka.core.WekaException;
-import weka.gui.ProgrammaticProperty;
-import weka.gui.knowledgeflow.KFGUIConsts;
-
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import weka.core.Environment;
+import weka.core.WekaException;
+import weka.gui.ProgrammaticProperty;
+import weka.gui.knowledgeflow.KFGUIConsts;
 
 /**
  * Step that can be used to set the values of environment variables for the flow

@@ -21,6 +21,10 @@
 
 package weka.knowledgeflow.steps;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import weka.classifiers.UpdateableClassifier;
 import weka.clusterers.DensityBasedClusterer;
 import weka.core.DenseInstance;
@@ -33,10 +37,6 @@ import weka.gui.knowledgeflow.KFGUIConsts;
 import weka.knowledgeflow.Data;
 import weka.knowledgeflow.StepManager;
 import weka.knowledgeflow.StepManagerImpl;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Step that can produce data with predictions appended from batch or

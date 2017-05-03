@@ -20,12 +20,13 @@
 
 package weka.gui;
 
-import weka.core.Defaults;
-import weka.core.Instances;
+import java.util.List;
 
 import javax.swing.Icon;
 import javax.swing.JMenu;
-import java.util.List;
+
+import weka.core.Defaults;
+import weka.core.Instances;
 
 /**
  * Interface for GUI elements that can appear as a perspective in a

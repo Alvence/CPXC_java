@@ -24,13 +24,24 @@ package weka.classifiers.functions;
 import java.util.Collections;
 import java.util.Enumeration;
 
-import no.uib.cipr.matrix.*;
+import no.uib.cipr.matrix.DenseMatrix;
+import no.uib.cipr.matrix.DenseVector;
 import no.uib.cipr.matrix.Matrix;
-
+import no.uib.cipr.matrix.UpperSymmDenseMatrix;
+import no.uib.cipr.matrix.Vector;
 import weka.classifiers.AbstractClassifier;
 import weka.classifiers.evaluation.RegressionAnalysis;
-import weka.core.*;
+import weka.core.Capabilities;
 import weka.core.Capabilities.Capability;
+import weka.core.Instance;
+import weka.core.Instances;
+import weka.core.Option;
+import weka.core.OptionHandler;
+import weka.core.RevisionUtils;
+import weka.core.SelectedTag;
+import weka.core.Tag;
+import weka.core.Utils;
+import weka.core.WeightedInstancesHandler;
 import weka.filters.Filter;
 import weka.filters.supervised.attribute.NominalToBinary;
 import weka.filters.unsupervised.attribute.ReplaceMissingValues;

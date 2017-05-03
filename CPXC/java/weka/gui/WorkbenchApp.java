@@ -21,6 +21,15 @@
 
 package weka.gui;
 
+import java.awt.BorderLayout;
+import java.awt.Image;
+import java.awt.Toolkit;
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+
+import javax.swing.JFrame;
+
 import weka.core.Capabilities;
 import weka.core.Defaults;
 import weka.core.Environment;
@@ -30,12 +39,6 @@ import weka.core.converters.AbstractFileLoader;
 import weka.core.converters.ConverterUtils;
 import weka.gui.explorer.Explorer;
 import weka.gui.explorer.PreprocessPanel;
-
-import javax.swing.*;
-import java.awt.*;
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
 
 /**
  * One app to rule them all, one app to find them, one app to

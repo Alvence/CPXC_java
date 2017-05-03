@@ -21,12 +21,13 @@
 
 package weka.gui;
 
-import weka.core.Copyright;
-import weka.core.Version;
-
-import javax.swing.JMenuBar;
 import java.util.Arrays;
 import java.util.List;
+
+import javax.swing.JMenuBar;
+
+import weka.core.Copyright;
+import weka.core.Version;
 
 /**
  * Launcher class for the Weka GUIChooser. Displays a splash window and

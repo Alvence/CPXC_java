@@ -21,6 +21,12 @@
 
 package weka.gui.knowledgeflow.steps;
 
+import java.awt.BorderLayout;
+
+import javax.swing.BorderFactory;
+import javax.swing.JComboBox;
+import javax.swing.JPanel;
+
 import weka.core.Attribute;
 import weka.core.Instances;
 import weka.core.WekaException;
@@ -28,9 +34,6 @@ import weka.gui.knowledgeflow.GOEStepEditorDialog;
 import weka.knowledgeflow.StepManager;
 import weka.knowledgeflow.steps.ClassAssigner;
 import weka.knowledgeflow.steps.Step;
-
-import javax.swing.*;
-import java.awt.*;
 
 /**
  * Step editor dialog for the ClassAssigner step

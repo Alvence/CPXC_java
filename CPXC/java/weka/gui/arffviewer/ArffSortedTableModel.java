@@ -21,15 +21,15 @@
 
 package weka.gui.arffviewer;
 
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
+import javax.swing.table.TableModel;
+
 import weka.core.Attribute;
 import weka.core.Instances;
 import weka.core.Undoable;
 import weka.core.converters.AbstractFileLoader;
 import weka.gui.SortedTableModel;
-
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
-import javax.swing.table.TableModel;
 
 /**
  * A sorter for the ARFF-Viewer - necessary because of the custom CellRenderer.

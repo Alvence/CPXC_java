@@ -21,14 +21,17 @@
 
 package weka.gui.knowledgeflow;
 
+import java.awt.BorderLayout;
+
+import javax.swing.BorderFactory;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+
 import weka.gui.GenericObjectEditor;
 import weka.gui.PropertySheetPanel;
 import weka.knowledgeflow.StepManagerImpl;
 import weka.knowledgeflow.steps.Step;
 import weka.knowledgeflow.steps.WekaAlgorithmWrapper;
-
-import javax.swing.*;
-import java.awt.*;
 
 /**
  * A step editor dialog that uses the GOE mechanism to provide property editors.

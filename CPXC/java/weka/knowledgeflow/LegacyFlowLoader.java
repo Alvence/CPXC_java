@@ -21,12 +21,22 @@
 
 package weka.knowledgeflow;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.lang.reflect.Method;
+import java.util.Set;
+import java.util.Vector;
+
+import weka.core.PluginManager;
 import weka.core.WekaException;
 import weka.gui.Logger;
 import weka.gui.beans.BeanCommon;
 import weka.gui.beans.BeanConnection;
 import weka.gui.beans.BeanInstance;
-import weka.core.PluginManager;
 import weka.gui.beans.WekaWrapper;
 import weka.gui.beans.xml.XMLBeans;
 import weka.knowledgeflow.steps.ClassAssigner;
@@ -52,16 +62,6 @@ import weka.knowledgeflow.steps.SubstringReplacer;
 import weka.knowledgeflow.steps.TextSaver;
 import weka.knowledgeflow.steps.TrainTestSplitMaker;
 import weka.knowledgeflow.steps.WekaAlgorithmWrapper;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.lang.reflect.Method;
-import java.util.Set;
-import java.util.Vector;
 
 /**
  * Flow loader that reads legacy .kfml files and translates them to the new

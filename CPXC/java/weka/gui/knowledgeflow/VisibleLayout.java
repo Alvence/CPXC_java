@@ -21,25 +21,11 @@
 
 package weka.gui.knowledgeflow;
 
-import weka.core.Copyright;
-import weka.core.Environment;
-import weka.core.PluginManager;
-import weka.core.Settings;
-import weka.core.WekaException;
-import weka.gui.beans.LogPanel;
-import weka.knowledgeflow.BaseExecutionEnvironment;
-import weka.knowledgeflow.ExecutionFinishedCallback;
-import weka.knowledgeflow.Flow;
-import weka.knowledgeflow.FlowExecutor;
-import weka.knowledgeflow.FlowRunner;
-import weka.knowledgeflow.JSONFlowUtils;
-import weka.knowledgeflow.KFDefaults;
-import weka.knowledgeflow.LogManager;
-import weka.knowledgeflow.StepManager;
-import weka.knowledgeflow.StepManagerImpl;
-
-import javax.swing.*;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -53,6 +39,27 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Stack;
+
+import javax.swing.JFileChooser;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+
+import weka.core.Copyright;
+import weka.core.Environment;
+import weka.core.PluginManager;
+import weka.core.Settings;
+import weka.core.WekaException;
+import weka.gui.beans.LogPanel;
+import weka.knowledgeflow.BaseExecutionEnvironment;
+import weka.knowledgeflow.ExecutionFinishedCallback;
+import weka.knowledgeflow.Flow;
+import weka.knowledgeflow.FlowExecutor;
+import weka.knowledgeflow.JSONFlowUtils;
+import weka.knowledgeflow.KFDefaults;
+import weka.knowledgeflow.LogManager;
+import weka.knowledgeflow.StepManager;
+import weka.knowledgeflow.StepManagerImpl;
 
 /**
  * Panel that wraps a flow and makes it visible in the KnowledgeFlow, along with

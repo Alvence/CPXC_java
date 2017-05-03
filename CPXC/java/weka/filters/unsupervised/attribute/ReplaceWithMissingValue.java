@@ -21,14 +21,23 @@
 
 package weka.filters.unsupervised.attribute;
 
-import weka.core.*;
-import weka.filters.SimpleBatchFilter;
-import weka.filters.UnsupervisedFilter;
-
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Random;
 import java.util.Vector;
+
+import weka.core.Capabilities;
+import weka.core.DenseInstance;
+import weka.core.Instance;
+import weka.core.Instances;
+import weka.core.Option;
+import weka.core.Randomizable;
+import weka.core.Range;
+import weka.core.RevisionUtils;
+import weka.core.SparseInstance;
+import weka.core.Utils;
+import weka.filters.SimpleBatchFilter;
+import weka.filters.UnsupervisedFilter;
 
 /**
  * <!-- globalinfo-start -->

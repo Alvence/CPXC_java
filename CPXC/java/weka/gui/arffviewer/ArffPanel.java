@@ -21,24 +21,6 @@
 
 package weka.gui.arffviewer;
 
-import weka.core.Instances;
-import weka.core.Undoable;
-import weka.core.Utils;
-import weka.core.converters.AbstractFileLoader;
-import weka.gui.ComponentHelper;
-import weka.gui.JTableHelper;
-import weka.gui.ListSelectorDialog;
-
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import javax.swing.event.TableModelEvent;
 import java.awt.BorderLayout;
 import java.awt.Cursor;
 import java.awt.Toolkit;
@@ -53,6 +35,25 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Vector;
+
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.TableModelEvent;
+
+import weka.core.Instances;
+import weka.core.Undoable;
+import weka.core.Utils;
+import weka.core.converters.AbstractFileLoader;
+import weka.gui.ComponentHelper;
+import weka.gui.JTableHelper;
+import weka.gui.ListSelectorDialog;
 
 /**
  * A Panel representing an ARFF-Table and the associated filename.

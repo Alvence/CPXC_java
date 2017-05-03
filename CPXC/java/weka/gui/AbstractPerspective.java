@@ -20,15 +20,16 @@
 
 package weka.gui;
 
-import weka.core.Defaults;
-import weka.core.Instances;
-import weka.gui.knowledgeflow.StepVisual;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.Icon;
 import javax.swing.JMenu;
 import javax.swing.JPanel;
-import java.util.ArrayList;
-import java.util.List;
+
+import weka.core.Defaults;
+import weka.core.Instances;
+import weka.gui.knowledgeflow.StepVisual;
 
 /**
  * Base classes for GUI perspectives to extend. Clients that extend this class

@@ -22,9 +22,8 @@
 
  package weka.core.expressionlanguage.parser;
  
- import java_cup.runtime.*;
- 
- import weka.core.expressionlanguage.core.SyntaxException;
+ import java_cup.runtime.Symbol;
+import weka.core.expressionlanguage.core.SyntaxException;
  
 /**
  * A lexical scanner for an expression language.

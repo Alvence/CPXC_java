@@ -21,11 +21,11 @@
 
 package weka.gui.knowledgeflow;
 
-import weka.core.Copyright;
-import weka.core.Version;
-
 import java.util.Arrays;
 import java.util.List;
+
+import weka.core.Copyright;
+import weka.core.Version;
 
 /**
  * Launcher class for the Weka Knowledge Flow. Displays a splash screen and

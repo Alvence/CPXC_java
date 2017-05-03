@@ -2,12 +2,9 @@ package com.yunzhejia.unimelb.cpexpl.patternselection;
 
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
-import java.util.Set;
 
-import com.yunzhejia.cpxc.util.OverlapCalculation;
 import com.yunzhejia.pattern.ICondition;
 import com.yunzhejia.pattern.IPattern;
 import com.yunzhejia.pattern.NominalCondition;
@@ -190,11 +187,16 @@ public class ProbDiffPatternSelection implements IPatternSelection {
 			int moveIndex = randomIndex(0, nei.size() - 1);
 			boolean val = nei.get(moveIndex);
 			nei.set(moveIndex, !val);
+			
+			moveIndex = randomIndex(0, nei.size() - 1);
+			val = nei.get(moveIndex);
+			nei.set(moveIndex, !val);
 		
 			int count = 0;
 			for(Boolean d:nei){
 				if(d) count++;
 			}
+//			System.out.println(count+"<"+k);
 			if(count<=k && count > 0){
 				return nei;
 			}
@@ -215,21 +217,28 @@ public class ProbDiffPatternSelection implements IPatternSelection {
 		double probOriginal = prediction(cl,instance,classIndex);
 		for(IPattern p :tmp){
 			double probDiff = predictionByRemovingPattern(cl, instance, p, data);
-			L += p.support(data)*(probOriginal - probDiff);
+//			L += p.support(data)*(probOriginal - probDiff);
+			L += (probOriginal - probDiff);
 		}
+		
+		
+//		if(tmp.size()>0)
+//			L=L/tmp.size();
 		
 		double omega = 0.0;
 		int M = 0;
 		for(int i = 0; i < tmp.size();i++){
 			for(int j = i +1; j < tmp.size();j++){
-				omega+= OverlapCalculator.overlap(tmp.get(i), tmp.get(j), data);
+				omega+= OverlapCalculator.overlapMDS(tmp.get(i), tmp.get(j), data);
+//				System.out.println("mds over="+OverlapCalculator.overlapMDS(tmp.get(i), tmp.get(j), data));
+//				System.out.println("over = "+OverlapCalculator.overlap(tmp.get(i), tmp.get(j), data));
 				M++;
 			}
 		}
 		omega = omega/M;
 		
-//		System.out.println("L=  "+L+"   Omega="+omega);
-		return L - 3*omega;
+//		System.out.println("L=  "+L+"   Omega="+omega+"  tmp="+tmp.size()+" tmp:"+tmp +"  obj="+( L - 0.1*omega));
+		return L - 0.1*omega;
 	}
 
 }

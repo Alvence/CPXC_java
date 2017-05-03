@@ -22,25 +22,6 @@
 
 package weka.classifiers.functions;
 
-import weka.classifiers.Classifier;
-import weka.classifiers.RandomizableClassifier;
-import weka.core.Capabilities;
-import weka.core.Instance;
-import weka.core.Instances;
-import weka.core.Option;
-import weka.core.RevisionUtils;
-import weka.core.SelectedTag;
-import weka.core.Tag;
-import weka.core.TechnicalInformation;
-import weka.core.TechnicalInformationHandler;
-import weka.core.Utils;
-import weka.core.Capabilities.Capability;
-import weka.core.TechnicalInformation.Type;
-import weka.filters.Filter;
-import weka.filters.unsupervised.attribute.NominalToBinary;
-import weka.filters.unsupervised.attribute.Normalize;
-import weka.filters.unsupervised.attribute.ReplaceMissingValues;
-
 import java.io.File;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
@@ -49,6 +30,24 @@ import java.util.Enumeration;
 import java.util.Random;
 import java.util.StringTokenizer;
 import java.util.Vector;
+
+import weka.classifiers.RandomizableClassifier;
+import weka.core.Capabilities;
+import weka.core.Capabilities.Capability;
+import weka.core.Instance;
+import weka.core.Instances;
+import weka.core.Option;
+import weka.core.RevisionUtils;
+import weka.core.SelectedTag;
+import weka.core.Tag;
+import weka.core.TechnicalInformation;
+import weka.core.TechnicalInformation.Type;
+import weka.core.TechnicalInformationHandler;
+import weka.core.Utils;
+import weka.filters.Filter;
+import weka.filters.unsupervised.attribute.NominalToBinary;
+import weka.filters.unsupervised.attribute.Normalize;
+import weka.filters.unsupervised.attribute.ReplaceMissingValues;
 
 /*
  * Modifications by FracPete:

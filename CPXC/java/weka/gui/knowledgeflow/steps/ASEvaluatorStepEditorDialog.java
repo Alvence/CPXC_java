@@ -21,12 +21,14 @@
 
 package weka.gui.knowledgeflow.steps;
 
+import java.awt.BorderLayout;
+
+import javax.swing.JCheckBox;
+import javax.swing.JPanel;
+
 import weka.gui.knowledgeflow.GOEStepEditorDialog;
 import weka.knowledgeflow.steps.ASEvaluator;
 import weka.knowledgeflow.steps.Step;
-
-import javax.swing.*;
-import java.awt.*;
 
 /**
  * Step editor dialog for the ASEvaluator step

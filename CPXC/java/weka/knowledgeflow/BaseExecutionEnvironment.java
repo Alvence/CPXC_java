@@ -21,16 +21,16 @@
 
 package weka.knowledgeflow;
 
-import weka.core.Defaults;
-import weka.core.Environment;
-import weka.core.Settings;
-import weka.core.WekaException;
-import weka.gui.Logger;
-import weka.core.PluginManager;
-
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+
+import weka.core.Defaults;
+import weka.core.Environment;
+import weka.core.PluginManager;
+import weka.core.Settings;
+import weka.core.WekaException;
+import weka.gui.Logger;
 
 /**
  * Base class for execution environments

@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.yunzhejia.cpxc.util.ArrayUtils;
-import com.yunzhejia.cpxc.util.OutputUtils;
 
 import weka.classifiers.AbstractClassifier;
 import weka.core.Instance;

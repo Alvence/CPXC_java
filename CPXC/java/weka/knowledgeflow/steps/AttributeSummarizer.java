@@ -21,23 +21,23 @@
 
 package weka.knowledgeflow.steps;
 
-import weka.core.Instance;
-import weka.core.Instances;
-import weka.core.OptionMetadata;
-import weka.gui.ProgrammaticProperty;
-import weka.gui.beans.OffscreenChartRenderer;
-import weka.core.PluginManager;
-import weka.gui.beans.WekaOffscreenChartRenderer;
-import weka.gui.knowledgeflow.KFGUIConsts;
-import weka.knowledgeflow.Data;
-import weka.knowledgeflow.StepManager;
-
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import weka.core.Instance;
+import weka.core.Instances;
+import weka.core.OptionMetadata;
+import weka.core.PluginManager;
+import weka.gui.ProgrammaticProperty;
+import weka.gui.beans.OffscreenChartRenderer;
+import weka.gui.beans.WekaOffscreenChartRenderer;
+import weka.gui.knowledgeflow.KFGUIConsts;
+import weka.knowledgeflow.Data;
+import weka.knowledgeflow.StepManager;
 
 /**
  * Step that collects data to display in a summary overview of attribute

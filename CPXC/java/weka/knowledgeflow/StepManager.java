@@ -21,14 +21,14 @@
 
 package weka.knowledgeflow;
 
+import java.util.List;
+import java.util.Map;
+
 import weka.core.Instances;
 import weka.core.Settings;
 import weka.core.WekaException;
 import weka.gui.Logger;
 import weka.knowledgeflow.steps.Step;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * Client public interface for the StepManager. Step implementations should only

@@ -21,15 +21,15 @@
 
 package weka.knowledgeflow.steps;
 
+import java.util.List;
+import java.util.Map;
+
 import weka.core.Defaults;
 import weka.core.Instances;
 import weka.core.WekaException;
 import weka.gui.knowledgeflow.StepInteractiveViewer;
 import weka.knowledgeflow.Data;
 import weka.knowledgeflow.StepManager;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * Client API for Knowledge Flow steps. Typically, an implementation would

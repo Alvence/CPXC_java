@@ -21,6 +21,8 @@
 
 package weka.gui.knowledgeflow;
 
+import java.awt.BorderLayout;
+
 import weka.core.Defaults;
 import weka.core.Instances;
 import weka.gui.AbstractPerspective;
@@ -28,8 +30,6 @@ import weka.gui.PerspectiveInfo;
 import weka.gui.explorer.VisualizePanel;
 import weka.gui.visualize.MatrixPanel;
 import weka.gui.visualize.VisualizeUtils;
-
-import java.awt.BorderLayout;
 
 /**
  * Knowledge Flow perspective for the scatter plot matrix

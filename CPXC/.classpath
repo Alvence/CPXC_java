@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
 	<classpathentry kind="lib" path="lib/arpack_combined_all.jar"/>
 	<classpathentry kind="lib" path="lib/bounce.jar"/>
 	<classpathentry kind="lib" path="lib/commons-compress-1.10.jar"/>
@@ -23,5 +22,10 @@
 	<classpathentry kind="lib" path="lib/jfreechart/orsonpdf-1.6-eval.jar"/>
 	<classpathentry kind="lib" path="lib/jfreechart/servlet.jar"/>
 	<classpathentry kind="lib" path="lib/jfreechart/swtgraphics2d.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="lib/lp/commons-math3-3.6.1-javadoc.jar"/>
+	<classpathentry kind="lib" path="lib/lp/commons-math3-3.6.1-tools.jar"/>
+	<classpathentry kind="lib" path="lib/lp/commons-math3-3.6.1.jar"/>
+	<classpathentry kind="lib" path="lib/lp/lpsolve55j.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

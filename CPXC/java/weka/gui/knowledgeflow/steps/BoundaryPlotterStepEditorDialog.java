@@ -21,16 +21,19 @@
 
 package weka.gui.knowledgeflow.steps;
 
+import java.awt.BorderLayout;
+import java.awt.GridLayout;
+
+import javax.swing.JComboBox;
+import javax.swing.JPanel;
+import javax.swing.border.TitledBorder;
+
 import weka.core.Attribute;
 import weka.core.Instances;
 import weka.core.WekaException;
 import weka.gui.knowledgeflow.GOEStepEditorDialog;
 import weka.knowledgeflow.StepManager;
 import weka.knowledgeflow.steps.BoundaryPlotter;
-
-import javax.swing.*;
-import javax.swing.border.TitledBorder;
-import java.awt.*;
 
 /**
  * Editor dialog for the boundary plotter step

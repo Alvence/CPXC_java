@@ -21,6 +21,14 @@
 
 package weka.gui.knowledgeflow.steps;
 
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.List;
+
+import javax.swing.JButton;
+
 import weka.core.Defaults;
 import weka.core.Settings;
 import weka.core.WekaException;
@@ -29,12 +37,6 @@ import weka.gui.visualize.PlotData2D;
 import weka.gui.visualize.VisualizePanel;
 import weka.gui.visualize.VisualizeUtils;
 import weka.knowledgeflow.steps.ModelPerformanceChart;
-
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.List;
 
 /**
  * Interactive viewer for the ModelPerformanceChart step

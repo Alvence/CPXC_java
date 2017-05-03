@@ -21,13 +21,6 @@
 
 package weka.gui.visualize;
 
-import weka.core.Attribute;
-import weka.core.Environment;
-import weka.core.Instances;
-import weka.core.Settings;
-
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -39,6 +32,14 @@ import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+
+import weka.core.Attribute;
+import weka.core.Environment;
+import weka.core.Instances;
+import weka.core.Settings;
 
 /**
  * This panel displays one dimensional views of the attributes in a dataset.

@@ -1,14 +1,5 @@
 package com.yunzhejia.globallocal.classifier;
 
-import java.io.BufferedWriter;
-import java.io.FileOutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.util.Random;
-
-import com.yunzhejia.cpxc.util.ClassifierGenerator;
-import com.yunzhejia.cpxc.util.ClassifierGenerator.ClassifierType;
-
 import weka.classifiers.AbstractClassifier;
 import weka.classifiers.Evaluation;
 import weka.core.Instances;

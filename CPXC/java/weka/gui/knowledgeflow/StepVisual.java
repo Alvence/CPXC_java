@@ -21,17 +21,6 @@
 
 package weka.gui.knowledgeflow;
 
-import weka.core.WekaException;
-import weka.knowledgeflow.StepManagerImpl;
-import weka.knowledgeflow.steps.KFStep;
-import weka.knowledgeflow.steps.Note;
-import weka.knowledgeflow.steps.Step;
-import weka.knowledgeflow.steps.WekaAlgorithmWrapper;
-
-import javax.swing.ImageIcon;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -44,6 +33,18 @@ import java.awt.Toolkit;
 import java.beans.Beans;
 import java.util.Map;
 import java.util.Set;
+
+import javax.swing.ImageIcon;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+
+import weka.core.WekaException;
+import weka.knowledgeflow.StepManagerImpl;
+import weka.knowledgeflow.steps.KFStep;
+import weka.knowledgeflow.steps.Note;
+import weka.knowledgeflow.steps.Step;
+import weka.knowledgeflow.steps.WekaAlgorithmWrapper;
 
 /**
  * Class for managing the appearance of a step in the GUI Knowledge Flow

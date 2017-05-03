@@ -3,9 +3,28 @@ package com.yunzhejia.pattern;
 import java.util.HashSet;
 import java.util.Set;
 
+import weka.core.Instance;
 import weka.core.Instances;
 
 public class OverlapCalculator {
+	public static double overlapMDS(IPattern p1, IPattern p2, Instances samples){
+		int countCup = 0;
+		int countCap = 0;
+		for(Instance ins:samples){
+			if(p1.match(ins)||p2.match(ins)){
+				countCup++;
+			}
+			if(p1.match(ins)&&p2.match(ins)){
+				countCap++;
+			}
+		}
+		if(countCup==0){
+			return 0;
+		}else{
+			return countCap*1.0/countCup;
+		}
+	}
+	
 	public static double overlap(IPattern p1, IPattern p2, Instances headerInfo){
 //		System.out.println(p1);
 //		System.out.println(p2);

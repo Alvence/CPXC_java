@@ -21,10 +21,10 @@
 
 package weka.gui;
 
+import javax.swing.JFrame;
+
 import weka.core.Defaults;
 import weka.core.Settings;
-
-import javax.swing.*;
 
 /**
  * Interface to a GUIApplication that can have multiple "perspectives" and

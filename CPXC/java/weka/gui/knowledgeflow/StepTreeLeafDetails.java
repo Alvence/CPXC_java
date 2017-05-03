@@ -21,16 +21,17 @@
 
 package weka.gui.knowledgeflow;
 
+import java.beans.Beans;
+import java.io.Serializable;
+import java.lang.annotation.Annotation;
+
+import javax.swing.Icon;
+
 import weka.core.Utils;
 import weka.knowledgeflow.StepManagerImpl;
 import weka.knowledgeflow.steps.KFStep;
 import weka.knowledgeflow.steps.Step;
 import weka.knowledgeflow.steps.WekaAlgorithmWrapper;
-
-import javax.swing.*;
-import java.beans.Beans;
-import java.io.Serializable;
-import java.lang.annotation.Annotation;
 
 /**
  * Maintains information about a step in the {@code StepTree} - e.g. tool tip

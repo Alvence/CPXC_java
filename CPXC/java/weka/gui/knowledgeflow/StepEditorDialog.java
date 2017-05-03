@@ -21,21 +21,33 @@
 
 package weka.gui.knowledgeflow;
 
-import weka.core.Environment;
-import weka.core.EnvironmentHandler;
-import weka.core.Utils;
-import weka.gui.PropertyDialog;
-import weka.gui.SettingsEditor;
-import weka.knowledgeflow.steps.Step;
-
-import javax.swing.*;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Frame;
+import java.awt.GridLayout;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.lang.reflect.Method;
+
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextPane;
+
+import weka.core.Environment;
+import weka.core.EnvironmentHandler;
+import weka.core.Utils;
+import weka.gui.PropertyDialog;
+import weka.gui.SettingsEditor;
+import weka.knowledgeflow.steps.Step;
 
 /**
  * Base class for step editor dialogs. Clients can extend this in order to

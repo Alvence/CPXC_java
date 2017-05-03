@@ -21,28 +21,6 @@
 
 package weka.gui.experiment;
 
-import weka.core.Utils;
-import weka.core.xml.KOML;
-import weka.experiment.Experiment;
-import weka.experiment.PropertyNode;
-import weka.experiment.RemoteExperiment;
-import weka.experiment.ResultListener;
-import weka.experiment.ResultProducer;
-import weka.gui.ExtensionFileFilter;
-import weka.gui.GenericObjectEditor;
-import weka.gui.PropertyPanel;
-
-import javax.swing.BorderFactory;
-import javax.swing.ButtonGroup;
-import javax.swing.JButton;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.filechooser.FileFilter;
 import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -66,6 +44,29 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+
+import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
+import javax.swing.JButton;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.filechooser.FileFilter;
+
+import weka.core.Utils;
+import weka.core.xml.KOML;
+import weka.experiment.Experiment;
+import weka.experiment.PropertyNode;
+import weka.experiment.RemoteExperiment;
+import weka.experiment.ResultListener;
+import weka.experiment.ResultProducer;
+import weka.gui.ExtensionFileFilter;
+import weka.gui.GenericObjectEditor;
+import weka.gui.PropertyPanel;
 
 /**
  * This panel controls the configuration of an experiment.

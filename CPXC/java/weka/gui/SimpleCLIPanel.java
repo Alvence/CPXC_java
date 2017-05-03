@@ -20,27 +20,6 @@
 
 package weka.gui;
 
-import weka.core.Capabilities;
-import weka.core.CapabilitiesHandler;
-import weka.core.ClassDiscovery;
-import weka.core.Defaults;
-import weka.core.Instances;
-import weka.core.OptionHandler;
-import weka.core.Trie;
-import weka.core.Utils;
-import weka.gui.knowledgeflow.StepVisual;
-import weka.gui.scripting.ScriptingPanel;
-
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-import javax.swing.JFrame;
-import javax.swing.JInternalFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JOptionPane;
-import javax.swing.JScrollPane;
-import javax.swing.JTextField;
-import javax.swing.JTextPane;
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Cursor;
@@ -63,6 +42,28 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Vector;
+
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.JFrame;
+import javax.swing.JInternalFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+import javax.swing.JTextPane;
+
+import weka.core.Capabilities;
+import weka.core.CapabilitiesHandler;
+import weka.core.ClassDiscovery;
+import weka.core.Defaults;
+import weka.core.Instances;
+import weka.core.OptionHandler;
+import weka.core.Trie;
+import weka.core.Utils;
+import weka.gui.knowledgeflow.StepVisual;
+import weka.gui.scripting.ScriptingPanel;
 
 /**
  * Creates a very simple command line for invoking the main method of classes.

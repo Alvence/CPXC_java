@@ -21,16 +21,17 @@
 
 package weka.gui.knowledgeflow.steps;
 
-import weka.gui.InteractiveTableModel;
-import weka.gui.InteractiveTablePanel;
-import weka.gui.knowledgeflow.StepEditorDialog;
-import weka.knowledgeflow.steps.SetVariables;
+import java.awt.BorderLayout;
+import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 import javax.swing.JTable;
-import java.awt.BorderLayout;
-import java.util.Map;
+
+import weka.gui.InteractiveTableModel;
+import weka.gui.InteractiveTablePanel;
+import weka.gui.knowledgeflow.StepEditorDialog;
+import weka.knowledgeflow.steps.SetVariables;
 
 /**
  * Editor dialog for the {@code SetVariables} step

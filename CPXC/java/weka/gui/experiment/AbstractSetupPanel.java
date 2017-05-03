@@ -20,15 +20,16 @@
 
 package weka.gui.experiment;
 
-import weka.experiment.Experiment;
-import weka.gui.GenericObjectEditor;
-
-import javax.swing.JPanel;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Vector;
+
+import javax.swing.JPanel;
+
+import weka.experiment.Experiment;
+import weka.gui.GenericObjectEditor;
 
 /**
  * Ancestor for setup panels for experiments.

@@ -23,15 +23,15 @@ package weka.classifiers.meta;
 
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.Vector;
 import java.util.Random;
+import java.util.Vector;
 
 import weka.core.Instances;
 import weka.core.Option;
 import weka.core.OptionHandler;
+import weka.core.Randomizable;
 import weka.core.RevisionUtils;
 import weka.core.Utils;
-import weka.core.Randomizable;
 import weka.filters.Filter;
 
 /**

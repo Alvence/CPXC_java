@@ -21,12 +21,12 @@
 
 package weka.gui.beans;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
-import java.io.Serializable;
 
 import weka.core.DenseInstance;
 import weka.core.Environment;

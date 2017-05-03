@@ -21,9 +21,6 @@
 
 package weka.core;
 
-import weka.Run;
-import weka.gui.PropertySheetPanel;
-
 import java.beans.BeanInfo;
 import java.beans.Introspector;
 import java.beans.MethodDescriptor;
@@ -45,6 +42,9 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Random;
 import java.util.Vector;
+
+import weka.Run;
+import weka.gui.PropertySheetPanel;
 
 /**
  * Class implementing some simple utility methods.

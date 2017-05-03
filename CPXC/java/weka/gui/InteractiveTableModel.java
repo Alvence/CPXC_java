@@ -20,9 +20,10 @@
 
 package weka.gui;
 
-import javax.swing.table.AbstractTableModel;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.swing.table.AbstractTableModel;
 
 /**
  * Table model that automatically adds a new row to the table on pressing enter

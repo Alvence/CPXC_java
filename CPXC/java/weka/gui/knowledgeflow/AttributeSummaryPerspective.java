@@ -21,6 +21,23 @@
 
 package weka.gui.knowledgeflow;
 
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Vector;
+
+import javax.swing.BorderFactory;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+
 import weka.core.Attribute;
 import weka.core.Defaults;
 import weka.core.Environment;
@@ -29,14 +46,6 @@ import weka.core.Settings;
 import weka.gui.AbstractPerspective;
 import weka.gui.AttributeVisualizationPanel;
 import weka.gui.PerspectiveInfo;
-
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Vector;
 
 /**
  * Knowledge Flow perspective that provides a matrix of

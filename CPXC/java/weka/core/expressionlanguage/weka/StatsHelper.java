@@ -26,6 +26,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import sun.org.mozilla.javascript.internal.ast.VariableDeclaration;
 import weka.core.expressionlanguage.common.Primitives.DoubleExpression;
 import weka.core.expressionlanguage.core.Node;
 import weka.core.expressionlanguage.core.VariableDeclarations;

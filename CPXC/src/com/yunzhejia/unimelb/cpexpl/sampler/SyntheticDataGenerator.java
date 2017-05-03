@@ -1,14 +1,6 @@
 package com.yunzhejia.unimelb.cpexpl.sampler;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
-
-import com.yunzhejia.cpxc.util.DataUtils;
-import com.yunzhejia.datavis.ScatterPlotDemo3;
-
-import weka.core.Instance;
-import weka.core.Instances;
 
 public class SyntheticDataGenerator {
 

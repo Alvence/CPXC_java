@@ -1,29 +1,14 @@
 package com.yunzhejia.adt;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
-import com.yunzhejia.cpxc.CPXC;
-import com.yunzhejia.cpxc.Discretizer;
-import com.yunzhejia.cpxc.pattern.AERPatternFilter;
-import com.yunzhejia.cpxc.pattern.Pattern;
-import com.yunzhejia.cpxc.pattern.PatternFilter;
-import com.yunzhejia.cpxc.pattern.PatternSet;
-import com.yunzhejia.cpxc.pattern.SupportPatternFilter;
-import com.yunzhejia.cpxc.pattern.TERPatternFilter;
 import com.yunzhejia.cpxc.util.ClassifierGenerator;
-import com.yunzhejia.cpxc.util.OutputUtils;
 import com.yunzhejia.cpxc.util.ClassifierGenerator.ClassifierType;
 
 import weka.classifiers.AbstractClassifier;
 import weka.classifiers.Evaluation;
-import weka.classifiers.bayes.NaiveBayes;
 import weka.core.Attribute;
 import weka.core.Instance;
 import weka.core.Instances;

@@ -21,7 +21,6 @@
 
 package weka.filters.unsupervised.instance;
 
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Random;
 import java.util.Vector;

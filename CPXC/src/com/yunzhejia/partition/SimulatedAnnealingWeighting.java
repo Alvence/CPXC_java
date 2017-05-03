@@ -8,7 +8,6 @@ import java.util.Map;
 import com.yunzhejia.cpxc.util.ArrayUtils;
 
 import weka.classifiers.AbstractClassifier;
-import weka.classifiers.Classifier;
 import weka.core.Instance;
 import weka.core.Instances;
 

@@ -21,15 +21,26 @@
 
 package weka.classifiers.meta;
 
-import weka.classifiers.IterativeClassifier;
-import weka.classifiers.SingleClassifierEnhancer;
-import weka.core.*;
-import weka.core.Capabilities.Capability;
-import weka.filters.Filter;
-
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Vector;
+
+import weka.classifiers.IterativeClassifier;
+import weka.classifiers.SingleClassifierEnhancer;
+import weka.core.Attribute;
+import weka.core.BatchPredictor;
+import weka.core.Capabilities;
+import weka.core.Capabilities.Capability;
+import weka.core.Drawable;
+import weka.core.Instance;
+import weka.core.Instances;
+import weka.core.Option;
+import weka.core.OptionHandler;
+import weka.core.PartitionGenerator;
+import weka.core.RevisionUtils;
+import weka.core.Utils;
+import weka.core.WekaException;
+import weka.filters.Filter;
 
 /**
  * <!-- globalinfo-start --> Class for running an arbitrary classifier on data

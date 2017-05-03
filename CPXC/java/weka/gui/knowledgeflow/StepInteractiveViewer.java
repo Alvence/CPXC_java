@@ -21,11 +21,11 @@
 
 package weka.gui.knowledgeflow;
 
+import java.awt.Window;
+
 import weka.core.Settings;
 import weka.core.WekaException;
 import weka.knowledgeflow.steps.Step;
-
-import java.awt.*;
 
 /**
  * Interface for GUI interactive viewer components that can be popped up from

@@ -1,13 +1,10 @@
 package com.yunzhejia.datavis;
 
-import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.EventQueue;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Random;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
