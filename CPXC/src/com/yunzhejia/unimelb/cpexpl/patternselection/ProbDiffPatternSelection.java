@@ -96,6 +96,8 @@ public class ProbDiffPatternSelection implements IPatternSelection {
 			values.add(new ArrayList<String>());
 		}
 		
+		int numNumericAttr = 5;
+		
 		for (ICondition condition:pattern.getConditions()){
 			if (condition instanceof NominalCondition){
 				String val = ((NominalCondition) condition).getValue();
@@ -112,16 +114,16 @@ public class ProbDiffPatternSelection implements IPatternSelection {
 				if(left!=Double.MIN_VALUE){
 					double upper = left;
 					double lower = data.attributeStats(condition.getAttrIndex()).numericStats.min;
-					values.get(condition.getAttrIndex()).add(Double.toString(getRand(lower,upper)));
-					values.get(condition.getAttrIndex()).add(Double.toString(getRand(lower,upper)));
-					values.get(condition.getAttrIndex()).add(Double.toString(getRand(lower,upper)));
+					for (int i = 0; i < numNumericAttr; i++){
+						values.get(condition.getAttrIndex()).add(Double.toString(getRand(lower,upper)));
+					}
 				}
 				if(right!=Double.MAX_VALUE){
 					double upper = data.attributeStats(condition.getAttrIndex()).numericStats.max;
 					double lower = right;
-					values.get(condition.getAttrIndex()).add(Double.toString(getRand(lower,upper)));
-					values.get(condition.getAttrIndex()).add(Double.toString(getRand(lower,upper)));
-					values.get(condition.getAttrIndex()).add(Double.toString(getRand(lower,upper)));
+					for (int i = 0; i < numNumericAttr; i++){
+						values.get(condition.getAttrIndex()).add(Double.toString(getRand(lower,upper)));
+					}
 				}
 			}
 		}

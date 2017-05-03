@@ -36,9 +36,9 @@ public class AddNoisyFeatureToData {
 
 	public static void main(String[] args) {
 		try {
-			Instances data = DataUtils.load("data/balloon_synthetic.arff");
+			Instances data = DataUtils.load("data/synthetic_8.arff");
 			Random rand = new Random(0);
-			int numOfNewAttr = data.numAttributes()/2;
+			int numOfNewAttr = data.numAttributes();
 			
 			for(int i = 0 ; i < numOfNewAttr; i++){
 			
