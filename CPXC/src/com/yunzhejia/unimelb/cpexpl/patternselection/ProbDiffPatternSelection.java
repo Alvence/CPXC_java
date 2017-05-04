@@ -32,7 +32,7 @@ public class ProbDiffPatternSelection implements IPatternSelection {
 	}
 	
 	@Override
-	public PatternSet select(Instance x, PatternSet ps, AbstractClassifier cl,int K, Instances data) throws Exception {
+	public PatternSet select(Instance x, PatternSet ps, AbstractClassifier cl,int K, Instances samples, Instances headerInfo) throws Exception {
 		List<Boolean> current = new ArrayList<>();
 		double temperature = initialTemperature;
 		// randomly generate initial weights
@@ -41,13 +41,13 @@ public class ProbDiffPatternSelection implements IPatternSelection {
 		}
 		current.set(0, true);
 		
-		double currentVal = eval(ps, cl, current, x, data);
+		double currentVal = eval(ps, cl, current, x, samples, headerInfo);
 		List<Boolean> bestWeights = current;
 		double bestVal = currentVal;
 		int iteration = 0;
 		while (iteration < maxIt) {
 			List<Boolean> nei = getNeighbour(current, K);
-			double neiVal = eval(ps, cl, nei,x,data);
+			double neiVal = eval(ps, cl, nei,x, samples, headerInfo);
 			if (neiVal > bestVal) {
 				bestVal = neiVal;
 				bestWeights = nei;
@@ -84,7 +84,7 @@ public class ProbDiffPatternSelection implements IPatternSelection {
 	}
 	
 	//Get the prediction without features appearing in the pattern
-	public double predictionByRemovingPattern(AbstractClassifier cl, Instance instance, IPattern pattern, Instances data) throws Exception{
+	public double predictionByRemovingPattern(AbstractClassifier cl, Instance instance, IPattern pattern, Instances headerInfo) throws Exception{
 				
 		Instance ins = (Instance)instance.copy();
 		
@@ -98,7 +98,7 @@ public class ProbDiffPatternSelection implements IPatternSelection {
 		for (ICondition condition:pattern.getConditions()){
 			if (condition instanceof NominalCondition){
 				String val = ((NominalCondition) condition).getValue();
-				Enumeration<Object> enums = data.attribute(condition.getAttrIndex()).enumerateValues();
+				Enumeration<Object> enums = headerInfo.attribute(condition.getAttrIndex()).enumerateValues();
 				while(enums.hasMoreElements()){
 					String o = (String)enums.nextElement();
 					if(!o.equals(val)){
@@ -110,13 +110,13 @@ public class ProbDiffPatternSelection implements IPatternSelection {
 				double right = ((NumericCondition)condition).getRight();
 				if(left!=Double.MIN_VALUE){
 					double upper = left;
-					double lower = data.attributeStats(condition.getAttrIndex()).numericStats.min;
+					double lower = headerInfo.attributeStats(condition.getAttrIndex()).numericStats.min;
 					for (int i = 0; i < numNumericAttr; i++){
 						values.get(condition.getAttrIndex()).add(Double.toString(getRand(lower,upper)));
 					}
 				}
 				if(right!=Double.MAX_VALUE){
-					double upper = data.attributeStats(condition.getAttrIndex()).numericStats.max;
+					double upper = headerInfo.attributeStats(condition.getAttrIndex()).numericStats.max;
 					double lower = right;
 					for (int i = 0; i < numNumericAttr; i++){
 						values.get(condition.getAttrIndex()).add(Double.toString(getRand(lower,upper)));
@@ -204,7 +204,7 @@ public class ProbDiffPatternSelection implements IPatternSelection {
 		return null;
 	}
 
-	private double eval(PatternSet ps, AbstractClassifier cl, List<Boolean> nei, Instance instance, Instances data) throws Exception {
+	private double eval(PatternSet ps, AbstractClassifier cl, List<Boolean> nei, Instance instance, Instances samples, Instances headerInfo) throws Exception {
 		PatternSet tmp = new PatternSet();
 		for (int i = 0; i < ps.size();i++){
 			if(nei.get(i)){
@@ -216,7 +216,7 @@ public class ProbDiffPatternSelection implements IPatternSelection {
 		double classIndex = cl.classifyInstance(instance);
 		double probOriginal = prediction(cl,instance,classIndex);
 		for(IPattern p :tmp){
-			double probDiff = predictionByRemovingPattern(cl, instance, p, data);
+			double probDiff = predictionByRemovingPattern(cl, instance, p, headerInfo);
 //			L += p.support(data)*(probOriginal - probDiff);
 			L += (probOriginal - probDiff);
 		}
@@ -229,7 +229,7 @@ public class ProbDiffPatternSelection implements IPatternSelection {
 		int M = 0;
 		for(int i = 0; i < tmp.size();i++){
 			for(int j = i +1; j < tmp.size();j++){
-				omega+= OverlapCalculator.overlapMDS(tmp.get(i), tmp.get(j), data);
+				omega+= OverlapCalculator.overlapMDS(tmp.get(i), tmp.get(j), samples);
 //				System.out.println("mds over="+OverlapCalculator.overlapMDS(tmp.get(i), tmp.get(j), data));
 //				System.out.println("over = "+OverlapCalculator.overlap(tmp.get(i), tmp.get(j), data));
 				M++;

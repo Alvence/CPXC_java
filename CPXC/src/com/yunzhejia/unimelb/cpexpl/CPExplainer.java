@@ -194,12 +194,12 @@ public class CPExplainer {
 		case OBJECTIVE_FUNCTION:
 			selector = new ProbDiffPatternSelection(10000);
 			if(patternSet.size()>0)
-				patternSet = selector.select(instance, patternSet, cl, K, samples);
+				patternSet = selector.select(instance, patternSet, cl, K, samples, headerInfo);
 			break;
 		case OBJECTIVE_FUNCTION_LP:
 			selector = new ProbDiffPatternSelectionLP();
 			if(patternSet.size()>0)
-				patternSet = selector.select(instance, patternSet, cl, K, samples);
+				patternSet = selector.select(instance, patternSet, cl, K, samples, headerInfo);
 			break;
 		default:
 			break;

@@ -47,12 +47,12 @@ public class ProbDiffPatternSelectionLP implements IPatternSelection {
 	}
 	
 	@Override
-	public PatternSet select(Instance x, PatternSet ps, AbstractClassifier cl,int K, Instances data) throws Exception {
+	public PatternSet select(Instance x, PatternSet ps, AbstractClassifier cl,int K, Instances samples, Instances headerInfo) throws Exception {
 		PatternSet ret = new PatternSet();;
 		List<Double> scores = new ArrayList<>();
 		List<Double> overlaps = new ArrayList<>();
 		for(IPattern p: ps){
-			scores.add(eval(cl, p, x, data));
+			scores.add(eval(cl, p, x, samples, headerInfo));
 		}
 		
 		Map<Integer, Pair> pairs = new HashMap<>();
@@ -60,7 +60,7 @@ public class ProbDiffPatternSelectionLP implements IPatternSelection {
 		for(int i = 0; i < ps.size();i++){
 			for(int j = i+1; j < ps.size(); j++){
 				pairs.put(index++, new Pair(i,j));
-				double overlap = OverlapCalculator.overlapMDS(ps.get(i), ps.get(j), data);
+				double overlap = OverlapCalculator.overlapMDS(ps.get(i), ps.get(j), samples);
 				overlaps.add(0.6*overlap);
 			}
 		}
@@ -227,11 +227,11 @@ public class ProbDiffPatternSelectionLP implements IPatternSelection {
 	
 
 	
-	private double eval(AbstractClassifier cl, IPattern pattern, Instance instance, Instances data) throws Exception {
+	private double eval(AbstractClassifier cl, IPattern pattern, Instance instance, Instances samples, Instances headerInfo) throws Exception {
 		double L = 0.0;
 		double classIndex = cl.classifyInstance(instance);
 		double probOriginal = prediction(cl,instance,classIndex);
-		double probDiff = predictionByRemovingPattern(cl, instance, pattern, data);
+		double probDiff = predictionByRemovingPattern(cl, instance, pattern, headerInfo);
 //			L += p.support(data)*(probOriginal - probDiff);
 		L += (probOriginal - probDiff);
 		
@@ -241,7 +241,7 @@ public class ProbDiffPatternSelectionLP implements IPatternSelection {
 		
 		
 //		System.out.println("L=  "+L+"   Omega="+omega+"  tmp="+tmp.size()+" tmp:"+tmp +"  obj="+( L - 0.1*omega));
-		return L*pattern.support(data);
+		return L*pattern.support(samples);
 	}
 
 	
