@@ -30,4 +30,6 @@ public interface IPattern {
 	public Set<ICondition> getConditions();
 	public IPattern conjuction(IPattern p);
 	public IPattern disjuction(IPattern p);
+	
+	public boolean subset(IPattern p);
 }

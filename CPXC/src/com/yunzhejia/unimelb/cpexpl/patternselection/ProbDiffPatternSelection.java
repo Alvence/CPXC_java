@@ -230,6 +230,7 @@ public class ProbDiffPatternSelection implements IPatternSelection {
 		for(int i = 0; i < tmp.size();i++){
 			for(int j = i +1; j < tmp.size();j++){
 				omega+= OverlapCalculator.overlapMDS(tmp.get(i), tmp.get(j), samples);
+//				omega+= OverlapCalculator.overlap(tmp.get(i), tmp.get(j),headerInfo);
 //				System.out.println("mds over="+OverlapCalculator.overlapMDS(tmp.get(i), tmp.get(j), data));
 //				System.out.println("over = "+OverlapCalculator.overlap(tmp.get(i), tmp.get(j), data));
 				M++;

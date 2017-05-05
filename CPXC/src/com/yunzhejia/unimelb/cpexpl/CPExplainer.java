@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -54,7 +55,7 @@ public class CPExplainer {
 		DEBUG = debug;
 		
 		List<IPattern> ret = new ArrayList<>();
-//		if(DEBUG)
+		if(DEBUG)
 			System.out.println("instance being tested: " + instance+" classification="+  cl.classifyInstance(instance));
 		//step 1, sample the neighbours from the instance
 		/*
@@ -125,7 +126,7 @@ public class CPExplainer {
 			System.out.println("sample size = "+samples.size());
 //			System.out.println(samples);
 		}
-		
+//		DataUtils.save(samples, "tmp/11.arff");
 		
 //		List<Instances> tmp = new ArrayList<>();
 //		Instances tmp1= new Instances(headerInfo,0);
@@ -160,6 +161,8 @@ public class CPExplainer {
 		
 		PatternSet patternSet = patternMiner.minePattern(samples, minSupp, minRatio, classLabel, true);
 		
+		
+		
 		patternSet = patternSet.getMatchingPatterns(instance);
 		PatternSet tmp = new PatternSet();
 		for(IPattern p:patternSet){
@@ -170,14 +173,14 @@ public class CPExplainer {
 //		tmp.add(patternSet.get(0));
 //		tmp.add(patternSet.get(1));
 		patternSet = tmp;
+		patternSet = filterBySubset(patternSet, cl, instance, headerInfo);
 		
-		int ind = 1;
-		for(IPattern p:patternSet){
-			System.out.println((ind++)+": "+p+ "  sup=" + p.support(samples)+" ratio="+p.ratio());
-			System.out.println("Original   "+prediction(cl, instance));
-			System.out.println("Without pattern   "+predictionByRemovingPattern(cl, instance, p,headerInfo));
-		}
-		
+//		int ind = 1;
+//		for(IPattern p:patternSet){
+//			System.out.println((ind++)+": "+p+ "  sup=" + p.support(samples)+" ratio="+p.ratio());
+//			System.out.println("Original   "+prediction(cl, instance));
+//			System.out.println("Without pattern   "+predictionByRemovingPattern(cl, instance, p,headerInfo));
+//		}
 		
 		if(DEBUG){
 			System.out.println("size of contrast patterns = "+patternSet.size());
@@ -225,6 +228,24 @@ public class CPExplainer {
 		}
 		
 		return ret;
+	}
+	
+	private PatternSet filterBySubset(PatternSet ps, AbstractClassifier cl, Instance x, Instances header) throws Exception{
+		PatternSet tmp = new PatternSet(ps);
+		Iterator<IPattern> it = ps.iterator();
+		while(it.hasNext()){
+			IPattern p = it.next();
+			for (IPattern q:tmp){
+//				System.out.println(p+"    q="+q+"   subset?"+p.subset(q));
+				if(!p.equals(q)&&p.subset(q) && (predictionByRemovingPattern(cl, x, p, header).prob <= predictionByRemovingPattern(cl, x, q, header).prob )){
+//					System.out.println(q +"  is subset of  "+p);
+					it.remove();
+					break;
+				}
+			}
+		}
+		
+		return ps;
 	}
 	
 	public void print_pattern(PatternSet ps, int K, String name){
@@ -396,11 +417,11 @@ public class CPExplainer {
 //		SamplingStrategy[] samplingStrategies = {SamplingStrategy.RANDOM,SamplingStrategy.PATTERN_BASED_RANDOM,SamplingStrategy.PATTERN_BASED_PERTURBATION};
 //		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.LOGISTIC, ClassifierType.NAIVE_BAYES};
 		
-		String[] files = {"synthetic/balloon_synthetic.arff"};
-//		String[] files = {"iris.arff"};
+//		String[] files = {"synthetic/balloon_synthetic.arff"};
+		String[] files = {"iris.arff"};
 		int[] numsOfExpl = {5};
 		CPStrategy[] miningStrategies = {CPStrategy.APRIORI};
-		SamplingStrategy[] samplingStrategies = {SamplingStrategy.RANDOM};
+		SamplingStrategy[] samplingStrategies = {SamplingStrategy.PATTERN_BASED_RANDOM};
 		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.LOGISTIC};
 		int[] numsOfSamples={1000};
 		CPExplainer app = new CPExplainer();
@@ -424,40 +445,42 @@ public class CPExplainer {
 //			Instances data = DataUtils.load("tmp/newData.arff");
 			data = AddNoisyFeatureToData.generateNoisyData(data);
 			
+			
 			Random random = new Random(0);
 			//split the data into train and test
 			data.randomize(random);
 			Instances train = data.trainCV(5, 1);
 			Instances test = data.testCV(5, 1);
 			
-//			AbstractClassifier cl = ClassifierGenerator.getClassifier(type);
+			AbstractClassifier cl = ClassifierGenerator.getClassifier(type);
 //			AbstractClassifier cl = new Synthetic_8RuleClassifier();
 //			AbstractClassifier cl = new Synthetic_8Classifier();
-			AbstractClassifier cl = new BalloonClassifier();
+//			AbstractClassifier cl = new BalloonClassifier();
 //			AbstractClassifier cl = new Synthetic3Classifier();
 			cl.buildClassifier(train);
 			double precision = 0;
 			double recall = 0;
-			
+			int numExpl = 0;
 			int count=0;
-			Instance ins = test.get(0);
-//			ins.setValue(0, "1");
+//			Instance ins = test.get(0);
+//			ins.setValue(0, "2");
 //			ins.setValue(1, 0.1);
 //			ins.setValue(2, 0.1);
-//			ins.setValue(1, "PURPLE");
+//			ins.setValue(1, "YELLOW");
 //			ins.setValue(2, "SMALL");
 //			ins.setValue(3, "STRETCH");
-//			ins.setValue(4, "CHILD");
-//			ins.setClassValue(1);
-//			for(Instance ins:test){
+//			ins.setValue(4, "ADULT");
+//			ins.setClassValue(0);
+			for(Instance ins:test){
 				try{
 				List<IPattern> expls = app.getExplanations(FPStrategy.APRIORI, samplingStrategy, 
 						miningStrategy, PatternSortingStrategy.OBJECTIVE_FUNCTION_LP,
-						cl, ins, data, numOfSamples, 0.1, 3, numOfExpl, true);
+						cl, ins, data, numOfSamples, 0.05, 3, numOfExpl, false);
 				if (expls.size()!=0){
 					precision += ExplEvaluation.eval(expls, goldFeatures);
 					recall += ExplEvaluation.evalRecall(expls, goldFeatures);
 //					System.out.println(expls.size()+"  precision="+precision);
+					numExpl+=expls.size();
 					count++;
 				}else{
 //					System.err.println("No explanations!");
@@ -466,11 +489,12 @@ public class CPExplainer {
 					throw e;
 //					e.printStackTrace();
 				}
-//			}
+			}
 			Evaluation eval = new Evaluation(train);
 			eval.evaluateModel(cl, test);
 			
-			System.out.println("mining="+miningStrategy+" sampling="+samplingStrategy+" numOfSample="+numOfSamples+"   "+file+"  cl="+type+"  NumExpl="+numOfExpl+"  precision = "+(count==0?0:precision/count)+"  recall = "+(count==0?0:recall/count)+"   acc="+eval.correct()*1.0/test.numInstances());
+			System.out.println("mining="+miningStrategy+" sampling="+samplingStrategy+" numOfSample="+numOfSamples+"   "+file+"  cl="+type+"  NumExpl="+numOfExpl+"  precision = "+(count==0?0:precision/count)+"  recall = "+(count==0?0:recall/count)+"   acc="+eval.correct()*1.0/test.numInstances()
+					+" numExpl="+numExpl*1.0/test.size());
 			}catch(Exception e){
 				throw e;
 //				e.printStackTrace();

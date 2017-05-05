@@ -120,7 +120,7 @@ public class ProbDiffPatternSelectionLP implements IPatternSelection {
 //		      solver.printLp();
 		      // print solution
 		      double[] var = solver.getPtrVariables();
-		      System.out.println("solution:"+Arrays.toString(var));
+//		      System.out.println("solution:"+Arrays.toString(var));
 		      for (int i = 0; i < scores.size(); i++) {
 		        if( var[i] == 1.0){
 		        	ret.add(ps.get(i));

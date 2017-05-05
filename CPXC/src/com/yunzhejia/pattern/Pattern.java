@@ -273,7 +273,9 @@ public class Pattern implements IPattern {
 		pattern.conditions = cond;
 		return pattern;
 	}
-
-	
+	@Override
+	public boolean subset(IPattern p) {
+		return this.conditions.containsAll(p.getConditions());
+	}
 	
 }
