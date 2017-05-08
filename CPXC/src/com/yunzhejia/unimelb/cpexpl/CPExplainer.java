@@ -417,8 +417,8 @@ public class CPExplainer {
 //		SamplingStrategy[] samplingStrategies = {SamplingStrategy.RANDOM,SamplingStrategy.PATTERN_BASED_RANDOM,SamplingStrategy.PATTERN_BASED_PERTURBATION};
 //		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.LOGISTIC, ClassifierType.NAIVE_BAYES};
 		
-//		String[] files = {"synthetic/balloon_synthetic.arff"};
-		String[] files = {"iris.arff"};
+		String[] files = {"balloon_synthetic.arff"};
+//		String[] files = {"iris.arff"};
 		int[] numsOfExpl = {5};
 		CPStrategy[] miningStrategies = {CPStrategy.APRIORI};
 		SamplingStrategy[] samplingStrategies = {SamplingStrategy.PATTERN_BASED_RANDOM};
@@ -452,17 +452,17 @@ public class CPExplainer {
 			Instances train = data.trainCV(5, 1);
 			Instances test = data.testCV(5, 1);
 			
-			AbstractClassifier cl = ClassifierGenerator.getClassifier(type);
+//			AbstractClassifier cl = ClassifierGenerator.getClassifier(type);
 //			AbstractClassifier cl = new Synthetic_8RuleClassifier();
 //			AbstractClassifier cl = new Synthetic_8Classifier();
-//			AbstractClassifier cl = new BalloonClassifier();
+			AbstractClassifier cl = new BalloonClassifier();
 //			AbstractClassifier cl = new Synthetic3Classifier();
 			cl.buildClassifier(train);
 			double precision = 0;
 			double recall = 0;
 			int numExpl = 0;
 			int count=0;
-//			Instance ins = test.get(0);
+			Instance ins = test.get(0);
 //			ins.setValue(0, "2");
 //			ins.setValue(1, 0.1);
 //			ins.setValue(2, 0.1);
@@ -471,11 +471,11 @@ public class CPExplainer {
 //			ins.setValue(3, "STRETCH");
 //			ins.setValue(4, "ADULT");
 //			ins.setClassValue(0);
-			for(Instance ins:test){
+//			for(Instance ins:test){
 				try{
 				List<IPattern> expls = app.getExplanations(FPStrategy.APRIORI, samplingStrategy, 
 						miningStrategy, PatternSortingStrategy.OBJECTIVE_FUNCTION_LP,
-						cl, ins, data, numOfSamples, 0.05, 3, numOfExpl, false);
+						cl, ins, data, numOfSamples, 0.05, 3, numOfExpl, true);
 				if (expls.size()!=0){
 					precision += ExplEvaluation.eval(expls, goldFeatures);
 					recall += ExplEvaluation.evalRecall(expls, goldFeatures);
@@ -489,7 +489,7 @@ public class CPExplainer {
 					throw e;
 //					e.printStackTrace();
 				}
-			}
+//			}
 			Evaluation eval = new Evaluation(train);
 			eval.evaluateModel(cl, test);
 			
