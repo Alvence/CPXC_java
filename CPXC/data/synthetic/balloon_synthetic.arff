@@ -1,0 +1,79 @@
+% 1. Title:  Balloon databases
+% 
+% 2. Sources: Michael Pazzani (pazzani@ics.uci.edu)
+% 
+% 3. Past Usage:
+%     Pazzani, M. (1991). The influence of prior knowledge on concept acquisition: 
+%     Experimental and computational results. Journal of Experimental Psychology: 
+%     Learning, Memory & Cognition, 17, 3,  416-432.
+% 
+% 
+% 4. Relevant Information:
+%     There are four data sets representing different conditions of an experiment.
+%     All have the same attributes.
+%	   a. adult-stretch.data  Inflated is true if age=adult or act=stretch
+%	   b. adult+stretch.data  Inflated is true if age=adult and act=stretch
+%	   c. small-yellow.data   Inflated is true if (color=yellow and size = small) or
+%	   d. small-yellow+adult-stretch.data  Inflated is true if 
+%            (color=yellow and size = small) or (age=adult and act=stretch)
+% 
+% 5. Number of Instances: 16
+% 
+% 6. Number of Attributes: 4 (all nominally valued)
+% 
+% 7. Attribute Information: (classes: edible=e, poisonous=p)
+%      1. Color             yellow, purple
+%      2. size              large, small
+%      3. act               stretch, dip
+%      4. age               adult, child
+% 
+@relation mushroom
+@attribute 'region' {'1','2'}
+@attribute 'color' { 'YELLOW', 'PURPLE'}
+@attribute 'size' { 'LARGE', 'SMALL'}
+@attribute 'act' { 'STRETCH','DIP'}
+@attribute 'age' { 'ADULT', 'CHILD'}
+@attribute 'class' { 'T', 'F'}
+@data
+1, YELLOW,SMALL,STRETCH,ADULT,T
+1, YELLOW,SMALL,STRETCH,ADULT,T
+1, YELLOW,SMALL,STRETCH,CHILD,F
+1, YELLOW,SMALL,DIP,ADULT,F
+1, YELLOW,SMALL,DIP,CHILD,F
+1, YELLOW,LARGE,STRETCH,ADULT,T
+1, YELLOW,LARGE,STRETCH,ADULT,T
+1, YELLOW,LARGE,STRETCH,CHILD,F
+1, YELLOW,LARGE,DIP,ADULT,F
+1, YELLOW,LARGE,DIP,CHILD,F
+1, PURPLE,SMALL,STRETCH,ADULT,T
+1, PURPLE,SMALL,STRETCH,ADULT,T
+1, PURPLE,SMALL,STRETCH,CHILD,F
+1, PURPLE,SMALL,DIP,ADULT,F
+1, PURPLE,SMALL,DIP,CHILD,F
+1, PURPLE,LARGE,STRETCH,ADULT,T
+1, PURPLE,LARGE,STRETCH,ADULT,T
+1, PURPLE,LARGE,STRETCH,CHILD,F
+1, PURPLE,LARGE,DIP,ADULT,F
+1, PURPLE,LARGE,DIP,CHILD,F
+2, YELLOW,SMALL,STRETCH,ADULT,T
+2, YELLOW,SMALL,STRETCH,ADULT,T
+2, YELLOW,SMALL,STRETCH,CHILD,T
+2, YELLOW,SMALL,DIP,ADULT,T
+2, YELLOW,SMALL,DIP,CHILD,T
+2, YELLOW,LARGE,STRETCH,ADULT,F
+2, YELLOW,LARGE,STRETCH,ADULT,F
+2, YELLOW,LARGE,STRETCH,CHILD,F
+2, YELLOW,LARGE,DIP,ADULT,F
+2, YELLOW,LARGE,DIP,CHILD,F
+2, PURPLE,SMALL,STRETCH,ADULT,F
+2, PURPLE,SMALL,STRETCH,ADULT,F
+2, PURPLE,SMALL,STRETCH,CHILD,F
+2, PURPLE,SMALL,DIP,ADULT,F
+2, PURPLE,SMALL,DIP,CHILD,F
+2, PURPLE,LARGE,STRETCH,ADULT,F
+2, PURPLE,LARGE,STRETCH,ADULT,F
+2, PURPLE,LARGE,STRETCH,CHILD,F
+2, PURPLE,LARGE,DIP,ADULT,F
+2, PURPLE,LARGE,DIP,CHILD,F
+%
+%

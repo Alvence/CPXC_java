@@ -417,23 +417,16 @@ public class CPExplainer {
 //		SamplingStrategy[] samplingStrategies = {SamplingStrategy.RANDOM,SamplingStrategy.PATTERN_BASED_RANDOM,SamplingStrategy.PATTERN_BASED_PERTURBATION};
 //		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.LOGISTIC, ClassifierType.NAIVE_BAYES};
 		
-		String[] files = {"balloon_synthetic.arff"};
+		String[] files = {"synthetic/balloon_synthetic.arff"};
 //		String[] files = {"iris.arff"};
 		int[] numsOfExpl = {5};
 		CPStrategy[] miningStrategies = {CPStrategy.APRIORI};
 		SamplingStrategy[] samplingStrategies = {SamplingStrategy.PATTERN_BASED_RANDOM};
-		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.LOGISTIC};
+		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.DECISION_TREE};
 		int[] numsOfSamples={1000};
 		CPExplainer app = new CPExplainer();
 		try {
-			for(CPStrategy miningStrategy : miningStrategies){
-			for(SamplingStrategy samplingStrategy:samplingStrategies){
-			for(int numOfSamples:numsOfSamples){
 			for(String file:files){
-				for(ClassifierType type:typesOfClassifier){
-					for(int numOfExpl:numsOfExpl){
-			
-						try{
 //			Instances data = DataUtils.load("data/synthetic2.arff");
 			Instances data = DataUtils.load("data/"+file);
 			int numGoldFeature = data.numAttributes();
@@ -444,13 +437,24 @@ public class CPExplainer {
 			
 //			Instances data = DataUtils.load("tmp/newData.arff");
 			data = AddNoisyFeatureToData.generateNoisyData(data);
-			
+			DataUtils.save(data,"tmp/newwData.arff");
 			
 			Random random = new Random(0);
 			//split the data into train and test
 			data.randomize(random);
 			Instances train = data.trainCV(5, 1);
 			Instances test = data.testCV(5, 1);
+			
+			
+			for(CPStrategy miningStrategy : miningStrategies){
+			for(SamplingStrategy samplingStrategy:samplingStrategies){
+			for(int numOfSamples:numsOfSamples){
+			
+				for(ClassifierType type:typesOfClassifier){
+					for(int numOfExpl:numsOfExpl){
+			
+						try{
+
 			
 //			AbstractClassifier cl = ClassifierGenerator.getClassifier(type);
 //			AbstractClassifier cl = new Synthetic_8RuleClassifier();
@@ -462,14 +466,14 @@ public class CPExplainer {
 			double recall = 0;
 			int numExpl = 0;
 			int count=0;
-			Instance ins = test.get(0);
-//			ins.setValue(0, "2");
+			Instance ins = test.get(1);
+			ins.setValue(0, "1");
 //			ins.setValue(1, 0.1);
 //			ins.setValue(2, 0.1);
-//			ins.setValue(1, "YELLOW");
-//			ins.setValue(2, "SMALL");
-//			ins.setValue(3, "STRETCH");
-//			ins.setValue(4, "ADULT");
+			ins.setValue(1, "YELLOW");
+			ins.setValue(2, "SMALL");
+			ins.setValue(3, "STRETCH");
+			ins.setValue(4, "CHILD");
 //			ins.setClassValue(0);
 //			for(Instance ins:test){
 				try{
