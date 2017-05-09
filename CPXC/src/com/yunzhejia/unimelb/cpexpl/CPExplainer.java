@@ -1,5 +1,8 @@
 package com.yunzhejia.unimelb.cpexpl;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -29,7 +32,6 @@ import com.yunzhejia.pattern.patternmining.RFPatternMiner;
 import com.yunzhejia.unimelb.cpexpl.patternselection.IPatternSelection;
 import com.yunzhejia.unimelb.cpexpl.patternselection.ProbDiffPatternSelection;
 import com.yunzhejia.unimelb.cpexpl.patternselection.ProbDiffPatternSelectionLP;
-import com.yunzhejia.unimelb.cpexpl.sampler.AddNoisyFeatureToData;
 import com.yunzhejia.unimelb.cpexpl.sampler.PatternBasedPerturbationSampler;
 import com.yunzhejia.unimelb.cpexpl.sampler.PatternBasedSampler;
 import com.yunzhejia.unimelb.cpexpl.sampler.Sampler;
@@ -182,9 +184,9 @@ public class CPExplainer {
 //			System.out.println("Without pattern   "+predictionByRemovingPattern(cl, instance, p,headerInfo));
 //		}
 		
-		if(DEBUG){
+//		if(DEBUG){
 			System.out.println("size of contrast patterns = "+patternSet.size());
-		}
+//		}
 		//step 4, select K patterns and convert them to explanations.
 		IPatternSelection selector = null;
 		switch(patternSortingStrategy){
@@ -413,37 +415,41 @@ public class CPExplainer {
 //		String[] files = {"balloon.arff", "blood.arff", "diabetes.arff","haberman.arff","iris.arff","labor.arff"};
 //		int[] numsOfExpl = {1,5,10};
 //		int[] numsOfSamples={10,200,500,1000};
-//		CPStrategy[] miningStrategies = {CPStrategy.APRIORI,CPStrategy.RF};
-//		SamplingStrategy[] samplingStrategies = {SamplingStrategy.RANDOM,SamplingStrategy.PATTERN_BASED_RANDOM,SamplingStrategy.PATTERN_BASED_PERTURBATION};
-//		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.LOGISTIC, ClassifierType.NAIVE_BAYES};
+		CPStrategy[] miningStrategies = {CPStrategy.APRIORI,CPStrategy.RF};
+		SamplingStrategy[] samplingStrategies = {SamplingStrategy.RANDOM,SamplingStrategy.PATTERN_BASED_RANDOM,SamplingStrategy.PATTERN_BASED_PERTURBATION};
+//		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.LOGISTIC, ClassifierType.DECISION_TREE};
 		
-		String[] files = {"synthetic/balloon_synthetic.arff"};
+		
+		
+//		String[] files = {"synthetic/balloon_synthetic.arff"};
+		String[] files = {"blood.arff"};
 //		String[] files = {"iris.arff"};
 		int[] numsOfExpl = {5};
-		CPStrategy[] miningStrategies = {CPStrategy.APRIORI};
-		SamplingStrategy[] samplingStrategies = {SamplingStrategy.PATTERN_BASED_RANDOM};
-		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.DECISION_TREE};
+//		CPStrategy[] miningStrategies = {CPStrategy.APRIORI};
+//		SamplingStrategy[] samplingStrategies = {SamplingStrategy.PATTERN_BASED_RANDOM};
+		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.LOGISTIC};
 		int[] numsOfSamples={1000};
 		CPExplainer app = new CPExplainer();
 		try {
+			PrintWriter writer = new PrintWriter(new File("tmp/stats.txt"));
 			for(String file:files){
 //			Instances data = DataUtils.load("data/synthetic2.arff");
 			Instances data = DataUtils.load("data/"+file);
 			int numGoldFeature = data.numAttributes();
 			Set<Integer> goldFeatures = new HashSet<>();
-			for(int i = 0; i < numGoldFeature-1; i++){
-				goldFeatures.add(i);
-			}
+//			for(int i = 0; i < numGoldFeature-1; i++){
+//				goldFeatures.add(i);
+//			}
 			
 //			Instances data = DataUtils.load("tmp/newData.arff");
-			data = AddNoisyFeatureToData.generateNoisyData(data);
+//			data = AddNoisyFeatureToData.generateNoisyData(data);
 			DataUtils.save(data,"tmp/newwData.arff");
 			
 			Random random = new Random(0);
 			//split the data into train and test
 			data.randomize(random);
-			Instances train = data.trainCV(5, 1);
-			Instances test = data.testCV(5, 1);
+			Instances train = data.trainCV(5, 0);
+			Instances test = data.testCV(5, 0);
 			
 			
 			for(CPStrategy miningStrategy : miningStrategies){
@@ -456,33 +462,42 @@ public class CPExplainer {
 						try{
 
 			
-//			AbstractClassifier cl = ClassifierGenerator.getClassifier(type);
+			AbstractClassifier cl = ClassifierGenerator.getClassifier(type);
 //			AbstractClassifier cl = new Synthetic_8RuleClassifier();
 //			AbstractClassifier cl = new Synthetic_8Classifier();
-			AbstractClassifier cl = new BalloonClassifier();
+//			AbstractClassifier cl = new BalloonClassifier();
 //			AbstractClassifier cl = new Synthetic3Classifier();
 			cl.buildClassifier(train);
 			double precision = 0;
 			double recall = 0;
+			double probAvg = 0;
+			double probMax = 0;
+			double probMin = 0;
 			int numExpl = 0;
 			int count=0;
-			Instance ins = test.get(1);
-			ins.setValue(0, "1");
+//			Instance ins = test.get(1);
+//			ins.setValue(0, "1");
 //			ins.setValue(1, 0.1);
 //			ins.setValue(2, 0.1);
-			ins.setValue(1, "YELLOW");
-			ins.setValue(2, "SMALL");
-			ins.setValue(3, "STRETCH");
-			ins.setValue(4, "CHILD");
+//			ins.setValue(1, "YELLOW");
+//			ins.setValue(2, "SMALL");
+//			ins.setValue(3, "STRETCH");
+//			ins.setValue(4, "CHILD");
 //			ins.setClassValue(0);
-//			for(Instance ins:test){
+			
+			goldFeatures = InterpretableModels.getGoldenFeature(type, cl, train);
+			System.out.println(goldFeatures);
+			for(Instance ins:test){
 				try{
 				List<IPattern> expls = app.getExplanations(FPStrategy.APRIORI, samplingStrategy, 
-						miningStrategy, PatternSortingStrategy.OBJECTIVE_FUNCTION_LP,
-						cl, ins, data, numOfSamples, 0.05, 3, numOfExpl, true);
+						miningStrategy, PatternSortingStrategy.PROBDIFF_AND_SUPP,
+						cl, ins, data, numOfSamples, 0.05, 3, numOfExpl, false);
 				if (expls.size()!=0){
 					precision += ExplEvaluation.eval(expls, goldFeatures);
 					recall += ExplEvaluation.evalRecall(expls, goldFeatures);
+					probAvg+= ExplEvaluation.evalProbDiffAvg(expls, cl, train, ins);
+					probMax+= ExplEvaluation.evalProbDiffMax(expls, cl, train, ins);
+					probMin+= ExplEvaluation.evalProbDiffMin(expls, cl, train, ins);
 //					System.out.println(expls.size()+"  precision="+precision);
 					numExpl+=expls.size();
 					count++;
@@ -493,17 +508,22 @@ public class CPExplainer {
 					throw e;
 //					e.printStackTrace();
 				}
-//			}
+			}
 			Evaluation eval = new Evaluation(train);
 			eval.evaluateModel(cl, test);
 			
-			System.out.println("mining="+miningStrategy+" sampling="+samplingStrategy+" numOfSample="+numOfSamples+"   "+file+"  cl="+type+"  NumExpl="+numOfExpl+"  precision = "+(count==0?0:precision/count)+"  recall = "+(count==0?0:recall/count)+"   acc="+eval.correct()*1.0/test.numInstances()
-					+" numExpl="+numExpl*1.0/test.size());
+			String output = "mining="+miningStrategy+" sampling="+samplingStrategy+" numOfSample="+numOfSamples+"   "+file+"  cl="+type+"  NumExpl="+numOfExpl+"  precision = "+(count==0?0:precision/count)+"  recall = "+(count==0?0:recall/count)+"   acc="+eval.correct()*1.0/test.numInstances()
+					+" numExpl="+numExpl*1.0/test.size() + " probAvg= "+probAvg/count+" probMax="+probMax/count+" probMin="+probMin/count;
+			System.out.println(output);
+			writer.println(output);
+			writer.flush();
 			}catch(Exception e){
-				throw e;
-//				e.printStackTrace();
+//				throw e;
+				e.printStackTrace();
 //				continue;
 			}
+						
+			
 			/*
 			Instance ins = test.get(12);
 //			ins.setValue(0, 15.634462);
@@ -519,7 +539,7 @@ public class CPExplainer {
 			
 			
 					}}}}}}
-			
+			writer.close();
 			
 			
 		} catch (Exception e) {

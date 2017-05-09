@@ -145,7 +145,12 @@ public class Logistic extends AbstractClassifier implements OptionHandler,
   /** The coefficients (optimized parameters) of the model */
   protected double[][] m_Par;
 
-  /** The data saved as a matrix */
+  //add this method to access coefficients
+  public double[][] getM_Par() {
+	return m_Par;
+}
+
+/** The data saved as a matrix */
   protected double[][] m_Data;
 
   /** The number of attributes in the model */
