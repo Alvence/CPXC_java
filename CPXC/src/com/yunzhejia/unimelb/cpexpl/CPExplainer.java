@@ -490,7 +490,7 @@ public class CPExplainer {
 			for(Instance ins:test){
 				try{
 				List<IPattern> expls = app.getExplanations(FPStrategy.APRIORI, samplingStrategy, 
-						miningStrategy, PatternSortingStrategy.PROBDIFF_AND_SUPP,
+						miningStrategy, PatternSortingStrategy.OBJECTIVE_FUNCTION_LP,
 						cl, ins, data, numOfSamples, 0.05, 3, numOfExpl, false);
 				if (expls.size()!=0){
 					precision += ExplEvaluation.eval(expls, goldFeatures);
