@@ -41,6 +41,7 @@ public class PatternBasedSampler implements Sampler {
 				continue;
 			}
 			else{
+//				System.out.println("i="+i+"  size="+data.numAttributes());
 				if (data.attribute(i).isNumeric()){
 					double newValue =  perturbNumericValue(data,instance,i);
 					newIns.setValue(i, newValue);

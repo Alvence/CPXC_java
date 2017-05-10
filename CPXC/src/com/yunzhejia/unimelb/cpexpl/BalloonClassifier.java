@@ -17,7 +17,10 @@ public class BalloonClassifier extends AbstractClassifier {
 			if(instance.stringValue(3).equals("STRETCH") && instance.stringValue(4).equals("ADULT")){
 				double[] ret = {1,0};
 				return ret;
-			}else{
+			}else if(instance.stringValue(3).equals("STRETCH") || instance.stringValue(4).equals("ADULT")){
+				double[] ret = {0.3,0.7};
+				return ret;
+			}else {
 				double[] ret = {0,1};
 				return ret;
 			}
@@ -25,6 +28,9 @@ public class BalloonClassifier extends AbstractClassifier {
 		}else{
 			if(instance.stringValue(1).equals("YELLOW") && instance.stringValue(2).equals("SMALL")){
 				double[] ret = {1,0};
+				return ret;
+			}else if(instance.stringValue(1).equals("YELLOW") || instance.stringValue(2).equals("SMALL")){
+				double[] ret = {0.3,0.7};
 				return ret;
 			}else{
 				double[] ret = {0,1};

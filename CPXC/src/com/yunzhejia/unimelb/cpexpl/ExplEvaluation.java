@@ -15,6 +15,13 @@ import weka.core.Instances;
 
 public class ExplEvaluation {
 	
+	public class Evaluation{
+		double recall;
+		double precision;
+		double probDiff;
+	}
+	
+	
 	public static double evalProbDiffAvg(List<IPattern> explanations, AbstractClassifier cl, Instances headerInfo, Instance x) throws Exception{
 		double sum = 0.0;
 		PatternEvaluation pEval = new PatternEvaluation();
@@ -53,7 +60,7 @@ public class ExplEvaluation {
 	}
 	
 	
-	public static double eval(List<IPattern> explanations, Set<Integer> goldFeatures){
+	public static double evalPrecision(List<IPattern> explanations, Set<Integer> goldFeatures){
 		List<Double> precisions = new ArrayList<>();
 		double averagePrecision = 0;
 		for(IPattern pattern: explanations){
@@ -75,26 +82,73 @@ public class ExplEvaluation {
 		return averagePrecision;
 	}
 	
-	public static double evalRecall(List<IPattern> explanations, Set<Integer> goldFeatures){
-		List<Double> recalls = new ArrayList<>();
+	public static double evalPrecisionBest(List<IPattern> explanations, Set<Integer> goldFeatures){
 		List<Double> precisions = new ArrayList<>();
+		double best = 0;
+		for(IPattern pattern: explanations){
+			int tp = 0;
+			int fp = 0;
+			for(ICondition condition:pattern.getConditions()){
+				if(goldFeatures.contains(condition.getAttrIndex())){
+					tp++;
+				}else{
+					fp++;
+				}
+			}
+			double precision = tp*1.0/(tp+fp);
+			if(precision > best){
+				best = precision;
+			}
+		}
+//		System.out.println("averagePrecision = "+averagePrecision);
+		return best;
+	}
+	
+	public static double evalRecall(List<IPattern> explanations, Set<Integer> goldFeatures){
 		Set<Integer> features = new HashSet<>();
 		
-		double recall = 0;
+		List<Double> recalls = new ArrayList<>();
+		double average = 0;
 		for(IPattern pattern: explanations){
+			int tp = 0;
+			int fp = 0;
 			for(ICondition condition:pattern.getConditions()){
-				features.add(condition.getAttrIndex());
+				if(goldFeatures.contains(condition.getAttrIndex())){
+					tp++;
+				}else{
+					fp++;
+				}
+			}
+			double recall = tp*1.0/goldFeatures.size();
+			recalls.add(recall);
+			average += recall;
+		}
+		
+		
+		
+		
+		return average;
+	}
+	
+	public static double evalRecallBest(List<IPattern> explanations, Set<Integer> goldFeatures){
+		double best = 0;
+		for(IPattern pattern: explanations){
+			int tp = 0;
+			int fp = 0;
+			for(ICondition condition:pattern.getConditions()){
+				if(goldFeatures.contains(condition.getAttrIndex())){
+					tp++;
+				}else{
+					fp++;
+				}
+			}
+			double recall = tp*1.0/goldFeatures.size();
+			if(best < recall){
+				best = recall;
 			}
 		}
-		int tp = 0;
-		int fp = 0;
-		for(int f:features){
-			if(goldFeatures.contains(f)){
-				fp++;
-			}
-		}
-		recall = fp*1.0/goldFeatures.size();
+		
 //		System.out.println("averagePrecision = "+averagePrecision);
-		return recall;
+		return best;
 	}
 }
