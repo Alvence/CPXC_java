@@ -31,7 +31,7 @@ public class CPExplainerForBalloon {
 //		int[] numsOfExpl = {1,5,10};
 //		int[] numsOfSamples={10,200,500,1000};
 //		CPStrategy[] miningStrategies = {CPStrategy.APRIORI,CPStrategy.RF};
-		SamplingStrategy[] samplingStrategies = {SamplingStrategy.RANDOM,SamplingStrategy.PATTERN_BASED_RANDOM,SamplingStrategy.PATTERN_BASED_PERTURBATION};
+//		SamplingStrategy[] samplingStrategies = {SamplingStrategy.RANDOM,SamplingStrategy.PATTERN_BASED_RANDOM,SamplingStrategy.PATTERN_BASED_PERTURBATION};
 //		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.LOGISTIC, ClassifierType.DECISION_TREE};
 		
 		
@@ -41,11 +41,11 @@ public class CPExplainerForBalloon {
 //		String[] files = {"iris.arff"};
 		int[] numsOfExpl = {1};
 		CPStrategy[] miningStrategies = {CPStrategy.APRIORI};
-//		SamplingStrategy[] samplingStrategies = {SamplingStrategy.PATTERN_BASED_RANDOM};
-		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.LOGISTIC};
+		SamplingStrategy[] samplingStrategies = {SamplingStrategy.RANDOM};
+		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.DECISION_TREE};
 		int[] numsOfSamples={1000};
-//		CPExplainer app = new CPExplainer();
-		RandomExplainer app = new RandomExplainer();
+		CPExplainer app = new CPExplainer();
+//		RandomExplainer app = new RandomExplainer();
 		try {
 			PrintWriter writer = new PrintWriter(new File("tmp/stats.txt"));
 			for(String file:files){
@@ -62,9 +62,13 @@ public class CPExplainerForBalloon {
 			DataUtils.save(data,"tmp/newwData.arff");
 			
 			//split the data into train and test
-			Instances train = DataUtils.load("data/synthetic/balloon_noisy_train.arff");
-			Instances test = DataUtils.load("data/synthetic/balloon_noisy_test.arff");
+//			Instances train = DataUtils.load("data/synthetic/balloon_noisy_train.arff");
+//			Instances test = DataUtils.load("data/synthetic/balloon_noisy_test.arff");
 			
+			Instances train = DataUtils.load("data/synthetic/balloon_synthetic.arff");
+			Instances test = DataUtils.load("data/synthetic/balloon_synthetic.arff");
+			train.setClassIndex(train.numAttributes()-1);
+			test.setClassIndex(train.numAttributes()-1);
 			
 			for(CPStrategy miningStrategy : miningStrategies){
 			for(SamplingStrategy samplingStrategy:samplingStrategies){
@@ -76,8 +80,11 @@ public class CPExplainerForBalloon {
 						try{
 
 			
-			AbstractClassifier cl = new BalloonClassifier();
+//			AbstractClassifier cl = new BalloonClassifier();
+			AbstractClassifier cl = ClassifierGenerator.getClassifier(type);
+			
 			cl.buildClassifier(train);
+			System.out.println(cl);
 			double precision = 0;
 			double recall = 0;
 			double probAvg = 0;
@@ -85,29 +92,29 @@ public class CPExplainerForBalloon {
 			double probMin = 0;
 			int numExpl = 0;
 			int count=0;
-//			Instance ins = test.get(1);
-//			ins.setValue(0, "1");
+			Instance ins = test.get(1);
+			ins.setValue(0, "2");
 //			ins.setValue(1, 0.1);
 //			ins.setValue(2, 0.1);
-//			ins.setValue(1, "YELLOW");
-//			ins.setValue(2, "SMALL");
-//			ins.setValue(3, "STRETCH");
-//			ins.setValue(4, "ADULT");
-//			ins.setClassValue(0);
+//			ins.setValue(1, "PURPLE");
+			ins.setValue(2, "LARGE");
+//			ins.setValue(3, "DIP");
+//			ins.setValue(4, "CHILD");
+			ins.setClassValue(0);
 			
 //			goldFeatures = InterpretableModels.getGoldenFeature(type, cl, train);
 //			System.out.println(goldFeatures);
 			
 			
 			
-			for(Instance ins:test){
+//			for(Instance ins:test){
 				
 				goldFeatures = getGoldFeature(ins);
 				System.out.println(goldFeatures);
 				try{
 				List<IPattern> expls = app.getExplanations(FPStrategy.APRIORI, samplingStrategy, 
 						miningStrategy, PatternSortingStrategy.OBJECTIVE_FUNCTION_LP,
-						cl, ins, train, numOfSamples, 0.05, 3, numOfExpl, false);
+						cl, ins, train, numOfSamples, 0.05, 2, numOfExpl, true);
 				if (expls.size()!=0){
 					System.out.println(expls);
 					precision += ExplEvaluation.evalPrecisionBest(expls, goldFeatures);
@@ -125,7 +132,7 @@ public class CPExplainerForBalloon {
 					throw e;
 //					e.printStackTrace();
 				}
-			}
+//			}
 			Evaluation eval = new Evaluation(train);
 			eval.evaluateModel(cl, test);
 			
