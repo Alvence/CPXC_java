@@ -176,14 +176,14 @@ public class CPExplainer {
 //		tmp.add(patternSet.get(0));
 //		tmp.add(patternSet.get(1));
 		patternSet = tmp;
-//		patternSet = filterBySubset(patternSet, cl, instance, headerInfo);
+		patternSet = filterBySubset(patternSet, cl, instance, headerInfo);
 		
-		int ind = 1;
-		for(IPattern p:patternSet){
-			System.out.println((ind++)+": "+p+ "  sup=" + p.support(samples)+" ratio="+p.ratio());
-			System.out.println("Original   "+prediction(cl, instance));
-			System.out.println("Without pattern   "+ new PatternEvaluation().predictionByRemovingPattern(cl, instance, p, headerInfo));
-		}
+//		int ind = 1;
+//		for(IPattern p:patternSet){
+//			System.out.println((ind++)+": "+p+ "  sup=" + p.support(samples)+" ratio="+p.ratio());
+//			System.out.println("Original   "+prediction(cl, instance));
+//			System.out.println("Without pattern   "+ new PatternEvaluation().predictionByRemovingPattern(cl, instance, p, headerInfo));
+//		}
 		
 //		if(DEBUG){
 			System.out.println("size of contrast patterns = "+patternSet.size());

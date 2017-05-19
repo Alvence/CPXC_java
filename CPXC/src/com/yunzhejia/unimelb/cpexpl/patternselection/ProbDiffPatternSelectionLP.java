@@ -61,13 +61,13 @@ public class ProbDiffPatternSelectionLP implements IPatternSelection {
 			for(int j = i+1; j < ps.size(); j++){
 				pairs.put(index++, new Pair(i,j));
 				double overlap = OverlapCalculator.overlapMDS(ps.get(i), ps.get(j), samples);
-				overlaps.add(0.6*overlap);
+				overlaps.add(0.8*overlap);
 			}
 		}
 		
 		
 		try {
-		      // Create a problem with 4 variables and 0 constraints
+		      // Create a problem with variables and constraints
 			  int numVar = scores.size()+overlaps.size();
 		      LpSolve solver = LpSolve.makeLp(0, numVar);
 		      // add constraints
@@ -116,7 +116,6 @@ public class ProbDiffPatternSelectionLP implements IPatternSelection {
 
 		      // solve the problem
 		      solver.solve();
-		      solver.setOutputfile(null);
 //		      solver.printLp();
 		      // print solution
 		      double[] var = solver.getPtrVariables();

@@ -1,28 +1,29 @@
-package com.yunzhejia.unimelb.cpexpl;
+package com.yunzhejia.unimelb.fakecl;
 
 import java.io.File;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Random;
 import java.util.Set;
 
 import com.yunzhejia.cpxc.util.ClassifierGenerator;
 import com.yunzhejia.cpxc.util.ClassifierGenerator.ClassifierType;
 import com.yunzhejia.cpxc.util.DataUtils;
 import com.yunzhejia.pattern.IPattern;
+import com.yunzhejia.unimelb.cpexpl.CPExplainer;
 import com.yunzhejia.unimelb.cpexpl.CPExplainer.CPStrategy;
 import com.yunzhejia.unimelb.cpexpl.CPExplainer.FPStrategy;
 import com.yunzhejia.unimelb.cpexpl.CPExplainer.PatternSortingStrategy;
 import com.yunzhejia.unimelb.cpexpl.CPExplainer.SamplingStrategy;
+import com.yunzhejia.unimelb.cpexpl.DNF9Classifier;
+import com.yunzhejia.unimelb.cpexpl.ExplEvaluation;
 
 import weka.classifiers.AbstractClassifier;
 import weka.classifiers.Evaluation;
 import weka.core.Instance;
 import weka.core.Instances;
 
-public class CPExplainerForBalloon {
+public class CPExplainerForDNF2G {
 	public static void main(String[] args){
 //		String[] files = {"balloon.arff","banana.arff", "blood.arff", 
 //				"diabetes.arff","haberman.arff","hepatitis.arff","iris.arff","labor.arff",
@@ -31,7 +32,7 @@ public class CPExplainerForBalloon {
 //		int[] numsOfExpl = {1,5,10};
 //		int[] numsOfSamples={10,200,500,1000};
 //		CPStrategy[] miningStrategies = {CPStrategy.APRIORI,CPStrategy.RF};
-//		SamplingStrategy[] samplingStrategies = {SamplingStrategy.RANDOM,SamplingStrategy.PATTERN_BASED_RANDOM,SamplingStrategy.PATTERN_BASED_PERTURBATION};
+		SamplingStrategy[] samplingStrategies = {SamplingStrategy.RANDOM,SamplingStrategy.PATTERN_BASED_RANDOM,SamplingStrategy.PATTERN_BASED_PERTURBATION};
 //		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.LOGISTIC, ClassifierType.DECISION_TREE};
 		
 		
@@ -41,8 +42,8 @@ public class CPExplainerForBalloon {
 //		String[] files = {"iris.arff"};
 		int[] numsOfExpl = {5};
 		CPStrategy[] miningStrategies = {CPStrategy.APRIORI};
-		SamplingStrategy[] samplingStrategies = {SamplingStrategy.PATTERN_BASED_RANDOM};
-		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.DECISION_TREE};
+//		SamplingStrategy[] samplingStrategies = {SamplingStrategy.PATTERN_BASED_PERTURBATION};
+		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.LOGISTIC};
 		int[] numsOfSamples={5000};
 		CPExplainer app = new CPExplainer();
 //		RandomExplainer app = new RandomExplainer();
@@ -62,13 +63,9 @@ public class CPExplainerForBalloon {
 			DataUtils.save(data,"tmp/newwData.arff");
 			
 			//split the data into train and test
-//			Instances train = DataUtils.load("data/synthetic/balloon_noisy_train.arff");
-//			Instances test = DataUtils.load("data/synthetic/balloon_noisy_test.arff");
+			Instances train = DataUtils.load("data/synthetic/DNF2G_biasednoisy_train.arff");
+			Instances test = DataUtils.load("data/synthetic/DNF2G_biasednoisy_test.arff");
 			
-			Instances train = DataUtils.load("data/synthetic/balloon_synthetic.arff");
-			Instances test = DataUtils.load("data/synthetic/balloon_synthetic.arff");
-			train.setClassIndex(train.numAttributes()-1);
-			test.setClassIndex(train.numAttributes()-1);
 			
 			for(CPStrategy miningStrategy : miningStrategies){
 			for(SamplingStrategy samplingStrategy:samplingStrategies){
@@ -76,15 +73,11 @@ public class CPExplainerForBalloon {
 			
 				for(ClassifierType type:typesOfClassifier){
 					for(int numOfExpl:numsOfExpl){
-			
 						try{
 
 			
-			AbstractClassifier cl = new BalloonClassifier();
-//			AbstractClassifier cl = ClassifierGenerator.getClassifier(type);
-			
+			AbstractClassifier cl = new DNF2GClassifier();
 			cl.buildClassifier(train);
-			System.out.println(cl);
 			double precision = 0;
 			double recall = 0;
 			double probAvg = 0;
@@ -92,29 +85,28 @@ public class CPExplainerForBalloon {
 			double probMin = 0;
 			int numExpl = 0;
 			int count=0;
-			Instance ins = test.get(1);
-			ins.setValue(0, "1");
+//			Instance ins = test.get(1);
+//			ins.setValue(0, "1");
 //			ins.setValue(1, 0.1);
 //			ins.setValue(2, 0.1);
-//			ins.setValue(1, "PURPLE");
-//			ins.setValue(2, "LARGE");
-//			ins.setValue(3, "DIP");
-//			ins.setValue(4, "CHILD");
-			ins.setClassValue(0);
+//			ins.setValue(1, "YELLOW");
+//			ins.setValue(2, "SMALL");
+//			ins.setValue(3, "STRETCH");
+//			ins.setValue(4, "ADULT");
+//			ins.setClassValue(0);
 			
 //			goldFeatures = InterpretableModels.getGoldenFeature(type, cl, train);
 //			System.out.println(goldFeatures);
 			
 			
 			
-//			for(Instance ins:test){
+			for(Instance ins:test){
 				
 				goldFeatures = getGoldFeature(ins);
-				System.out.println(goldFeatures);
 				try{
 				List<IPattern> expls = app.getExplanations(FPStrategy.APRIORI, samplingStrategy, 
 						miningStrategy, PatternSortingStrategy.OBJECTIVE_FUNCTION_LP,
-						cl, ins, train, numOfSamples, 0.05, 2, numOfExpl, true);
+						cl, ins, train, numOfSamples, 0.1, 3, numOfExpl, false);
 				if (expls.size()!=0){
 					System.out.println(expls);
 					precision += ExplEvaluation.evalPrecisionBest(expls, goldFeatures);
@@ -132,7 +124,7 @@ public class CPExplainerForBalloon {
 					throw e;
 //					e.printStackTrace();
 				}
-//			}
+			}
 			Evaluation eval = new Evaluation(train);
 			eval.evaluateModel(cl, test);
 			
@@ -152,7 +144,7 @@ public class CPExplainerForBalloon {
 			Instance ins = test.get(12);
 //			ins.setValue(0, 15.634462);
 //			ins.setValue(1, 16.646118);
-//			ins.setValue(2, 3);
+//			ins.setValue(2, 3);	
 //			ins.setClassValue(1);
 			List<IPattern> expls = app.getExplanations(FPStrategy.RF, SamplingStrategy.PATTERN_BASED_RANDOM, 
 					CPStrategy.RF, PatternSortingStrategy.PROBDIFF_AND_SUPP,
@@ -174,12 +166,14 @@ public class CPExplainerForBalloon {
 	
 	public static Set<Integer> getGoldFeature(Instance instance){
 		Set<Integer> ret = new HashSet<>();
-		if (instance.stringValue(0).equals("1")){ // act == STRETCH, age = ADULT
+		if (instance.stringValue(0).equals("1")&&instance.stringValue(1).equals("1")){ // act == STRETCH, age = ADULT
+			ret.add(2);
 			ret.add(3);
 			ret.add(4);
-		}else if (instance.stringValue(0).equals("2")){
-			ret.add(1);
-			ret.add(2);
+		}else if (instance.stringValue(0).equals("0")&&instance.stringValue(1).equals("1")){
+			ret.add(5);
+			ret.add(6);
+			ret.add(7);
 		}
 		return ret;
 	}

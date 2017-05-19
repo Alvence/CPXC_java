@@ -69,8 +69,8 @@ public class SyntheticDataGenerator {
 			
 			System.out.println(result?"1":"0");
 		}
-		
 	}
+	
 	
 	public static void DNF(int N){
 		Random random = new Random(1);
@@ -115,10 +115,41 @@ public class SyntheticDataGenerator {
 	}
 	
 	
+	public static void DNF2G(int N){
+		Random random = new Random(1);
+		int numFeature = 8;
+		for(int i = 0; i < N; i++){
+			boolean vals[]=new boolean[numFeature];
+			for(int a = 0; a< numFeature; a++){
+				boolean val = random.nextBoolean();
+				vals[a] = val;
+				if(a == 0)
+					continue;
+			}
+			boolean result = false;
+
+			if(vals[0] && vals[1]){
+				result = vals[2] & vals[3] & vals[4];
+			}
+			else if(!vals[0] && vals[1]){
+				result = vals[5] & vals[6] & vals[7];
+			}
+			
+			if(result){
+				for(int a = 0; a< numFeature; a++){
+					boolean val =vals[a];
+					System.out.print((val?"1":"0")+",");
+				}
+				System.out.println(result?"1":"0");
+			}
+		}
+		
+	}
+	
 	
 	public static void main(String[] args) {
 //		LOG(1000);
-		DNF(200);
+		DNF2G(200);
 		/*try {
 			Instances data = DataUtils.load("data/synthetic3.arff");
 			List<Instances> datas = new ArrayList<>();
