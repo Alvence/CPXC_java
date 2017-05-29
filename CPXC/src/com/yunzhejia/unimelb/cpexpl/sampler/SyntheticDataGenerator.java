@@ -147,9 +147,54 @@ public class SyntheticDataGenerator {
 	}
 	
 	
+	public static void DNF3G(int N){
+		Random random = new Random(199);
+		int numFeature = 19;
+		for(int i = 0; i < N; i++){
+			boolean vals[]=new boolean[numFeature];
+			for(int a = 0; a< numFeature; a++){
+				boolean val = random.nextBoolean();
+				vals[a] = val;
+				if(a == 0)
+					continue;
+			}
+			boolean result = false;
+
+			if(!vals[0] && !vals[1] && !vals[2]){
+				result = vals[3] & vals[4];
+			} else if(!vals[0] && !vals[1] && vals[2]){
+				result = vals[5] & vals[6];
+			} else if(!vals[0] && vals[1] && !vals[2]){
+				result = vals[7] & vals[8];
+			} else if(!vals[0] && vals[1] && vals[2]){
+				result = vals[9] & vals[10];
+			} else if(vals[0] && !vals[1] && !vals[2]){
+				result = vals[11] & vals[12];
+			} else if(vals[0] && !vals[1] && vals[2]){
+				result = vals[13] & vals[14];
+			} else if(vals[0] && vals[1] && !vals[2]){
+				result = vals[15] & vals[16];
+			} else if(vals[0] && vals[1] && vals[2]){
+				result = vals[17] & vals[18];
+			} else {
+				System.err.println("Should not reach here");
+			}
+			
+			if(result){
+				for(int a = 0; a< numFeature; a++){
+					boolean val =vals[a];
+					System.out.print((val?"1":"0")+",");
+				}
+				System.out.println(result?"1":"0");
+			}
+		}
+		
+	}
+	
 	public static void main(String[] args) {
 //		LOG(1000);
-		DNF2G(200);
+//		DNF2G(200);
+		DNF3G(500);
 		/*try {
 			Instances data = DataUtils.load("data/synthetic3.arff");
 			List<Instances> datas = new ArrayList<>();

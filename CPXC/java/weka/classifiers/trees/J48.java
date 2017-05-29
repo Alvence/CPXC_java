@@ -160,7 +160,7 @@ public class J48 extends AbstractClassifier implements OptionHandler, Drawable,
   static final long serialVersionUID = -217733168393644444L;
 
   /** The decision tree */
-  protected ClassifierTree m_root;
+  public ClassifierTree m_root;
 
   /** Unpruned tree? */
   protected boolean m_unpruned = false;

@@ -13,12 +13,14 @@ import com.yunzhejia.pattern.PatternSet;
 import weka.core.Instance;
 import weka.core.Instances;
 
-public class PatternBasedPerturbationSampler implements Sampler {
+public class PatternSpacePerturbationSampler implements Sampler {
 	PatternSet ps = null;
 	Random rand = new Random(0);
+	double threshold = 3;
 	
-	public PatternBasedPerturbationSampler(PatternSet patternset){
+	public PatternSpacePerturbationSampler(PatternSet patternset, double threshold){
 		this.ps = patternset;
+		this.threshold = threshold;
 	}
 	
 	private double l1dis(double[]xp, double[]yp){
@@ -29,12 +31,12 @@ public class PatternBasedPerturbationSampler implements Sampler {
 		return ret;
 	}
 	
-	public double distance(Instance x, Instance y, PatternSet patternSet, Instances headerInfo){
-		double[] xp = new double[patternSet.size()];
-		double[] yp = new double[patternSet.size()];
+	public double distance(Instance x, Instance y, Instances headerInfo){
+		double[] xp = new double[ps.size()];
+		double[] yp = new double[ps.size()];
 		
-		for(int i = 0; i < patternSet.size(); i++){
-			IPattern p = patternSet.get(i);
+		for(int i = 0; i < ps.size(); i++){
+			IPattern p = ps.get(i);
 			if(p.match(x)){
 				xp[i] = p.support(headerInfo);
 			}else{
@@ -52,38 +54,14 @@ public class PatternBasedPerturbationSampler implements Sampler {
 	
 	@Override
 	public Instances samplingFromInstance(Instances headerInfo, Instance instance, int N) {
-		List<Integer> slots = new ArrayList<>();
-		PatternSet mp = ps.getMatchingPatterns(instance);
-		int count = 0;
-		for(IPattern p:mp){
-			for(int i = 0 ;i < p.support(headerInfo)*100;i++){
-				slots.add(count);
-			}
-			count++;
-		}
-		
-		Instances ret = new Instances(headerInfo,0);
-		
-//		System.out.println(mp.size()+" out of "+ps.size());
-		while(ret.numInstances()<N){
-			if(slots.size() > 0){
-				int index = rand.nextInt(slots.size());
-				IPattern p = mp.get(slots.get(index));
-				boolean flag = false;
-				while (!flag){
-					Instance sample = perturb(headerInfo, instance, p);
-//				Instance sample = perturb(headerInfo, instance);
-					if(mp.match(sample)){
-						ret.add(sample);
-						flag = true;
-					}
-				}
-			}else{
-				Instance sample = perturb(headerInfo, instance);
-				ret.add(sample);
+		Instances samples = new Instances(headerInfo, 0);
+		while(samples.size()<N){
+			Instance sample = perturb(headerInfo,instance);
+			if(distance(sample,instance, headerInfo) < threshold){
+				samples.add(sample);
 			}
 		}
-		return ret;
+		return samples;
 	}
 	
 	private Instance perturb(Instances data, Instance instance){

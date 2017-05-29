@@ -3,6 +3,7 @@ package com.yunzhejia.unimelb.cpexpl;
 import java.io.File;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
@@ -19,33 +20,36 @@ import com.yunzhejia.unimelb.cpexpl.CPExplainer.SamplingStrategy;
 
 import weka.classifiers.AbstractClassifier;
 import weka.classifiers.Evaluation;
+import weka.classifiers.trees.J48;
+import weka.classifiers.trees.j48.C45Split;
+import weka.classifiers.trees.j48.ClassifierTree;
 import weka.core.Instance;
 import weka.core.Instances;
 
-public class CPExplainerForDNF9 {
+public class CPExplainerForJ48 {
 	public static void main(String[] args){
 //		String[] files = {"balloon.arff","banana.arff", "blood.arff", 
 //				"diabetes.arff","haberman.arff","hepatitis.arff","iris.arff","labor.arff",
 //				"mushroom.arff","sick.arff","titanic.arff","vote.arff"};
-//		String[] files = {"balloon.arff", "blood.arff", "diabetes.arff","haberman.arff","iris.arff","labor.arff"};
+//		String[] files = {"balloon.arff", "blood.arff", "diabetes.arff","haberman.arff","iris.arff","labor.arff","titanic.arff", "mushroom.arff","sick.arff","vote.arff"};
 //		int[] numsOfExpl = {1,5,10};
 //		int[] numsOfSamples={10,200,500,1000};
 //		CPStrategy[] miningStrategies = {CPStrategy.APRIORI,CPStrategy.RF};
-		SamplingStrategy[] samplingStrategies = {SamplingStrategy.RANDOM,SamplingStrategy.PATTERN_BASED_RANDOM,SamplingStrategy.PATTERN_BASED_PERTURBATION};
+		SamplingStrategy[] samplingStrategies = {SamplingStrategy.PATTERN_BASED_PERTURBATION,SamplingStrategy.RANDOM};
 //		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.LOGISTIC, ClassifierType.DECISION_TREE};
 		
+		int[] ratios = {2,3};
 		
-		
-		String[] files = {"synthetic/balloon_synthetic.arff"};
+		String[] files = {"titanic.arff"};
 //		String[] files = {"blood.arff"};
 //		String[] files = {"iris.arff"};
 		int[] numsOfExpl = {5};
 		CPStrategy[] miningStrategies = {CPStrategy.APRIORI};
 //		SamplingStrategy[] samplingStrategies = {SamplingStrategy.PATTERN_BASED_PERTURBATION};
-		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.LOGISTIC};
-		int[] numsOfSamples={1000};
-//		CPExplainer app = new CPExplainer();
-		RandomExplainer app = new RandomExplainer();
+		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.DECISION_TREE};
+		int[] numsOfSamples={2000};
+		CPExplainer app = new CPExplainer();
+//		RandomExplainer app = new RandomExplainer();
 		try {
 			PrintWriter writer = new PrintWriter(new File("tmp/stats.txt"));
 			for(String file:files){
@@ -62,10 +66,16 @@ public class CPExplainerForDNF9 {
 			DataUtils.save(data,"tmp/newwData.arff");
 			
 			//split the data into train and test
-			Instances train = DataUtils.load("data/synthetic/DNF9_noisy_train.arff");
-			Instances test = DataUtils.load("data/synthetic/DNF9_noisy_test.arff");
+//			Instances train = DataUtils.load("data/"+file+"/train.arff");
+//			Instances test = DataUtils.load("data/"+file+"/test.arff");
 			
+			Random random = new Random(0);
+			//split the data into train and test
+			data.randomize(random);
+			Instances train=data;
+			Instances test=data;
 			
+//			for(int ratio:ratios)
 			for(CPStrategy miningStrategy : miningStrategies){
 			for(SamplingStrategy samplingStrategy:samplingStrategies){
 			for(int numOfSamples:numsOfSamples){
@@ -75,7 +85,7 @@ public class CPExplainerForDNF9 {
 						try{
 
 			
-			AbstractClassifier cl = new DNF9Classifier();
+			AbstractClassifier cl = ClassifierGenerator.getClassifier(type);
 			cl.buildClassifier(train);
 			double precision = 0;
 			double recall = 0;
@@ -97,11 +107,14 @@ public class CPExplainerForDNF9 {
 //			goldFeatures = InterpretableModels.getGoldenFeature(type, cl, train);
 //			System.out.println(goldFeatures);
 			
+			
+			
 			for(Instance ins:test){
-				goldFeatures = getGoldFeature(ins);
+				
+				goldFeatures = getGoldFeature(cl,ins);
 				try{
 				List<IPattern> expls = app.getExplanations(FPStrategy.APRIORI, samplingStrategy, 
-						miningStrategy, PatternSortingStrategy.OBJECTIVE_FUNCTION_LP,
+						miningStrategy, PatternSortingStrategy.SUPPORT,
 						cl, ins, train, numOfSamples, 0.15, 3, numOfExpl, false);
 				if (expls.size()!=0){
 					System.out.println(expls);
@@ -131,8 +144,8 @@ public class CPExplainerForDNF9 {
 			writer.flush();
 			}catch(Exception e){
 //				throw e;
-				e.printStackTrace();
-//				continue;
+//				e.printStackTrace();
+				continue;
 			}
 						
 			
@@ -160,21 +173,31 @@ public class CPExplainerForDNF9 {
 		}		
 	}
 	
-	public static Set<Integer> getGoldFeature(Instance instance){
-		Set<Integer> ret = new HashSet<>();
-		if (instance.stringValue(0).equals("1")){ // act == STRETCH, age = ADULT
-			ret.add(1);
-			ret.add(2);
-		}else if (instance.stringValue(0).equals("2")){
-			ret.add(3);
-			ret.add(4);
-		}else if (instance.stringValue(0).equals("3")){
-			ret.add(5);
-			ret.add(6);
-		}else if (instance.stringValue(0).equals("4")){
-			ret.add(7);
-			ret.add(8);
+	public static Set<Integer> getGoldFeature(AbstractClassifier cl, Instance instance) throws Exception{
+		if (!(cl instanceof J48)){
+			System.err.println("not J48 tree");
+			return null;
 		}
-		return ret;
+		J48 dt = (J48)cl;
+		ClassifierTree root = dt.m_root;
+		int pred = (int)cl.classifyInstance(instance);
+		Set<Integer> expl = new HashSet<>();
+		while(!root.m_isLeaf){
+//			System.out.println(instance.attribute(((C45Split)root.m_localModel).m_attIndex).name());
+			int which = root.m_localModel.whichSubset(instance);
+			for(int i = 0; i < root.m_sons.length;i++){
+				if(i == which)
+					continue;
+//				System.out.println("tree "+i+" dis="+Arrays.toString(root.m_sons[i].distributionForInstance(instance, false)));
+				if(root.m_sons[i].classifyInstance(instance)!=pred){
+					expl.add(((C45Split)root.m_localModel).m_attIndex);
+				}
+			}
+			if(which == -1){
+				break;
+			}
+			root = root.m_sons[which];
+		}
+		return expl;
 	}
 }

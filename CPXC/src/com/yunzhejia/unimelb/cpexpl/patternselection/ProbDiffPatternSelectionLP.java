@@ -61,7 +61,7 @@ public class ProbDiffPatternSelectionLP implements IPatternSelection {
 			for(int j = i+1; j < ps.size(); j++){
 				pairs.put(index++, new Pair(i,j));
 				double overlap = OverlapCalculator.overlapMDS(ps.get(i), ps.get(j), samples);
-				overlaps.add(0.8*overlap);
+				overlaps.add(0.5*overlap);
 			}
 		}
 		

@@ -50,13 +50,13 @@ public class ClassifierTree implements Drawable, Serializable,
   protected ModelSelection m_toSelectModel;
 
   /** Local model at node. */
-  protected ClassifierSplitModel m_localModel;
+  public ClassifierSplitModel m_localModel;
 
   /** References to sons. */
-  protected ClassifierTree[] m_sons;
+  public ClassifierTree[] m_sons;
 
   /** True if node is leaf. */
-  protected boolean m_isLeaf;
+  public boolean m_isLeaf;
 
   /** True if node is empty. */
   protected boolean m_isEmpty;

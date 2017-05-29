@@ -1,7 +1,6 @@
 package com.yunzhejia.unimelb.cpexpl;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -30,11 +29,10 @@ import com.yunzhejia.pattern.patternmining.IPatternMiner;
 import com.yunzhejia.pattern.patternmining.RFContrastPatternMiner;
 import com.yunzhejia.pattern.patternmining.RFPatternMiner;
 import com.yunzhejia.unimelb.cpexpl.patternselection.IPatternSelection;
-import com.yunzhejia.unimelb.cpexpl.patternselection.PatternEvaluation;
 import com.yunzhejia.unimelb.cpexpl.patternselection.ProbDiffPatternSelection;
 import com.yunzhejia.unimelb.cpexpl.patternselection.ProbDiffPatternSelectionLP;
-import com.yunzhejia.unimelb.cpexpl.sampler.PatternBasedPerturbationSampler;
 import com.yunzhejia.unimelb.cpexpl.sampler.PatternBasedSampler;
+import com.yunzhejia.unimelb.cpexpl.sampler.PatternSpacePerturbationSampler;
 import com.yunzhejia.unimelb.cpexpl.sampler.Sampler;
 import com.yunzhejia.unimelb.cpexpl.sampler.SimplePerturbationSampler;
 
@@ -108,7 +106,7 @@ public class CPExplainer {
 				break;
 			}
 			ps = pm.minePattern(headerInfo, 0.4);
-			sampler = new PatternBasedPerturbationSampler(ps);
+			sampler = new PatternSpacePerturbationSampler(ps, 2);
 			break;
 		default:
 			break;
@@ -212,7 +210,8 @@ public class CPExplainer {
 		}
 		
 //		print_pattern(patternSet,K,"positive");
-		for(int i = 0; i < K && i < patternSet.size(); i++){
+		for(int i = 0; i < patternSet.size(); i++){
+//		for(int i = 0; i < K && i < patternSet.size(); i++){
 			IPattern p = patternSet.get(i);
 			if (DEBUG){
 				System.out.println(p + "  sup=" + p.support(samples)+" ratio="+p.ratio());
@@ -422,13 +421,13 @@ public class CPExplainer {
 		
 		
 		
-		String[] files = {"synthetic/balloon_synthetic.arff"};
+		String[] files = {"titanic/train.arff"};
 //		String[] files = {"blood.arff"};
 //		String[] files = {"iris.arff"};
 		int[] numsOfExpl = {5};
 		CPStrategy[] miningStrategies = {CPStrategy.APRIORI};
-		SamplingStrategy[] samplingStrategies = {SamplingStrategy.PATTERN_BASED_RANDOM};
-		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.LOGISTIC};
+		SamplingStrategy[] samplingStrategies = {SamplingStrategy.PATTERN_BASED_PERTURBATION};
+		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.DECISION_TREE};
 		int[] numsOfSamples={1000};
 		CPExplainer app = new CPExplainer();
 		try {
@@ -448,9 +447,11 @@ public class CPExplainer {
 			
 			Random random = new Random(0);
 			//split the data into train and test
-			data.randomize(random);
-			Instances train = data.trainCV(5, 0);
-			Instances test = data.testCV(5, 0);
+//			data.randomize(random);
+//			Instances train = data.trainCV(5, 0);
+//			Instances test = data.testCV(5, 0);
+			Instances train = DataUtils.load("data/titanic/train.arff");
+			Instances test = DataUtils.load("data/titanic/test.arff");
 			
 			
 			for(CPStrategy miningStrategy : miningStrategies){
@@ -463,12 +464,13 @@ public class CPExplainer {
 						try{
 
 			
-//			AbstractClassifier cl = ClassifierGenerator.getClassifier(type);
+			AbstractClassifier cl = ClassifierGenerator.getClassifier(type);
 //			AbstractClassifier cl = new Synthetic_8RuleClassifier();
 //			AbstractClassifier cl = new Synthetic_8Classifier();
-			AbstractClassifier cl = new BalloonClassifier();
+//			AbstractClassifier cl = new BalloonClassifier();
 //			AbstractClassifier cl = new Synthetic3Classifier();
 			cl.buildClassifier(train);
+			System.out.println(cl);
 			double precision = 0;
 			double recall = 0;
 			double probAvg = 0;
@@ -477,14 +479,14 @@ public class CPExplainer {
 			int numExpl = 0;
 			int count=0;
 			Instance ins = test.get(1);
-			ins.setValue(0, "1");
+//			ins.setValue(0, "1");
 //			ins.setValue(1, 0.1);
 //			ins.setValue(2, 0.1);
-			ins.setValue(1, "YELLOW");
-			ins.setValue(2, "SMALL");
-			ins.setValue(3, "STRETCH");
-			ins.setValue(4, "ADULT");
-			ins.setClassValue(0);
+//			ins.setValue(1, "YELLOW");
+//			ins.setValue(2, "SMALL");
+//			ins.setValue(3, "DIP");
+//			ins.setValue(4, "ADULT");
+//			ins.setClassValue(1);
 			
 //			goldFeatures = InterpretableModels.getGoldenFeature(type, cl, train);
 //			System.out.println(goldFeatures);
@@ -495,7 +497,7 @@ public class CPExplainer {
 				try{
 				List<IPattern> expls = app.getExplanations(FPStrategy.APRIORI, samplingStrategy, 
 						miningStrategy, PatternSortingStrategy.OBJECTIVE_FUNCTION_LP,
-						cl, ins, data, numOfSamples, 0.05, 3, numOfExpl, true);
+						cl, ins, data, numOfSamples, 0.15, 3, numOfExpl, true);
 				if (expls.size()!=0){
 					precision += ExplEvaluation.evalPrecision(expls, goldFeatures);
 					recall += ExplEvaluation.evalRecall(expls, goldFeatures);

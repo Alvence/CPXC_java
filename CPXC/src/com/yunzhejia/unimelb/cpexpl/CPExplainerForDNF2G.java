@@ -22,7 +22,7 @@ import weka.classifiers.Evaluation;
 import weka.core.Instance;
 import weka.core.Instances;
 
-public class CPExplainerForDNF9 {
+public class CPExplainerForDNF2G {
 	public static void main(String[] args){
 //		String[] files = {"balloon.arff","banana.arff", "blood.arff", 
 //				"diabetes.arff","haberman.arff","hepatitis.arff","iris.arff","labor.arff",
@@ -31,12 +31,12 @@ public class CPExplainerForDNF9 {
 //		int[] numsOfExpl = {1,5,10};
 //		int[] numsOfSamples={10,200,500,1000};
 //		CPStrategy[] miningStrategies = {CPStrategy.APRIORI,CPStrategy.RF};
-		SamplingStrategy[] samplingStrategies = {SamplingStrategy.RANDOM,SamplingStrategy.PATTERN_BASED_RANDOM,SamplingStrategy.PATTERN_BASED_PERTURBATION};
+		SamplingStrategy[] samplingStrategies = {SamplingStrategy.PATTERN_BASED_PERTURBATION};
 //		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.LOGISTIC, ClassifierType.DECISION_TREE};
 		
 		
 		
-		String[] files = {"synthetic/balloon_synthetic.arff"};
+		String[] files = {"synthetic/DNF3G_train.arff"};
 //		String[] files = {"blood.arff"};
 //		String[] files = {"iris.arff"};
 		int[] numsOfExpl = {5};
@@ -44,8 +44,8 @@ public class CPExplainerForDNF9 {
 //		SamplingStrategy[] samplingStrategies = {SamplingStrategy.PATTERN_BASED_PERTURBATION};
 		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.LOGISTIC};
 		int[] numsOfSamples={1000};
-//		CPExplainer app = new CPExplainer();
-		RandomExplainer app = new RandomExplainer();
+		CPExplainer app = new CPExplainer();
+//		RandomExplainer app = new RandomExplainer();
 		try {
 			PrintWriter writer = new PrintWriter(new File("tmp/stats.txt"));
 			for(String file:files){
@@ -62,8 +62,8 @@ public class CPExplainerForDNF9 {
 			DataUtils.save(data,"tmp/newwData.arff");
 			
 			//split the data into train and test
-			Instances train = DataUtils.load("data/synthetic/DNF9_noisy_train.arff");
-			Instances test = DataUtils.load("data/synthetic/DNF9_noisy_test.arff");
+			Instances train = DataUtils.load("data/synthetic/DNF2G_train.arff");
+			Instances test = DataUtils.load("data/synthetic/DNF2G_test.arff");
 			
 			
 			for(CPStrategy miningStrategy : miningStrategies){
@@ -75,7 +75,7 @@ public class CPExplainerForDNF9 {
 						try{
 
 			
-			AbstractClassifier cl = new DNF9Classifier();
+			AbstractClassifier cl = new DNF2GClassifier();
 			cl.buildClassifier(train);
 			double precision = 0;
 			double recall = 0;
@@ -97,7 +97,10 @@ public class CPExplainerForDNF9 {
 //			goldFeatures = InterpretableModels.getGoldenFeature(type, cl, train);
 //			System.out.println(goldFeatures);
 			
+			
+			
 			for(Instance ins:test){
+				
 				goldFeatures = getGoldFeature(ins);
 				try{
 				List<IPattern> expls = app.getExplanations(FPStrategy.APRIORI, samplingStrategy, 
@@ -162,18 +165,15 @@ public class CPExplainerForDNF9 {
 	
 	public static Set<Integer> getGoldFeature(Instance instance){
 		Set<Integer> ret = new HashSet<>();
-		if (instance.stringValue(0).equals("1")){ // act == STRETCH, age = ADULT
-			ret.add(1);
+		if(instance.stringValue(0).equals("1") && instance.stringValue(1).equals("1")){
 			ret.add(2);
-		}else if (instance.stringValue(0).equals("2")){
 			ret.add(3);
 			ret.add(4);
-		}else if (instance.stringValue(0).equals("3")){
+		}
+		else if(instance.stringValue(0).equals("0") && instance.stringValue(1).equals("1")){
 			ret.add(5);
 			ret.add(6);
-		}else if (instance.stringValue(0).equals("4")){
 			ret.add(7);
-			ret.add(8);
 		}
 		return ret;
 	}

@@ -43,7 +43,7 @@ public class C45Split extends ClassifierSplitModel {
   protected int m_complexityIndex;
 
   /** Attribute to split on. */
-  protected final int m_attIndex;
+  public final int m_attIndex;
 
   /** Minimum number of objects in a split. */
   protected final int m_minNoObj;
