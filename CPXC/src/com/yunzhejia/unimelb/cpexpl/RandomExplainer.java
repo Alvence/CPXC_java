@@ -48,7 +48,8 @@ public class RandomExplainer {
 				ICondition cond = getCondition(instance, i, dis);
 				conds.add(cond);
 			}
-			patterns.add(new Pattern(conds));
+			if(conds.size()!=0)
+				patterns.add(new Pattern(conds));
 		}
 		return patterns;
 	}

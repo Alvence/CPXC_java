@@ -31,19 +31,19 @@ public class CPExplainerForJ48 {
 //		String[] files = {"balloon.arff","banana.arff", "blood.arff", 
 //				"diabetes.arff","haberman.arff","hepatitis.arff","iris.arff","labor.arff",
 //				"mushroom.arff","sick.arff","titanic.arff","vote.arff"};
-//		String[] files = {"balloon.arff", "blood.arff", "diabetes.arff","haberman.arff","iris.arff","labor.arff","titanic.arff", "mushroom.arff","sick.arff","vote.arff"};
+		String[] files = {"balloon.arff", "blood.arff", "diabetes.arff","iris.arff","labor.arff","titanic.arff"	};
 //		int[] numsOfExpl = {1,5,10};
 //		int[] numsOfSamples={10,200,500,1000};
 //		CPStrategy[] miningStrategies = {CPStrategy.APRIORI,CPStrategy.RF};
-		SamplingStrategy[] samplingStrategies = {SamplingStrategy.PATTERN_BASED_PERTURBATION,SamplingStrategy.RANDOM};
+		SamplingStrategy[] samplingStrategies = {SamplingStrategy.PATTERN_BASED_PERTURBATION};
 //		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.LOGISTIC, ClassifierType.DECISION_TREE};
 		
 		int[] ratios = {2,3};
 		
-		String[] files = {"titanic.arff"};
-//		String[] files = {"blood.arff"};
+//		String[] files = {"titanic.arff"};
+//		String[] files = {"diabetes.arff"};
 //		String[] files = {"iris.arff"};
-		int[] numsOfExpl = {5};
+		int[] numsOfExpl = {100};
 		CPStrategy[] miningStrategies = {CPStrategy.APRIORI};
 //		SamplingStrategy[] samplingStrategies = {SamplingStrategy.PATTERN_BASED_PERTURBATION};
 		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.DECISION_TREE};
@@ -117,7 +117,7 @@ public class CPExplainerForJ48 {
 						miningStrategy, PatternSortingStrategy.SUPPORT,
 						cl, ins, train, numOfSamples, 0.15, 3, numOfExpl, false);
 				if (expls.size()!=0){
-					System.out.println(expls);
+//					System.out.println(expls);
 					precision += ExplEvaluation.evalPrecisionBest(expls, goldFeatures);
 					recall += ExplEvaluation.evalRecallBest(expls, goldFeatures);
 					probAvg+= ExplEvaluation.evalProbDiffAvg(expls, cl, train, ins);
@@ -144,8 +144,8 @@ public class CPExplainerForJ48 {
 			writer.flush();
 			}catch(Exception e){
 //				throw e;
-//				e.printStackTrace();
-				continue;
+				e.printStackTrace();
+//				continue;
 			}
 						
 			

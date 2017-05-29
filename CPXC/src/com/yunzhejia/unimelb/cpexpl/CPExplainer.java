@@ -183,9 +183,9 @@ public class CPExplainer {
 //			System.out.println("Without pattern   "+ new PatternEvaluation().predictionByRemovingPattern(cl, instance, p, headerInfo));
 //		}
 		
-//		if(DEBUG){
+		if(DEBUG){
 			System.out.println("size of contrast patterns = "+patternSet.size());
-//		}
+		}
 		//step 4, select K patterns and convert them to explanations.
 		IPatternSelection selector = null;
 		switch(patternSortingStrategy){
@@ -210,8 +210,8 @@ public class CPExplainer {
 		}
 		
 //		print_pattern(patternSet,K,"positive");
-		for(int i = 0; i < patternSet.size(); i++){
-//		for(int i = 0; i < K && i < patternSet.size(); i++){
+//		for(int i = 0; i < patternSet.size(); i++){
+		for(int i = 0; i < K && i < patternSet.size(); i++){
 			IPattern p = patternSet.get(i);
 			if (DEBUG){
 				System.out.println(p + "  sup=" + p.support(samples)+" ratio="+p.ratio());
