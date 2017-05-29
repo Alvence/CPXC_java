@@ -12,6 +12,7 @@ import com.yunzhejia.cpxc.util.DataUtils;
 import com.yunzhejia.pattern.ICondition;
 import com.yunzhejia.pattern.IPattern;
 import com.yunzhejia.pattern.NominalCondition;
+import com.yunzhejia.pattern.NumericCondition;
 import com.yunzhejia.pattern.Pattern;
 
 import weka.classifiers.AbstractClassifier;
@@ -41,12 +42,24 @@ public class LIMEConverter {
 	}
 
 	private static IPattern parsePattern(String line, Instance ins) {
+		if("".equals(line.trim())){
+			return null;
+		}
 		String[] tokens = line.split(",");
 		Set<ICondition> conds = new HashSet<>();
 		for(String token:tokens){
+			
 			int att = Integer.parseInt(token.trim());
-			String value = ins.stringValue(att);
-			conds.add(new NominalCondition(ins.attribute(att).name(), att, value));
+			if(ins.attribute(att).isNumeric()){
+				double value = ins.value(att);
+				conds.add(new NumericCondition(ins.attribute(att).name(), att, value*0.5,value*1.5));
+			}else{
+				String value = ins.stringValue(att);
+				conds.add(new NominalCondition(ins.attribute(att).name(), att, value));
+			}
+		}
+		if(conds.size() == 0){
+			return null;
 		}
 		return new Pattern(conds);
 	}

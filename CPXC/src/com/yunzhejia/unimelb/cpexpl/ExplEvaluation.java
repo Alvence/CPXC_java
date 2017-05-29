@@ -104,6 +104,31 @@ public class ExplEvaluation {
 		return best;
 	}
 	
+	
+	public static double evalF1Best(List<IPattern> explanations, Set<Integer> goldFeatures){
+		List<Double> precisions = new ArrayList<>();
+		double best = 0;
+		for(IPattern pattern: explanations){
+			int tp = 0;
+			int fp = 0;
+			for(ICondition condition:pattern.getConditions()){
+				if(goldFeatures.contains(condition.getAttrIndex())){
+					tp++;
+				}else{
+					fp++;
+				}
+			}
+			double precision = tp*1.0/(tp+fp);
+			double recall = tp*1.0/goldFeatures.size();
+			double f1 = 2*precision*recall/(precision+recall);
+			if(f1 > best){
+				best = f1;
+			}
+		}
+//		System.out.println("averagePrecision = "+averagePrecision);
+		return best;
+	}
+	
 	public static double evalRecall(List<IPattern> explanations, Set<Integer> goldFeatures){
 		Set<Integer> features = new HashSet<>();
 		

@@ -31,7 +31,7 @@ public class CPExplainerForJ48 {
 //		String[] files = {"balloon.arff","banana.arff", "blood.arff", 
 //				"diabetes.arff","haberman.arff","hepatitis.arff","iris.arff","labor.arff",
 //				"mushroom.arff","sick.arff","titanic.arff","vote.arff"};
-		String[] files = {"balloon.arff", "blood.arff", "diabetes.arff","iris.arff","labor.arff","titanic.arff"	};
+//		String[] files = {"balloon", "blood", "diabetes","ILPD","iris","labor","planning","sick","titanic"	};
 //		int[] numsOfExpl = {1,5,10};
 //		int[] numsOfSamples={10,200,500,1000};
 //		CPStrategy[] miningStrategies = {CPStrategy.APRIORI,CPStrategy.RF};
@@ -40,7 +40,7 @@ public class CPExplainerForJ48 {
 		
 		int[] ratios = {2,3};
 		
-//		String[] files = {"titanic.arff"};
+		String[] files = {"titanic"};
 //		String[] files = {"diabetes.arff"};
 //		String[] files = {"iris.arff"};
 		int[] numsOfExpl = {100};
@@ -54,26 +54,25 @@ public class CPExplainerForJ48 {
 			PrintWriter writer = new PrintWriter(new File("tmp/stats.txt"));
 			for(String file:files){
 //			Instances data = DataUtils.load("data/synthetic2.arff");
-			Instances data = DataUtils.load("data/"+file);
-			int numGoldFeature = data.numAttributes();
-			Set<Integer> goldFeatures = new HashSet<>();
+			
 //			for(int i = 0; i < numGoldFeature-1; i++){
 //				goldFeatures.add(i);
 //			}
 			
 //			Instances data = DataUtils.load("tmp/newData.arff");
 //			data = AddNoisyFeatureToData.generateNoisyData(data);
-			DataUtils.save(data,"tmp/newwData.arff");
 			
 			//split the data into train and test
-//			Instances train = DataUtils.load("data/"+file+"/train.arff");
-//			Instances test = DataUtils.load("data/"+file+"/test.arff");
+			Instances train = DataUtils.load("data/icdm2017Data/"+file+"_train.arff");
+			Instances test = DataUtils.load("data/icdm2017Data/"+file+"_test.arff");
 			
-			Random random = new Random(0);
 			//split the data into train and test
-			data.randomize(random);
-			Instances train=data;
-			Instances test=data;
+//			Instances train= DataUtils.load("data/icdm2017/"+file+".arff");
+//			Instances test= train;
+			Instances data = train;
+			
+			int numGoldFeature = data.numAttributes();
+			Set<Integer> goldFeatures = new HashSet<>();
 			
 //			for(int ratio:ratios)
 			for(CPStrategy miningStrategy : miningStrategies){
@@ -89,6 +88,7 @@ public class CPExplainerForJ48 {
 			cl.buildClassifier(train);
 			double precision = 0;
 			double recall = 0;
+			double f1 = 0;
 			double probAvg = 0;
 			double probMax = 0;
 			double probMin = 0;
@@ -120,6 +120,7 @@ public class CPExplainerForJ48 {
 //					System.out.println(expls);
 					precision += ExplEvaluation.evalPrecisionBest(expls, goldFeatures);
 					recall += ExplEvaluation.evalRecallBest(expls, goldFeatures);
+					f1 += ExplEvaluation.evalF1Best(expls, goldFeatures);
 					probAvg+= ExplEvaluation.evalProbDiffAvg(expls, cl, train, ins);
 					probMax+= ExplEvaluation.evalProbDiffMax(expls, cl, train, ins);
 					probMin+= ExplEvaluation.evalProbDiffMin(expls, cl, train, ins);
@@ -137,7 +138,8 @@ public class CPExplainerForJ48 {
 			Evaluation eval = new Evaluation(train);
 			eval.evaluateModel(cl, test);
 			
-			String output = "mining="+miningStrategy+" sampling="+samplingStrategy+" numOfSample="+numOfSamples+"   "+file+"  cl="+type+"  NumExpl="+numOfExpl+"  precision = "+(count==0?0:precision/count)+"  recall = "+(count==0?0:recall/count)+"   acc="+eval.correct()*1.0/test.numInstances()
+			String output = "mining="+miningStrategy+" sampling="+samplingStrategy+" numOfSample="+numOfSamples+"   "+file+"  cl="+type+"  NumExpl="+numOfExpl+"  precision = "+(count==0?0:precision/count)+"  recall = "+(count==0?0:recall/count)
+					+"  f1 = "+(count==0?0:f1/count)+"   acc="+eval.correct()*1.0/test.numInstances()
 					+" numExpl="+numExpl*1.0/test.size() + " probAvg= "+probAvg/count+" probMax="+probMax/count+" probMin="+probMin/count;
 			System.out.println(output);
 			writer.println(output);

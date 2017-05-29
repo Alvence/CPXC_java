@@ -1,0 +1,13 @@
+@relation mushroom
+
+@attribute color {YELLOW,PURPLE}
+@attribute size {LARGE,SMALL}
+@attribute act {STRETCH,DIP}
+@attribute age {ADULT,CHILD}
+@attribute class {T,F}
+
+@data
+YELLOW,LARGE,STRETCH,ADULT,T
+YELLOW,SMALL,STRETCH,ADULT,T
+PURPLE,LARGE,STRETCH,ADULT,T
+PURPLE,LARGE,STRETCH,CHILD,F
