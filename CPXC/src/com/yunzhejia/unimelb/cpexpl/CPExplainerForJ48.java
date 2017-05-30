@@ -117,7 +117,7 @@ public class CPExplainerForJ48 {
 				goldFeatures = getGoldFeature(cl,ins);
 				try{
 				List<IPattern> expls = app.getExplanations(FPStrategy.APRIORI, samplingStrategy, 
-						miningStrategy, PatternSortingStrategy.SUPPORT,
+						miningStrategy, PatternSortingStrategy.OBJECTIVE_FUNCTION_LP,
 						cl, ins, train, numOfSamples, 0.1, 1.5, numOfExpl, false);
 				if (expls.size()!=0){
 //					System.out.println(expls);
