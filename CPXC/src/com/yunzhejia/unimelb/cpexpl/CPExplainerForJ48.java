@@ -40,7 +40,7 @@ public class CPExplainerForJ48 {
 		
 		int[] ratios = {2,3};
 		
-		String[] files = {"vote","breast-cancer","soybean"};
+		String[] files = {"breast-cancer","soybean"};
 //		String[] files = {"chess","adult","crx","sonar","ILPD"};
 //		String[] files = {"diabetes.arff"};
 //		String[] files = {"iris.arff"};
