@@ -22,6 +22,7 @@ import com.yunzhejia.pattern.NominalCondition;
 import com.yunzhejia.pattern.NumericCondition;
 import com.yunzhejia.pattern.PatternSet;
 import com.yunzhejia.pattern.patternmining.AprioriContrastPatternMiner;
+import com.yunzhejia.pattern.patternmining.AprioriOptPatternMiner;
 import com.yunzhejia.pattern.patternmining.AprioriPatternMiner;
 import com.yunzhejia.pattern.patternmining.GcGrowthContrastPatternMiner;
 import com.yunzhejia.pattern.patternmining.GcGrowthPatternMiner;
@@ -42,11 +43,12 @@ import weka.core.Instance;
 import weka.core.Instances;
 
 public class CPExplainer {
-	public enum FPStrategy{RF,GCGROWTH,APRIORI};
+	public enum FPStrategy{RF,GCGROWTH,APRIORI,APRIORI_OPT};
 	public enum CPStrategy{RF,GCGROWTH,APRIORI};
 	public enum SamplingStrategy{RANDOM,PATTERN_BASED_RANDOM,PATTERN_BASED_PERTURBATION};
 	public enum PatternSortingStrategy{SUPPORT, PROBDIFF_AND_SUPP, OBJECTIVE_FUNCTION, OBJECTIVE_FUNCTION_LP,NONE};
 	public static boolean DEBUG= false;
+	PatternSet ps = null;
 
 	Random rand = new Random(0);
 	
@@ -64,7 +66,6 @@ public class CPExplainer {
 		*/
 		Sampler sampler = null;
 		IPatternMiner pm = null;
-		PatternSet ps = null;
 		Discretizer discretizer0 = new Discretizer();
 		switch(samplingStrategy){
 		case RANDOM:
@@ -83,10 +84,16 @@ public class CPExplainer {
 				discretizer0.initialize(headerInfo);
 				pm = new AprioriPatternMiner(discretizer0);
 				break;
+			case APRIORI_OPT:
+				discretizer0.initialize(headerInfo);
+				pm = new AprioriOptPatternMiner(discretizer0);
+				break;
 			default:
 				break;
 			}
-			ps = pm.minePattern(headerInfo, 0.4);
+			if(ps==null){
+				ps = pm.minePattern(headerInfo, 0.4);
+			}
 			sampler = new PatternBasedSampler(ps);
 			break;
 		case PATTERN_BASED_PERTURBATION:
@@ -102,11 +109,18 @@ public class CPExplainer {
 				discretizer0.initialize(headerInfo);
 				pm = new AprioriPatternMiner(discretizer0);
 				break;
+			case APRIORI_OPT:
+				discretizer0.initialize(headerInfo);
+				pm = new AprioriOptPatternMiner(discretizer0);
+				break;
 			default:
 				break;
 			}
-			ps = pm.minePattern(headerInfo, 0.4);
-			sampler = new PatternSpacePerturbationSampler(ps, 2);
+			if(ps==null){
+				ps = pm.minePattern(headerInfo, 0.4);
+			}
+			System.out.println(ps.size());
+			sampler = new PatternSpacePerturbationSampler(ps, ps.size()/10>2?ps.size()/10:2);
 			break;
 		default:
 			break;
@@ -174,7 +188,7 @@ public class CPExplainer {
 //		tmp.add(patternSet.get(0));
 //		tmp.add(patternSet.get(1));
 		patternSet = tmp;
-		patternSet = filterBySubset(patternSet, cl, instance, headerInfo);
+//		
 		
 //		int ind = 1;
 //		for(IPattern p:patternSet){
@@ -202,6 +216,7 @@ public class CPExplainer {
 			break;
 		case OBJECTIVE_FUNCTION_LP:
 			selector = new ProbDiffPatternSelectionLP();
+			patternSet = filterBySubset(patternSet, cl, instance, headerInfo);
 			if(patternSet.size()>0)
 				patternSet = selector.select(instance, patternSet, cl, K, samples, headerInfo);
 			break;
@@ -211,7 +226,7 @@ public class CPExplainer {
 		
 //		print_pattern(patternSet,K,"positive");
 //		for(int i = 0; i < patternSet.size(); i++){
-		for(int i = 0; i < K && i < patternSet.size(); i++){
+		for(int i = 0; i < patternSet.size(); i++){
 			IPattern p = patternSet.get(i);
 			if (DEBUG){
 				System.out.println(p + "  sup=" + p.support(samples)+" ratio="+p.ratio());

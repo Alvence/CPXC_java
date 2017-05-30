@@ -40,14 +40,15 @@ public class CPExplainerForJ48 {
 		
 		int[] ratios = {2,3};
 		
-		String[] files = {"titanic"};
+		String[] files = {"vote","breast-cancer","soybean"};
+//		String[] files = {"chess","adult","crx","sonar","ILPD"};
 //		String[] files = {"diabetes.arff"};
 //		String[] files = {"iris.arff"};
 		int[] numsOfExpl = {100};
 		CPStrategy[] miningStrategies = {CPStrategy.APRIORI};
 //		SamplingStrategy[] samplingStrategies = {SamplingStrategy.PATTERN_BASED_PERTURBATION};
 		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.DECISION_TREE};
-		int[] numsOfSamples={2000};
+		int[] numsOfSamples={1000};
 		CPExplainer app = new CPExplainer();
 //		RandomExplainer app = new RandomExplainer();
 		try {
@@ -115,7 +116,7 @@ public class CPExplainerForJ48 {
 				try{
 				List<IPattern> expls = app.getExplanations(FPStrategy.APRIORI, samplingStrategy, 
 						miningStrategy, PatternSortingStrategy.SUPPORT,
-						cl, ins, train, numOfSamples, 0.15, 3, numOfExpl, false);
+						cl, ins, train, numOfSamples, 0.15, 3, numOfExpl, true);
 				if (expls.size()!=0){
 //					System.out.println(expls);
 					precision += ExplEvaluation.evalPrecisionBest(expls, goldFeatures);

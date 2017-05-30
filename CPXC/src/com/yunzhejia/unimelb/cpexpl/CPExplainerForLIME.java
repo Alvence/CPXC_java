@@ -33,7 +33,7 @@ public class CPExplainerForLIME {
 //		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.LOGISTIC, ClassifierType.DECISION_TREE};
 		
 		
-		String[] files = {"titanic"};
+		String[] files = {"breast-cancer","glass","soybean","vote"};
 //		String[] files = {"diabetes.arff"};
 //		String[] files = {"iris.arff"};
 		int[] numsOfExpl = {100};

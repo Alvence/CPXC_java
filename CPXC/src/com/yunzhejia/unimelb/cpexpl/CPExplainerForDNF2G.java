@@ -2,7 +2,6 @@ package com.yunzhejia.unimelb.cpexpl;
 
 import java.io.File;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
@@ -36,21 +35,21 @@ public class CPExplainerForDNF2G {
 		
 		
 		
-		String[] files = {"synthetic/DNF3G_train.arff"};
+		String[] files = {"breast-cancer","glass","soybean","vote"};
 //		String[] files = {"blood.arff"};
 //		String[] files = {"iris.arff"};
-		int[] numsOfExpl = {5};
+		int[] numsOfExpl = {1};
 		CPStrategy[] miningStrategies = {CPStrategy.APRIORI};
 //		SamplingStrategy[] samplingStrategies = {SamplingStrategy.PATTERN_BASED_PERTURBATION};
 		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.LOGISTIC};
 		int[] numsOfSamples={2000};
-		CPExplainer app = new CPExplainer();
-//		RandomExplainer app = new RandomExplainer();
+//		CPExplainer app = new CPExplainer();
+		RandomExplainer app = new RandomExplainer();
 		try {
 			PrintWriter writer = new PrintWriter(new File("tmp/stats.txt"));
 			for(String file:files){
 //			Instances data = DataUtils.load("data/synthetic2.arff");
-			Instances data = DataUtils.load("data/"+file);
+			Instances data = DataUtils.load("data/"+file+".arff");
 			int numGoldFeature = data.numAttributes();
 			Set<Integer> goldFeatures = new HashSet<>();
 //			for(int i = 0; i < numGoldFeature-1; i++){
@@ -60,10 +59,18 @@ public class CPExplainerForDNF2G {
 //			Instances data = DataUtils.load("tmp/newData.arff");
 //			data = AddNoisyFeatureToData.generateNoisyData(data);
 			DataUtils.save(data,"tmp/newwData.arff");
-			
+			Random ran = new Random(0);
+			data.randomize(ran);
+			Instances train = data.trainCV(5, 0);
+			Instances test = data.testCV(5, 0);
+			DataUtils.save(train, "data/icdm2017Data/"+file+"_train.arff");
+			DataUtils.save(test, "data/icdm2017Data/"+file+"_test.arff");
+			if(true){
+				continue;
+			}
 			//split the data into train and test
-			Instances train = DataUtils.load("data/synthetic/DNF2G_train.arff");
-			Instances test = DataUtils.load("data/synthetic/DNF2G_test.arff");
+//			Instances train = DataUtils.load("data/synthetic/DNF2G_train.arff");
+//			Instances test = DataUtils.load("data/synthetic/DNF2G_test.arff");
 			
 			
 			for(CPStrategy miningStrategy : miningStrategies){
