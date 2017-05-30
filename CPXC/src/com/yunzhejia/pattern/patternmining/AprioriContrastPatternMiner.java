@@ -52,11 +52,12 @@ public class AprioriContrastPatternMiner implements IPatternMiner {
 //		PatternSet pps = apriori.minePattern(pos, minSupp);
 //		PatternSet nps = gcMiner.minePattern(neg, minSupp);
 		
-//		System.out.println("pos="+pos.size()+"   neg="+neg.size() +  "   pps="+pps.size());
+//		System.out.println("pos="+pos.size()+"   neg="+neg.size() +  "   ps="+ps.size());
 		PatternSet newPs = new PatternSet();
 		for(IPattern p:ps){
 //			System.out.println(p+ "  supp="+p.support(pos));
 //			System.out.println("pos="+p.support(pos)+"  "+p.matchingDataSet(pos).size());
+//			System.out.println(p+ "  supp="+p.support(pos)+"    sup-neg="+p.support(neg));
 			if(p.support(neg)!=0){
 				if(p.support(pos)/p.support(neg)>=minRatio){
 					p.setRatio(p.support(pos)/p.support(neg));

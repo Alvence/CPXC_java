@@ -121,6 +121,8 @@ public class Pattern implements IPattern {
 
 	@Override
 	public double support(Instances data) {
+		if(data==null||data.size()==0)
+			return 0;
 		return matchingDataSet(data).size()*1.0/data.size();
 	}
 	

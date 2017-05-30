@@ -176,6 +176,13 @@ public class CPExplainer {
 		
 		PatternSet patternSet = patternMiner.minePattern(samples, minSupp, minRatio, classLabel, true);
 		
+//		if(patternSet.size() == 0){
+//			System.out.println(instance + " class="+cl.classifyInstance(instance));
+//			System.out.println(samples);
+//			throw new Exception("Stop");
+//		}else{
+//			System.out.println(patternSet.size());
+//		}
 		
 		
 		patternSet = patternSet.getMatchingPatterns(instance);
@@ -187,9 +194,10 @@ public class CPExplainer {
 		}
 //		tmp.add(patternSet.get(0));
 //		tmp.add(patternSet.get(1));
-		patternSet = tmp;
+		if(tmp.size()!=0){
+			patternSet = tmp;
+		}
 //		
-		
 //		int ind = 1;
 //		for(IPattern p:patternSet){
 //			System.out.println((ind++)+": "+p+ "  sup=" + p.support(samples)+" ratio="+p.ratio());
@@ -216,7 +224,7 @@ public class CPExplainer {
 			break;
 		case OBJECTIVE_FUNCTION_LP:
 			selector = new ProbDiffPatternSelectionLP();
-//			patternSet = filterBySubset(patternSet, cl, instance, headerInfo);
+			patternSet = filterBySubset(patternSet, cl, instance, headerInfo);
 			if(patternSet.size()>K)
 				patternSet = selector.select(instance, patternSet, cl, K, samples, headerInfo);
 			break;
@@ -306,13 +314,11 @@ public class CPExplainer {
 	
 	//Get the prediction without features appearing in the pattern
 		public Prediction predictionByRemovingPattern(AbstractClassifier cl, Instance instance, IPattern pattern, Instances data) throws Exception{
-			Instance ins = (Instance)instance.copy();
-			
 			List<List<String>> values = new ArrayList<>();
 			for(int i = 0; i < instance.numAttributes();i++){
 				values.add(new ArrayList<String>());
 			}
-			
+			double label = cl.classifyInstance(instance);
 			int numNumericAttr = 5;
 			
 			for (ICondition condition:pattern.getConditions()){
@@ -344,13 +350,26 @@ public class CPExplainer {
 					}
 				}
 			}
-			for(int i = 0; i < values.size();i++){
-				if(values.get(i).size()>0){
-					String val = values.get(i).get(rand.nextInt(values.get(i).size()));
-					if(ins.attribute(i).isNumeric()){
-						ins.setValue(i, Double.parseDouble(val));
-					}else{
-						ins.setValue(i, val);
+			int num_sample = 30;
+			double max = 0;
+			Prediction ret = null;
+			for(int index = 0; index < num_sample; index++){
+				Instance ins = (Instance)instance.copy();
+				for(int i = 0; i < values.size();i++){
+					if(values.get(i).size()>0){
+						String val = values.get(i).get(rand.nextInt(values.get(i).size()));
+						if(ins.attribute(i).isNumeric()){
+							ins.setValue(i, Double.parseDouble(val));
+						}else{
+							ins.setValue(i, val);
+						}
+					}
+				}
+				Prediction pred = prediction(cl,ins);
+				if(ret ==null || (pred.classIndex!=label && pred.prob>max)){
+					ret = pred;
+					if (pred.classIndex!=label){
+						max = pred.prob;
 					}
 				}
 			}
@@ -376,9 +395,8 @@ public class CPExplainer {
 			
 			
 //			System.out.println(ins);
-			int classIndex = (int)cl.classifyInstance(instance);
 			
-			return prediction(cl,ins);
+			return ret;
 		}
 		private double getRand(double lower, double upper){
 			return lower + rand.nextDouble()*(upper-lower);

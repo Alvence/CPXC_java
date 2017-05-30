@@ -147,7 +147,6 @@ public class ProbDiffPatternSelectionLP implements IPatternSelection {
 	//Get the prediction without features appearing in the pattern
 	public double predictionByRemovingPattern(AbstractClassifier cl, Instance instance, IPattern pattern, Instances headerInfo) throws Exception{
 				
-		Instance ins = (Instance)instance.copy();
 		
 		List<List<String>> values = new ArrayList<>();
 		for(int i = 0; i < instance.numAttributes();i++){
@@ -185,16 +184,28 @@ public class ProbDiffPatternSelectionLP implements IPatternSelection {
 				}
 			}
 		}
-		for(int i = 0; i < values.size();i++){
-			if(values.get(i).size()>0){
-				String val = values.get(i).get(rand.nextInt(values.get(i).size()));
-				if(ins.attribute(i).isNumeric()){
-					ins.setValue(i, Double.parseDouble(val));
-				}else{
-					ins.setValue(i, val);
+		
+		int classIndex = (int)cl.classifyInstance(instance);
+		int num_sample = 30;
+		double max = 0;
+		for(int index = 0; index < num_sample; index++){
+			Instance ins = (Instance)instance.copy();
+			for(int i = 0; i < values.size();i++){
+				if(values.get(i).size()>0){
+					String val = values.get(i).get(rand.nextInt(values.get(i).size()));
+					if(ins.attribute(i).isNumeric()){
+						ins.setValue(i, Double.parseDouble(val));
+					}else{
+						ins.setValue(i, val);
+					}
 				}
 			}
+			double pred = prediction(cl,ins,classIndex);
+			if(pred > max){
+					max = pred;
+			}
 		}
+		
 		/*
 		Instances tmp = new Instances(data,0);
 		int[] caps = new int[values.size()];
@@ -217,9 +228,9 @@ public class ProbDiffPatternSelectionLP implements IPatternSelection {
 		
 		
 //		System.out.println(ins);
-		int classIndex = (int)cl.classifyInstance(instance);
 		
-		return prediction(cl,ins,classIndex);
+		
+		return max;
 	}	
 	
 	

@@ -41,14 +41,15 @@ public class CPExplainerForJ48 {
 		int[] ratios = {2,3};
 		
 		String[] files = {"balloon","blood","breast-cancer","diabetes","glass","iris","labor","titanic","vote"};
+//		String[] files = {"blood"};
 //		String[] files = {"chess","adult","crx","sonar","ILPD"};
 //		String[] files = {"diabetes.arff"};
 //		String[] files = {"iris.arff"};
-		int[] numsOfExpl = {1};
+		int[] numsOfExpl = {5};
 		CPStrategy[] miningStrategies = {CPStrategy.APRIORI};
 //		SamplingStrategy[] samplingStrategies = {SamplingStrategy.PATTERN_BASED_PERTURBATION};
 		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.DECISION_TREE};
-		int[] numsOfSamples={1000};
+		int[] numsOfSamples={2000};
 //		RandomExplainer app = new RandomExplainer();
 		try {
 			PrintWriter writer = new PrintWriter(new File("tmp/stats.txt"));
@@ -83,8 +84,8 @@ public class CPExplainerForJ48 {
 					for(int numOfExpl:numsOfExpl){
 						try{
 			
-//			CPExplainer app = new CPExplainer();
-			GreedyExplainer app = new GreedyExplainer();
+			CPExplainer app = new CPExplainer();
+//			RandomExplainer app = new RandomExplainer();
 			
 			AbstractClassifier cl = ClassifierGenerator.getClassifier(type);
 			cl.buildClassifier(train);
@@ -96,7 +97,7 @@ public class CPExplainerForJ48 {
 			double probMin = 0;
 			int numExpl = 0;
 			int count=0;
-//			Instance ins = test.get(1);
+//			Instance ins = test.get(146);
 //			ins.setValue(0, "1");
 //			ins.setValue(1, 0.1);
 //			ins.setValue(2, 0.1);
@@ -110,14 +111,14 @@ public class CPExplainerForJ48 {
 //			System.out.println(goldFeatures);
 			
 			
-			
+			int c = 0;
 			for(Instance ins:test){
 				
 				goldFeatures = getGoldFeature(cl,ins);
 				try{
 				List<IPattern> expls = app.getExplanations(FPStrategy.APRIORI, samplingStrategy, 
-						miningStrategy, PatternSortingStrategy.OBJECTIVE_FUNCTION_LP,
-						cl, ins, train, numOfSamples, 0.15, 3, numOfExpl, false);
+						miningStrategy, PatternSortingStrategy.SUPPORT,
+						cl, ins, train, numOfSamples, 0.1, 1.5, numOfExpl, false);
 				if (expls.size()!=0){
 //					System.out.println(expls);
 					precision += ExplEvaluation.evalPrecisionBest(expls, goldFeatures);
@@ -130,19 +131,21 @@ public class CPExplainerForJ48 {
 					numExpl+=expls.size();
 					count++;
 				}else{
-//					System.err.println("No explanations!");
+					System.err.println("No explanations!"+ c);
 				}
 				}catch(Exception e){
 					throw e;
 //					e.printStackTrace();
 				}
+				c++;
 			}
 			Evaluation eval = new Evaluation(train);
 			eval.evaluateModel(cl, test);
-			count = test.size();
+//			count = test.size();
 			String output = "mining="+miningStrategy+" sampling="+samplingStrategy+" numOfSample="+numOfSamples+"   "+file+"  cl="+type+"  NumExpl="+numOfExpl+"  precision = "+(count==0?0:precision/count)+"  recall = "+(count==0?0:recall/count)
 					+"  f1 = "+(count==0?0:f1/count)+"   acc="+eval.correct()*1.0/test.numInstances()
-					+" numExpl="+numExpl*1.0/test.size() + " probAvg= "+probAvg/count+" probMax="+probMax/count+" probMin="+probMin/count;
+					+" numExpl="+numExpl*1.0/count + " probAvg= "+probAvg/count+" probMax="+probMax/count+" probMin="+probMin/count
+					+"ExplRate="+count*1.0/test.size();
 			System.out.println(output);
 			writer.println(output);
 			writer.flush();
