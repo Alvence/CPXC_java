@@ -40,7 +40,7 @@ public class CPExplainerForJ48 {
 		
 		int[] ratios = {2,3};
 		
-		String[] files = {"breast-cancer","soybean"};
+		String[] files = {"balloon","blood","breast-cancer","diabetes","glass","iris","labor","titanic","vote"};
 //		String[] files = {"chess","adult","crx","sonar","ILPD"};
 //		String[] files = {"diabetes.arff"};
 //		String[] files = {"iris.arff"};
@@ -49,7 +49,6 @@ public class CPExplainerForJ48 {
 //		SamplingStrategy[] samplingStrategies = {SamplingStrategy.PATTERN_BASED_PERTURBATION};
 		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.DECISION_TREE};
 		int[] numsOfSamples={1000};
-		CPExplainer app = new CPExplainer();
 //		RandomExplainer app = new RandomExplainer();
 		try {
 			PrintWriter writer = new PrintWriter(new File("tmp/stats.txt"));
@@ -83,7 +82,8 @@ public class CPExplainerForJ48 {
 				for(ClassifierType type:typesOfClassifier){
 					for(int numOfExpl:numsOfExpl){
 						try{
-
+			
+			CPExplainer app = new CPExplainer();
 			
 			AbstractClassifier cl = ClassifierGenerator.getClassifier(type);
 			cl.buildClassifier(train);
@@ -115,8 +115,8 @@ public class CPExplainerForJ48 {
 				goldFeatures = getGoldFeature(cl,ins);
 				try{
 				List<IPattern> expls = app.getExplanations(FPStrategy.APRIORI, samplingStrategy, 
-						miningStrategy, PatternSortingStrategy.SUPPORT,
-						cl, ins, train, numOfSamples, 0.15, 3, numOfExpl, true);
+						miningStrategy, PatternSortingStrategy.OBJECTIVE_FUNCTION_LP,
+						cl, ins, train, numOfSamples, 0.15, 3, numOfExpl, false);
 				if (expls.size()!=0){
 //					System.out.println(expls);
 					precision += ExplEvaluation.evalPrecisionBest(expls, goldFeatures);

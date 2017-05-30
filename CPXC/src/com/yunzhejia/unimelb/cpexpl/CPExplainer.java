@@ -119,7 +119,7 @@ public class CPExplainer {
 			if(ps==null){
 				ps = pm.minePattern(headerInfo, 0.4);
 			}
-			System.out.println(ps.size());
+//			System.out.println(ps.size());
 			sampler = new PatternSpacePerturbationSampler(ps, ps.size()/10>2?ps.size()/10:2);
 			break;
 		default:
@@ -216,8 +216,8 @@ public class CPExplainer {
 			break;
 		case OBJECTIVE_FUNCTION_LP:
 			selector = new ProbDiffPatternSelectionLP();
-			patternSet = filterBySubset(patternSet, cl, instance, headerInfo);
-			if(patternSet.size()>0)
+//			patternSet = filterBySubset(patternSet, cl, instance, headerInfo);
+			if(patternSet.size()>K)
 				patternSet = selector.select(instance, patternSet, cl, K, samples, headerInfo);
 			break;
 		default:
