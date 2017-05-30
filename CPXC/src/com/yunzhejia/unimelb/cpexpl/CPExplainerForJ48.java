@@ -44,7 +44,7 @@ public class CPExplainerForJ48 {
 //		String[] files = {"chess","adult","crx","sonar","ILPD"};
 //		String[] files = {"diabetes.arff"};
 //		String[] files = {"iris.arff"};
-		int[] numsOfExpl = {100};
+		int[] numsOfExpl = {1};
 		CPStrategy[] miningStrategies = {CPStrategy.APRIORI};
 //		SamplingStrategy[] samplingStrategies = {SamplingStrategy.PATTERN_BASED_PERTURBATION};
 		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.DECISION_TREE};
@@ -83,7 +83,8 @@ public class CPExplainerForJ48 {
 					for(int numOfExpl:numsOfExpl){
 						try{
 			
-			CPExplainer app = new CPExplainer();
+//			CPExplainer app = new CPExplainer();
+			GreedyExplainer app = new GreedyExplainer();
 			
 			AbstractClassifier cl = ClassifierGenerator.getClassifier(type);
 			cl.buildClassifier(train);
@@ -138,7 +139,7 @@ public class CPExplainerForJ48 {
 			}
 			Evaluation eval = new Evaluation(train);
 			eval.evaluateModel(cl, test);
-			
+			count = test.size();
 			String output = "mining="+miningStrategy+" sampling="+samplingStrategy+" numOfSample="+numOfSamples+"   "+file+"  cl="+type+"  NumExpl="+numOfExpl+"  precision = "+(count==0?0:precision/count)+"  recall = "+(count==0?0:recall/count)
 					+"  f1 = "+(count==0?0:f1/count)+"   acc="+eval.correct()*1.0/test.numInstances()
 					+" numExpl="+numExpl*1.0/test.size() + " probAvg= "+probAvg/count+" probMax="+probMax/count+" probMin="+probMin/count;
