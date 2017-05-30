@@ -22,7 +22,6 @@ import com.yunzhejia.pattern.NominalCondition;
 import com.yunzhejia.pattern.NumericCondition;
 import com.yunzhejia.pattern.PatternSet;
 import com.yunzhejia.pattern.patternmining.AprioriContrastPatternMiner;
-import com.yunzhejia.pattern.patternmining.AprioriOptPatternMiner;
 import com.yunzhejia.pattern.patternmining.AprioriPatternMiner;
 import com.yunzhejia.pattern.patternmining.GcGrowthContrastPatternMiner;
 import com.yunzhejia.pattern.patternmining.GcGrowthPatternMiner;
@@ -84,10 +83,6 @@ public class CPExplainer {
 				discretizer0.initialize(headerInfo);
 				pm = new AprioriPatternMiner(discretizer0);
 				break;
-			case APRIORI_OPT:
-				discretizer0.initialize(headerInfo);
-				pm = new AprioriOptPatternMiner(discretizer0);
-				break;
 			default:
 				break;
 			}
@@ -109,10 +104,6 @@ public class CPExplainer {
 				discretizer0.initialize(headerInfo);
 				pm = new AprioriPatternMiner(discretizer0);
 				break;
-			case APRIORI_OPT:
-				discretizer0.initialize(headerInfo);
-				pm = new AprioriOptPatternMiner(discretizer0);
-				break;
 			default:
 				break;
 			}
@@ -120,7 +111,7 @@ public class CPExplainer {
 				ps = pm.minePattern(headerInfo, 0.4);
 			}
 //			System.out.println(ps.size());
-			sampler = new PatternSpacePerturbationSampler(ps, ps.size()/10>2?ps.size()/10:2);
+			sampler = new PatternSpacePerturbationSampler(ps, 3);
 			break;
 		default:
 			break;
@@ -174,8 +165,11 @@ public class CPExplainer {
 		
 		int classLabel = (int)cl.classifyInstance(instance);
 		
-		PatternSet patternSet = patternMiner.minePattern(samples, minSupp, minRatio, classLabel, true);
-		
+		PatternSet patternSet = new PatternSet();
+		while(patternSet.isEmpty()){
+			patternSet = patternMiner.minePattern(samples, minSupp, minRatio, classLabel, true);
+			minRatio/=2;
+		}
 //		if(patternSet.size() == 0){
 //			System.out.println(instance + " class="+cl.classifyInstance(instance));
 //			System.out.println(samples);
@@ -183,15 +177,16 @@ public class CPExplainer {
 //		}else{
 //			System.out.println(patternSet.size());
 //		}
-		
-		
+//		System.out.println(samples);
 		patternSet = patternSet.getMatchingPatterns(instance);
+		
 		PatternSet tmp = new PatternSet();
 		for(IPattern p:patternSet){
 			if(predictionByRemovingPattern(cl, instance, p, headerInfo).classIndex!=classLabel){
 				tmp.add(p);
 			}
 		}
+//		System.out.println(patternSet.size());
 //		tmp.add(patternSet.get(0));
 //		tmp.add(patternSet.get(1));
 		if(tmp.size()!=0){
@@ -350,8 +345,9 @@ public class CPExplainer {
 					}
 				}
 			}
-			int num_sample = 30;
+			int num_sample = 10;
 			double max = 0;
+			double sum = 0;
 			Prediction ret = null;
 			for(int index = 0; index < num_sample; index++){
 				Instance ins = (Instance)instance.copy();

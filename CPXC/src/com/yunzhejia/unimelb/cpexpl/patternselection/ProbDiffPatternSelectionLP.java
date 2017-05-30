@@ -186,7 +186,7 @@ public class ProbDiffPatternSelectionLP implements IPatternSelection {
 		}
 		
 		int classIndex = (int)cl.classifyInstance(instance);
-		int num_sample = 30;
+		int num_sample = 10;
 		double max = 0;
 		for(int index = 0; index < num_sample; index++){
 			Instance ins = (Instance)instance.copy();

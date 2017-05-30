@@ -44,8 +44,8 @@ public class CPExplainerForDNF3G {
 //		SamplingStrategy[] samplingStrategies = {SamplingStrategy.PATTERN_BASED_PERTURBATION};
 		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.LOGISTIC};
 		int[] numsOfSamples={1000};
-//		CPExplainer app = new CPExplainer();
-		RandomExplainer app = new RandomExplainer();
+		CPExplainer app = new CPExplainer();
+//		RandomExplainer app = new RandomExplainer();
 		try {
 			PrintWriter writer = new PrintWriter(new File("tmp/stats.txt"));
 			for(String file:files){
@@ -107,7 +107,7 @@ public class CPExplainerForDNF3G {
 						miningStrategy, PatternSortingStrategy.OBJECTIVE_FUNCTION_LP,
 						cl, ins, train, numOfSamples, 0.15, 3, numOfExpl, false);
 				if (expls.size()!=0){
-					System.out.println(expls);
+//					System.out.println(expls);
 					precision += ExplEvaluation.evalPrecisionBest(expls, goldFeatures);
 					recall += ExplEvaluation.evalRecallBest(expls, goldFeatures);
 					probAvg+= ExplEvaluation.evalProbDiffAvg(expls, cl, train, ins);

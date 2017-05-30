@@ -55,6 +55,13 @@ public class AprioriPatternMiner implements IPatternMiner {
 		Instances copy = DataUtils.load(tmpFile);
 		copy.setClassIndex(-1);
 		
+		//remove class information
+		if(copy.classIndex()!=-1){
+			
+			copy.deleteAttributeAt(copy.numAttributes()-1);
+		}
+		
+		
 		Filter filter = new NumericToNominal();
 		filter.setInputFormat(copy);
 		
@@ -64,11 +71,7 @@ public class AprioriPatternMiner implements IPatternMiner {
 		
 		PatternSet ps = new PatternSet();
 		
-		//remove class information
-		if(copy.classIndex()!=-1){
-			copy.deleteAttributeAt(copy.classIndex());
-			copy.setClassIndex(-1);
-		}
+		
 		
 		Apriori apriori = new Apriori();
 		apriori.setCar(false);

@@ -44,8 +44,8 @@ public class CPExplainerForDNF9 {
 //		SamplingStrategy[] samplingStrategies = {SamplingStrategy.PATTERN_BASED_PERTURBATION};
 		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.LOGISTIC};
 		int[] numsOfSamples={1000};
-//		CPExplainer app = new CPExplainer();
-		RandomExplainer app = new RandomExplainer();
+		CPExplainer app = new CPExplainer();
+//		RandomExplainer app = new RandomExplainer();
 		try {
 			PrintWriter writer = new PrintWriter(new File("tmp/stats.txt"));
 			for(String file:files){
@@ -101,7 +101,7 @@ public class CPExplainerForDNF9 {
 				goldFeatures = getGoldFeature(ins);
 				try{
 				List<IPattern> expls = app.getExplanations(FPStrategy.APRIORI, samplingStrategy, 
-						miningStrategy, PatternSortingStrategy.OBJECTIVE_FUNCTION_LP,
+						miningStrategy, PatternSortingStrategy.SUPPORT,
 						cl, ins, train, numOfSamples, 0.15, 3, numOfExpl, false);
 				if (expls.size()!=0){
 					System.out.println(expls);

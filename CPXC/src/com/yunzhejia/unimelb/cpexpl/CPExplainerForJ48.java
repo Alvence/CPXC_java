@@ -97,7 +97,7 @@ public class CPExplainerForJ48 {
 			double probMin = 0;
 			int numExpl = 0;
 			int count=0;
-//			Instance ins = test.get(146);
+//			Instance ins = test.get(10);
 //			ins.setValue(0, "1");
 //			ins.setValue(1, 0.1);
 //			ins.setValue(2, 0.1);
@@ -110,15 +110,14 @@ public class CPExplainerForJ48 {
 //			goldFeatures = InterpretableModels.getGoldenFeature(type, cl, train);
 //			System.out.println(goldFeatures);
 			
-			
 			int c = 0;
 			for(Instance ins:test){
 				
 				goldFeatures = getGoldFeature(cl,ins);
 				try{
 				List<IPattern> expls = app.getExplanations(FPStrategy.APRIORI, samplingStrategy, 
-						miningStrategy, PatternSortingStrategy.OBJECTIVE_FUNCTION_LP,
-						cl, ins, train, numOfSamples, 0.1, 1.5, numOfExpl, false);
+						miningStrategy, PatternSortingStrategy.SUPPORT,
+						cl, ins, train, numOfSamples, 0.15, 3, numOfExpl, false);
 				if (expls.size()!=0){
 //					System.out.println(expls);
 					precision += ExplEvaluation.evalPrecisionBest(expls, goldFeatures);
@@ -131,7 +130,7 @@ public class CPExplainerForJ48 {
 					numExpl+=expls.size();
 					count++;
 				}else{
-					System.err.println("No explanations!"+ c);
+//					System.err.println("No explanations!"+ c);
 				}
 				}catch(Exception e){
 					throw e;
