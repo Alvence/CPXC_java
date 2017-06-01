@@ -33,21 +33,21 @@ public class CPExplainerForJ48 {
 //		int[] numsOfExpl = {1,5,10};
 //		int[] numsOfSamples={10,200,500,1000};
 //		CPStrategy[] miningStrategies = {CPStrategy.APRIORI,CPStrategy.RF};
-		SamplingStrategy[] samplingStrategies = {SamplingStrategy.PATTERN_BASED_PERTURBATION};
+		SamplingStrategy[] samplingStrategies = {SamplingStrategy.RANDOM};
 //		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.LOGISTIC, ClassifierType.DECISION_TREE};
 		
 		int[] ratios = {2,3};
 		
-		String[] files = {"balloon","blood","breast-cancer","diabetes","glass","iris","labor","titanic","vote"};
-//		String[] files = {"blood"};
+//		String[] files = {"balloon","blood","breast-cancer","diabetes","glass","iris","labor","titanic","vote"};
+		String[] files = {"anneal"};
 //		String[] files = {"chess","adult","crx","sonar","ILPD"};
 //		String[] files = {"diabetes.arff"};
 //		String[] files = {"iris.arff"};
-		int[] numsOfExpl = {1};
+		int[] numsOfExpl = {5};
 		CPStrategy[] miningStrategies = {CPStrategy.APRIORI};
 //		SamplingStrategy[] samplingStrategies = {SamplingStrategy.PATTERN_BASED_PERTURBATION};
 		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.DECISION_TREE};
-		int[] numsOfSamples={2000};
+		int[] numsOfSamples={1000};
 //		RandomExplainer app = new RandomExplainer();
 		try {
 			PrintWriter writer = new PrintWriter(new File("tmp/stats.txt"));
@@ -82,8 +82,8 @@ public class CPExplainerForJ48 {
 					for(int numOfExpl:numsOfExpl){
 						try{
 			
-//			CPExplainer app = new CPExplainer();
-			RandomExplainer app = new RandomExplainer();
+			CPExplainer app = new CPExplainer();
+//			RandomExplainer app = new RandomExplainer();
 			
 			AbstractClassifier cl = ClassifierGenerator.getClassifier(type);
 			cl.buildClassifier(train);
@@ -114,7 +114,7 @@ public class CPExplainerForJ48 {
 				goldFeatures = DTTruth.getGoldFeature(cl,ins);
 				try{
 				List<IPattern> expls = app.getExplanations(FPStrategy.APRIORI, samplingStrategy, 
-						miningStrategy, PatternSortingStrategy.OBJECTIVE_FUNCTION_LP,
+						miningStrategy, PatternSortingStrategy.SUPPORT,
 						cl, ins, train, numOfSamples, 0.15, 3, numOfExpl, false);
 				if (expls.size()!=0){
 //					System.out.println(expls);
