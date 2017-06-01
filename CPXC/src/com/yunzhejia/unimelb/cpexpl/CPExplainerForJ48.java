@@ -2,11 +2,8 @@ package com.yunzhejia.unimelb.cpexpl;
 
 import java.io.File;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Random;
 import java.util.Set;
 
 import com.yunzhejia.cpxc.util.ClassifierGenerator;
@@ -17,6 +14,7 @@ import com.yunzhejia.unimelb.cpexpl.CPExplainer.CPStrategy;
 import com.yunzhejia.unimelb.cpexpl.CPExplainer.FPStrategy;
 import com.yunzhejia.unimelb.cpexpl.CPExplainer.PatternSortingStrategy;
 import com.yunzhejia.unimelb.cpexpl.CPExplainer.SamplingStrategy;
+import com.yunzhejia.unimelb.cpexpl.truth.DTTruth;
 
 import weka.classifiers.AbstractClassifier;
 import weka.classifiers.Evaluation;
@@ -45,7 +43,7 @@ public class CPExplainerForJ48 {
 //		String[] files = {"chess","adult","crx","sonar","ILPD"};
 //		String[] files = {"diabetes.arff"};
 //		String[] files = {"iris.arff"};
-		int[] numsOfExpl = {5};
+		int[] numsOfExpl = {1};
 		CPStrategy[] miningStrategies = {CPStrategy.APRIORI};
 //		SamplingStrategy[] samplingStrategies = {SamplingStrategy.PATTERN_BASED_PERTURBATION};
 		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.DECISION_TREE};
@@ -84,8 +82,8 @@ public class CPExplainerForJ48 {
 					for(int numOfExpl:numsOfExpl){
 						try{
 			
-			CPExplainer app = new CPExplainer();
-//			RandomExplainer app = new RandomExplainer();
+//			CPExplainer app = new CPExplainer();
+			RandomExplainer app = new RandomExplainer();
 			
 			AbstractClassifier cl = ClassifierGenerator.getClassifier(type);
 			cl.buildClassifier(train);
@@ -113,10 +111,10 @@ public class CPExplainerForJ48 {
 			int c = 0;
 			for(Instance ins:test){
 				
-				goldFeatures = getGoldFeature(cl,ins);
+				goldFeatures = DTTruth.getGoldFeature(cl,ins);
 				try{
 				List<IPattern> expls = app.getExplanations(FPStrategy.APRIORI, samplingStrategy, 
-						miningStrategy, PatternSortingStrategy.SUPPORT,
+						miningStrategy, PatternSortingStrategy.OBJECTIVE_FUNCTION_LP,
 						cl, ins, train, numOfSamples, 0.15, 3, numOfExpl, false);
 				if (expls.size()!=0){
 //					System.out.println(expls);

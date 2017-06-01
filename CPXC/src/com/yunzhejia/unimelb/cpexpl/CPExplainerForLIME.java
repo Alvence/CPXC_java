@@ -16,6 +16,7 @@ import com.yunzhejia.unimelb.cpexpl.CPExplainer.CPStrategy;
 import com.yunzhejia.unimelb.cpexpl.CPExplainer.FPStrategy;
 import com.yunzhejia.unimelb.cpexpl.CPExplainer.PatternSortingStrategy;
 import com.yunzhejia.unimelb.cpexpl.CPExplainer.SamplingStrategy;
+import com.yunzhejia.unimelb.cpexpl.truth.DTTruth;
 
 import weka.classifiers.AbstractClassifier;
 import weka.classifiers.Evaluation;
@@ -100,7 +101,8 @@ public class CPExplainerForLIME {
 				Instance ins = test.get(i);
 				IPattern ex = exList.get(i);
 				
-				goldFeatures = getDTGoldFeature(cl,test.get(i));
+				goldFeatures = DTTruth.getGoldFeature(cl, test.get(i));
+//				goldFeatures = getDTGoldFeature(cl,test.get(i));
 //				System.out.println(test.get(i));
 //				System.out.println(goldFeatures);
 				try{

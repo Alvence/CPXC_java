@@ -29,7 +29,7 @@ public class DTTruth {
 			Instance instance = test.get(1);
 			System.out.println("Ins: "+instance);
 			
-			getExplanation(cl,instance);
+			getGoldFeature(cl,instance);
 			
 			
 		} catch (Exception e) {
@@ -40,10 +40,10 @@ public class DTTruth {
 
 	}
 
-	private static void getExplanation(AbstractClassifier cl, Instance instance) throws Exception {
+	public static Set<Integer> getGoldFeature(AbstractClassifier cl, Instance instance) throws Exception {
 		if (!(cl instanceof J48)){
 			System.err.println("not J48 tree");
-			return;
+			return null;
 		}
 		J48 dt = (J48)cl;
 		ClassifierTree root = dt.m_root;
@@ -52,17 +52,29 @@ public class DTTruth {
 		while(!root.m_isLeaf){
 //			System.out.println(instance.attribute(((C45Split)root.m_localModel).m_attIndex).name());
 			int which = root.m_localModel.whichSubset(instance);
-			for(int i = 0; i < root.m_sons.length;i++){
+			/*for(int i = 0; i < root.m_sons.length;i++){
 				if(i == which)
 					continue;
 				System.out.println("tree "+i+" dis="+Arrays.toString(root.m_sons[i].distributionForInstance(instance, false)));
 				if(root.m_sons[i].classifyInstance(instance)!=pred){
 					expl.add(((C45Split)root.m_localModel).m_attIndex);
 				}
+			}*/
+			if(which == -1){
+				break;
 			}
+			expl.add(((C45Split)root.m_localModel).m_attIndex);
 			
 			root = root.m_sons[which];
 		}
-		System.out.println(expl);
+		return expl;
+	}
+	
+	
+	
+	private static boolean isImportant(ClassifierTree root, Instance instance){
+
+		
+		return false;
 	}
 }
