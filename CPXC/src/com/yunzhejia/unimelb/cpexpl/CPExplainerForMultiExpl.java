@@ -22,7 +22,7 @@ import weka.classifiers.Evaluation;
 import weka.core.Instance;
 import weka.core.Instances;
 
-public class CPExplainerForBalloon {
+public class CPExplainerForMultiExpl {
 	public static void main(String[] args){
 //		String[] files = {"balloon.arff","banana.arff", "blood.arff", 
 //				"diabetes.arff","haberman.arff","hepatitis.arff","iris.arff","labor.arff",
@@ -36,14 +36,14 @@ public class CPExplainerForBalloon {
 		
 		
 		
-		String[] files = {"synthetic/balloon_synthetic.arff"};
+		String[] files = {"synthetic_8rule.arff"};
 //		String[] files = {"blood.arff"};
 //		String[] files = {"iris.arff"};
 		int[] numsOfExpl = {5};
 		CPStrategy[] miningStrategies = {CPStrategy.APRIORI};
 		SamplingStrategy[] samplingStrategies = {SamplingStrategy.PATTERN_BASED_PERTURBATION};
 		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.DECISION_TREE};
-		int[] numsOfSamples={2000};
+		int[] numsOfSamples={1000};
 		CPExplainer app = new CPExplainer();
 //		RandomExplainer app = new RandomExplainer();
 		try {
@@ -65,10 +65,12 @@ public class CPExplainerForBalloon {
 //			Instances train = DataUtils.load("data/synthetic/balloon_noisy_train.arff");
 //			Instances test = DataUtils.load("data/synthetic/balloon_noisy_test.arff");
 			
-			Instances train = DataUtils.load("data/synthetic/balloon_synthetic.arff");
-			Instances test = DataUtils.load("data/synthetic/balloon_synthetic.arff");
-			train.setClassIndex(train.numAttributes()-1);
-			test.setClassIndex(train.numAttributes()-1);
+//			Instances train = DataUtils.load("data/synthetic/balloon_noisy_train.arff");
+//			Instances test = DataUtils.load("data/synthetic/balloon_noisy_test.arff");
+//			train.setClassIndex(train.numAttributes()-1);
+//			test.setClassIndex(train.numAttributes()-1);
+			Instances train  = data;
+			Instances test = data;
 			
 			for(CPStrategy miningStrategy : miningStrategies){
 			for(SamplingStrategy samplingStrategy:samplingStrategies){
@@ -80,7 +82,7 @@ public class CPExplainerForBalloon {
 						try{
 
 			
-			AbstractClassifier cl = new BalloonClassifier();
+			AbstractClassifier cl = new Synthetic_8RuleClassifier();
 //			AbstractClassifier cl = ClassifierGenerator.getClassifier(type);
 			
 			cl.buildClassifier(train);
@@ -92,15 +94,15 @@ public class CPExplainerForBalloon {
 			double probMin = 0;
 			int numExpl = 0;
 			int count=0;
-			Instance ins = test.get(1);
+			Instance ins = test.get(17);
 //			ins.setValue(0, "1");
 //			ins.setValue(1, 0.1);
 //			ins.setValue(2, 0.1);
 //			ins.setValue(1, "PURPLE");
-			ins.setValue(2, "LARGE");
+//			ins.setValue(2, "LARGE");
 //			ins.setValue(3, "DIP");
-			ins.setValue(4, "CHILD");
-			ins.setClassValue(1);
+//			ins.setValue(4, "CHILD");
+//			ins.setClassValue(0);
 			
 //			goldFeatures = InterpretableModels.getGoldenFeature(type, cl, train);
 //			System.out.println(goldFeatures);
@@ -113,8 +115,8 @@ public class CPExplainerForBalloon {
 				System.out.println(goldFeatures);
 				try{
 				List<IPattern> expls = app.getExplanations(FPStrategy.APRIORI, samplingStrategy, 
-						miningStrategy, PatternSortingStrategy.OBJECTIVE_FUNCTION_LP,
-						cl, ins, train, numOfSamples, 0.1, 2, numOfExpl, true);
+						miningStrategy, PatternSortingStrategy.SUPPORT,
+						cl, ins, train, numOfSamples, 0.15, 2, numOfExpl, true);
 				if (expls.size()!=0){
 					System.out.println(expls);
 					precision += ExplEvaluation.evalPrecisionBest(expls, goldFeatures);

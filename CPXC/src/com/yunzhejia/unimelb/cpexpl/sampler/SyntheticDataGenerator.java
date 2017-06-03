@@ -194,7 +194,8 @@ public class SyntheticDataGenerator {
 	public static void main(String[] args) {
 //		LOG(1000);
 //		DNF2G(200);
-		DNF3G(500);
+//		DNF3G(500);
+		rules(100);
 		/*try {
 			Instances data = DataUtils.load("data/synthetic3.arff");
 			List<Instances> datas = new ArrayList<>();
