@@ -56,7 +56,7 @@ public class SyntheticDataGenerator {
 	
 	public static void rules(int N){
 		Random random = new Random(1);
-		int numFeature = 8;
+		int numFeature = 6;
 		for(int i = 0; i < N; i++){
 			boolean vals[]=new boolean[numFeature];
 			for(int a = 0; a< numFeature; a++){
@@ -65,7 +65,7 @@ public class SyntheticDataGenerator {
 				System.out.print((val?"1":"0")+",");
 			}
 			
-			boolean result = (vals[0]&&vals[1])||(vals[2]&vals[3]&vals[4])||(vals[5]&vals[6]&vals[7]);
+			boolean result = (vals[0]&&vals[1])||(vals[2]&vals[3])||(vals[4]&vals[5]);
 			
 			System.out.println(result?"1":"0");
 		}

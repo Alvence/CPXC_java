@@ -2,10 +2,8 @@ package com.yunzhejia.unimelb.cpexpl;
 
 import java.io.File;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Random;
 import java.util.Set;
 
 import com.yunzhejia.cpxc.util.ClassifierGenerator;
@@ -16,108 +14,111 @@ import com.yunzhejia.unimelb.cpexpl.CPExplainer.CPStrategy;
 import com.yunzhejia.unimelb.cpexpl.CPExplainer.FPStrategy;
 import com.yunzhejia.unimelb.cpexpl.CPExplainer.PatternSortingStrategy;
 import com.yunzhejia.unimelb.cpexpl.CPExplainer.SamplingStrategy;
+import com.yunzhejia.unimelb.cpexpl.truth.LRTruth;
 
 import weka.classifiers.AbstractClassifier;
 import weka.classifiers.Evaluation;
+import weka.classifiers.functions.Logistic;
 import weka.core.Instance;
 import weka.core.Instances;
 
-public class CPExplainerForBalloon {
+public class CPExplainerForLR {
 	public static void main(String[] args){
 //		String[] files = {"balloon.arff","banana.arff", "blood.arff", 
 //				"diabetes.arff","haberman.arff","hepatitis.arff","iris.arff","labor.arff",
 //				"mushroom.arff","sick.arff","titanic.arff","vote.arff"};
-//		String[] files = {"balloon.arff", "blood.arff", "diabetes.arff","haberman.arff","iris.arff","labor.arff"};
+//		String[] files = {"balloon", "blood", "diabetes","ILPD","iris","labor","planning","sick","titanic"	};
 //		int[] numsOfExpl = {1,5,10};
 //		int[] numsOfSamples={10,200,500,1000};
 //		CPStrategy[] miningStrategies = {CPStrategy.APRIORI,CPStrategy.RF};
-//		SamplingStrategy[] samplingStrategies = {SamplingStrategy.RANDOM,SamplingStrategy.PATTERN_BASED_RANDOM,SamplingStrategy.PATTERN_BASED_PERTURBATION};
+		SamplingStrategy[] samplingStrategies = {SamplingStrategy.PATTERN_BASED_PERTURBATION};
 //		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.LOGISTIC, ClassifierType.DECISION_TREE};
 		
+		int[] ratios = {2,3};
 		
-		
-		String[] files = {"synthetic/balloon_synthetic.arff"};
-//		String[] files = {"blood.arff"};
+//		String[] files = {"balloon","blood","breast-cancer","diabetes","glass","iris","labor","titanic","vote"};
+		String[] files = {"blood"};
+//		String[] files = {"chess","adult","crx","sonar","ILPD"};
+//		String[] files = {"diabetes.arff"};
 //		String[] files = {"iris.arff"};
 		int[] numsOfExpl = {5};
 		CPStrategy[] miningStrategies = {CPStrategy.APRIORI};
-		SamplingStrategy[] samplingStrategies = {SamplingStrategy.PATTERN_BASED_PERTURBATION};
-		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.DECISION_TREE};
-		int[] numsOfSamples={2000};
-		CPExplainer app = new CPExplainer();
+//		SamplingStrategy[] samplingStrategies = {SamplingStrategy.PATTERN_BASED_PERTURBATION};
+		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.LOGISTIC};
+		int[] numsOfSamples={1000};
 //		RandomExplainer app = new RandomExplainer();
 		try {
+			PrintWriter writer = new PrintWriter(new File("tmp/stats.txt"));
 			for(String file:files){
 //			Instances data = DataUtils.load("data/synthetic2.arff");
-			Instances data = DataUtils.load("data/"+file);
-			int numGoldFeature = data.numAttributes();
-			Set<Integer> goldFeatures = new HashSet<>();
+			
 //			for(int i = 0; i < numGoldFeature-1; i++){
 //				goldFeatures.add(i);
 //			}
 			
 //			Instances data = DataUtils.load("tmp/newData.arff");
 //			data = AddNoisyFeatureToData.generateNoisyData(data);
-			DataUtils.save(data,"tmp/newwData.arff");
 			
 			//split the data into train and test
-//			Instances train = DataUtils.load("data/synthetic/balloon_noisy_train.arff");
-//			Instances test = DataUtils.load("data/synthetic/balloon_noisy_test.arff");
+			Instances train = DataUtils.load("data/icdm2017Data/"+file+"_train.arff");
+			Instances test = DataUtils.load("data/icdm2017Data/"+file+"_test.arff");
 			
-			Instances train = DataUtils.load("data/synthetic/balloon_synthetic.arff");
-			Instances test = DataUtils.load("data/synthetic/balloon_synthetic.arff");
-			train.setClassIndex(train.numAttributes()-1);
-			test.setClassIndex(train.numAttributes()-1);
+			//split the data into train and test
+//			Instances train= DataUtils.load("data/icdm2017/"+file+".arff");
+//			Instances test= train;
+			Instances data = train;
 			
+			int numGoldFeature = data.numAttributes();
+			Set<Integer> goldFeatures = new HashSet<>();
+			
+//			for(int ratio:ratios)
 			for(CPStrategy miningStrategy : miningStrategies){
 			for(SamplingStrategy samplingStrategy:samplingStrategies){
 			for(int numOfSamples:numsOfSamples){
 			
 				for(ClassifierType type:typesOfClassifier){
 					for(int numOfExpl:numsOfExpl){
-			
 						try{
-
 			
-			AbstractClassifier cl = new BalloonClassifier();
-//			AbstractClassifier cl = ClassifierGenerator.getClassifier(type);
+			CPExplainer app = new CPExplainer();
+//			RandomExplainer app = new RandomExplainer();
 			
+			AbstractClassifier cl = ClassifierGenerator.getClassifier(type);
 			cl.buildClassifier(train);
-			System.out.println(cl);
 			double precision = 0;
 			double recall = 0;
+			double f1 = 0;
 			double probAvg = 0;
 			double probMax = 0;
 			double probMin = 0;
 			int numExpl = 0;
 			int count=0;
-			Instance ins = test.get(1);
-			ins.setValue(0, "1");
+//			Instance ins = test.get(10);
+//			ins.setValue(0, "1");
 //			ins.setValue(1, 0.1);
 //			ins.setValue(2, 0.1);
-			ins.setValue(1, "YELLOW");
-			ins.setValue(2, "SMALL");
-			ins.setValue(3, "STRETCH");
-			ins.setValue(4, "CHILD");
-			ins.setClassValue(0);
+//			ins.setValue(1, "YELLOW");
+//			ins.setValue(2, "SMALL");
+//			ins.setValue(3, "STRETCH");
+//			ins.setValue(4, "ADULT");
+//			ins.setClassValue(0);
 			
 //			goldFeatures = InterpretableModels.getGoldenFeature(type, cl, train);
 //			System.out.println(goldFeatures);
 			
-			
-			
-//			for(Instance ins:test){
+			int c = 0;
+			for(Instance ins:test){
 				
-				goldFeatures = getGoldFeature(ins);
-				System.out.println(goldFeatures);
+				goldFeatures = LRTruth.getGoldFeature(cl,ins);
 				try{
 				List<IPattern> expls = app.getExplanations(FPStrategy.APRIORI, samplingStrategy, 
-						miningStrategy, PatternSortingStrategy.OBJECTIVE_FUNCTION_LP,
-						cl, ins, train, numOfSamples, 0.1, 2, numOfExpl, true);
+						miningStrategy, PatternSortingStrategy.SUPPORT,
+						cl, ins, train, numOfSamples, 0.15, 3, numOfExpl, false);
 				if (expls.size()!=0){
-					System.out.println(expls);
+//					System.out.println(expls);
 					precision += ExplEvaluation.evalPrecisionBest(expls, goldFeatures);
 					recall += ExplEvaluation.evalRecallBest(expls, goldFeatures);
+					f1 += ExplEvaluation.evalF1Best(expls, goldFeatures);
 					probAvg+= ExplEvaluation.evalProbDiffAvg(expls, cl, train, ins);
 					probMax+= ExplEvaluation.evalProbDiffMax(expls, cl, train, ins);
 					probMin+= ExplEvaluation.evalProbDiffMin(expls, cl, train, ins);
@@ -125,19 +126,24 @@ public class CPExplainerForBalloon {
 					numExpl+=expls.size();
 					count++;
 				}else{
-//					System.err.println("No explanations!");
+//					System.err.println("No explanations!"+ c);
 				}
 				}catch(Exception e){
 					throw e;
 //					e.printStackTrace();
 				}
-//			}
+				c++;
+			}
 			Evaluation eval = new Evaluation(train);
 			eval.evaluateModel(cl, test);
-			
-			String output = "mining="+miningStrategy+" sampling="+samplingStrategy+" numOfSample="+numOfSamples+"   "+file+"  cl="+type+"  NumExpl="+numOfExpl+"  precision = "+(count==0?0:precision/count)+"  recall = "+(count==0?0:recall/count)+"   acc="+eval.correct()*1.0/test.numInstances()
-					+" numExpl="+numExpl*1.0/test.size() + " probAvg= "+probAvg/count+" probMax="+probMax/count+" probMin="+probMin/count;
+//			count = test.size();
+			String output = "mining="+miningStrategy+" sampling="+samplingStrategy+" numOfSample="+numOfSamples+"   "+file+"  cl="+type+"  NumExpl="+numOfExpl+"  precision = "+(count==0?0:precision/count)+"  recall = "+(count==0?0:recall/count)
+					+"  f1 = "+(count==0?0:f1/count)+"   acc="+eval.correct()*1.0/test.numInstances()
+					+" numExpl="+numExpl*1.0/count + " probAvg= "+probAvg/count+" probMax="+probMax/count+" probMin="+probMin/count
+					+"ExplRate="+count*1.0/test.size();
 			System.out.println(output);
+			writer.println(output);
+			writer.flush();
 			}catch(Exception e){
 //				throw e;
 				e.printStackTrace();
@@ -160,6 +166,7 @@ public class CPExplainerForBalloon {
 			
 			
 					}}}}}}
+			writer.close();
 			
 			
 		} catch (Exception e) {
@@ -168,17 +175,48 @@ public class CPExplainerForBalloon {
 		}		
 	}
 	
-	public static Set<Integer> getGoldFeature(Instance instance){
-		Set<Integer> ret = new HashSet<>();
-		if (instance.stringValue(0).equals("1")){ // act == STRETCH, age = ADULT
-			ret.add(0);
-			ret.add(3);
-			ret.add(4);
-		}else if (instance.stringValue(0).equals("2")){
-			ret.add(0);
-			ret.add(1);
-			ret.add(2);
+	public static Set<Integer> getGoldFeature(AbstractClassifier cl, Instance instance) throws Exception{
+		if (!(cl instanceof Logistic)){
+			System.err.println("not Logstic");
+			return null;
 		}
-		return ret;
+		Logistic logit = (Logistic)cl;
+		
+		int pred = (int)cl.classifyInstance(instance);
+		Set<Integer> expl = new HashSet<>();
+		double[] cof = new double[instance.numAttributes()-1];
+		int count = 0;
+		for(int i = 1; i < logit.getM_Par().length;i++){
+			double[] par = logit.getM_Par()[i];
+//			System.out.println((Arrays.toString(par)));
+			cof[count++] = par[0];
+		}
+//		System.out.println((Arrays.toString(cof)));
+		if(pred == 0){
+			double sum = 0;
+			for(int i = 0; i < cof.length;i++){
+				if (cof[i]*instance.value(i)>0){
+					sum+= cof[i]*instance.value(i);
+				}
+			}
+			for(int i = 0; i < cof.length;i++){
+				if (cof[i]*instance.value(i)/sum > 0.1){
+					expl.add(i);
+				}
+			}
+		}else{
+			double sum = 0;
+			for(int i = 0; i < cof.length;i++){
+				if (cof[i]*instance.value(i)<0){
+					sum+= cof[i]*instance.value(i);
+				}
+			}
+			for(int i = 0; i < cof.length;i++){
+				if (cof[i]*instance.value(i)/sum > 0.1){
+					expl.add(i);
+				}
+			}
+		}
+		return expl;
 	}
 }

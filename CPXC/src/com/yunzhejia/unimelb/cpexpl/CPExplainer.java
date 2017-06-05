@@ -257,7 +257,7 @@ public class CPExplainer {
 			IPattern p = it.next();
 			for (IPattern q:tmp){
 //				System.out.println(p+"    q="+q+"   subset?"+p.subset(q));
-				if(!p.equals(q)&&p.subset(q) && (predictionByRemovingPattern(cl, x, p, header).prob <= predictionByRemovingPattern(cl, x, q, header).prob )){
+				if(!p.equals(q)&&p.subset(q) && (predictionByRemovingPattern(cl, x, p, header).prob < predictionByRemovingPattern(cl, x, q, header).prob )){
 //					System.out.println(q +"  is subset of  "+p);
 					it.remove();
 					break;

@@ -31,7 +31,7 @@ public class CPExplainerForDNF9 {
 //		int[] numsOfExpl = {1,5,10};
 //		int[] numsOfSamples={10,200,500,1000};
 //		CPStrategy[] miningStrategies = {CPStrategy.APRIORI,CPStrategy.RF};
-		SamplingStrategy[] samplingStrategies = {SamplingStrategy.RANDOM,SamplingStrategy.PATTERN_BASED_RANDOM,SamplingStrategy.PATTERN_BASED_PERTURBATION};
+		SamplingStrategy[] samplingStrategies = {SamplingStrategy.PATTERN_BASED_PERTURBATION};
 //		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.LOGISTIC, ClassifierType.DECISION_TREE};
 		
 		
@@ -43,7 +43,7 @@ public class CPExplainerForDNF9 {
 		CPStrategy[] miningStrategies = {CPStrategy.APRIORI};
 //		SamplingStrategy[] samplingStrategies = {SamplingStrategy.PATTERN_BASED_PERTURBATION};
 		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.LOGISTIC};
-		int[] numsOfSamples={1000};
+		int[] numsOfSamples={500};
 		CPExplainer app = new CPExplainer();
 //		RandomExplainer app = new RandomExplainer();
 		try {
@@ -62,8 +62,8 @@ public class CPExplainerForDNF9 {
 			DataUtils.save(data,"tmp/newwData.arff");
 			
 			//split the data into train and test
-			Instances train = DataUtils.load("data/synthetic/DNF9_noisy_train.arff");
-			Instances test = DataUtils.load("data/synthetic/DNF9_noisy_test.arff");
+			Instances train = DataUtils.load("data/synthetic/DNF9_train.arff");
+			Instances test = DataUtils.load("data/synthetic/DNF9_test.arff");
 			
 			
 			for(CPStrategy miningStrategy : miningStrategies){
@@ -84,7 +84,7 @@ public class CPExplainerForDNF9 {
 			double probMin = 0;
 			int numExpl = 0;
 			int count=0;
-//			Instance ins = test.get(1);
+			Instance ins = test.get(1);
 //			ins.setValue(0, "1");
 //			ins.setValue(1, 0.1);
 //			ins.setValue(2, 0.1);
@@ -97,12 +97,12 @@ public class CPExplainerForDNF9 {
 //			goldFeatures = InterpretableModels.getGoldenFeature(type, cl, train);
 //			System.out.println(goldFeatures);
 			
-			for(Instance ins:test){
+//			for(Instance ins:test){
 				goldFeatures = getGoldFeature(ins);
 				try{
 				List<IPattern> expls = app.getExplanations(FPStrategy.APRIORI, samplingStrategy, 
-						miningStrategy, PatternSortingStrategy.SUPPORT,
-						cl, ins, train, numOfSamples, 0.15, 3, numOfExpl, false);
+						miningStrategy, PatternSortingStrategy.OBJECTIVE_FUNCTION_LP,
+						cl, ins, train, numOfSamples, 0.15, 3, numOfExpl, true);
 				if (expls.size()!=0){
 					System.out.println(expls);
 					precision += ExplEvaluation.evalPrecisionBest(expls, goldFeatures);
@@ -120,7 +120,7 @@ public class CPExplainerForDNF9 {
 					throw e;
 //					e.printStackTrace();
 				}
-			}
+//			}
 			Evaluation eval = new Evaluation(train);
 			eval.evaluateModel(cl, test);
 			

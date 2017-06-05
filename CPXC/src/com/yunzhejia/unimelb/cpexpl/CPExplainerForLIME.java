@@ -5,7 +5,6 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Random;
 import java.util.Set;
 
 import com.yunzhejia.cpxc.util.ClassifierGenerator;
@@ -13,10 +12,8 @@ import com.yunzhejia.cpxc.util.ClassifierGenerator.ClassifierType;
 import com.yunzhejia.cpxc.util.DataUtils;
 import com.yunzhejia.pattern.IPattern;
 import com.yunzhejia.unimelb.cpexpl.CPExplainer.CPStrategy;
-import com.yunzhejia.unimelb.cpexpl.CPExplainer.FPStrategy;
-import com.yunzhejia.unimelb.cpexpl.CPExplainer.PatternSortingStrategy;
 import com.yunzhejia.unimelb.cpexpl.CPExplainer.SamplingStrategy;
-import com.yunzhejia.unimelb.cpexpl.truth.DTTruth;
+import com.yunzhejia.unimelb.cpexpl.truth.LRTruth;
 
 import weka.classifiers.AbstractClassifier;
 import weka.classifiers.Evaluation;
@@ -34,13 +31,13 @@ public class CPExplainerForLIME {
 //		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.LOGISTIC, ClassifierType.DECISION_TREE};
 		
 		
-		String[] files = {"balloon","blood","breast-cancer","diabetes","glass","iris","labor","titanic","vote"};
-//		String[] files = {"diabetes.arff"};
+//		String[] files = {"balloon","blood","breast-cancer","diabetes","glass","iris","labor","titanic","vote"};
+		String[] files = {"blood"};
 //		String[] files = {"iris.arff"};
 		int[] numsOfExpl = {100};
 		CPStrategy[] miningStrategies = {CPStrategy.APRIORI};
 //		SamplingStrategy[] samplingStrategies = {SamplingStrategy.PATTERN_BASED_PERTURBATION};
-		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.DECISION_TREE};
+		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.LOGISTIC};
 		int[] numsOfSamples={2000};
 		CPExplainer app = new CPExplainer();
 //		RandomExplainer app = new RandomExplainer();
@@ -95,13 +92,13 @@ public class CPExplainerForLIME {
 //			goldFeatures = InterpretableModels.getGoldenFeature(type, cl, train);
 //			System.out.println(goldFeatures);
 			
-			List<IPattern> exList = LIMEConverter.getAllNominal("data/icdm2017Data/LIME_resutls/"+file,test);
+			List<IPattern> exList = LIMEConverter.getAllNominal("data/icdm2017Data/LIME_LR_results/"+file,test);
 			
 			for(int i =0; i < exList.size();i++){
 				Instance ins = test.get(i);
 				IPattern ex = exList.get(i);
 				
-				goldFeatures = DTTruth.getGoldFeature(cl, test.get(i));
+				goldFeatures = LRTruth.getGoldFeature(cl, test.get(i));
 //				goldFeatures = getDTGoldFeature(cl,test.get(i));
 //				System.out.println(test.get(i));
 //				System.out.println(goldFeatures);

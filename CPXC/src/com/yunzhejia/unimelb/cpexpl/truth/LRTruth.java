@@ -18,8 +18,8 @@ public class LRTruth {
 	public static void main(String[] args) {
 		
 		try {
-			Instances train = DataUtils.load("data/icdm2017Data/iris_train.arff");
-			Instances test = DataUtils.load("data/icdm2017Data/iris_test.arff");
+			Instances train = DataUtils.load("data/icdm2017Data/diabetes_train.arff");
+			Instances test = DataUtils.load("data/icdm2017Data/diabetes_test.arff");
 			
 			AbstractClassifier cl = ClassifierGenerator.getClassifier(ClassifierGenerator.ClassifierType.LOGISTIC);
 			cl.buildClassifier(train);
@@ -28,7 +28,7 @@ public class LRTruth {
 			Instance instance = test.get(1);
 			System.out.println("Ins: "+instance);
 			
-			getGoldFeature(cl,instance);
+			System.out.println(getGoldFeature(cl,instance));
 			
 			
 		} catch (Exception e) {
@@ -48,8 +48,38 @@ public class LRTruth {
 		
 		int pred = (int)cl.classifyInstance(instance);
 		Set<Integer> expl = new HashSet<>();
-		for(double[] par:logit.getM_Par()){
-			System.out.println((Arrays.toString(par)));
+		double[] cof = new double[instance.numAttributes()-1];
+		int count = 0;
+		for(int i = 1; i < logit.getM_Par().length;i++){
+			double[] par = logit.getM_Par()[i];
+//			System.out.println((Arrays.toString(par)));
+			cof[count++] = par[0];
+		}
+//		System.out.println((Arrays.toString(cof)));
+		if(pred == 1){
+			double sum = 0;
+			for(int i = 0; i < cof.length;i++){
+				if (cof[i]*instance.value(i)>0){
+					sum+= cof[i]*instance.value(i);
+				}
+			}
+			for(int i = 0; i < cof.length;i++){
+				if (cof[i]*instance.value(i)/sum > 0.1){
+					expl.add(i);
+				}
+			}
+		}else{
+			double sum = 0;
+			for(int i = 0; i < cof.length;i++){
+				if (cof[i]*instance.value(i)<0){
+					sum+= cof[i]*instance.value(i);
+				}
+			}
+			for(int i = 0; i < cof.length;i++){
+				if (cof[i]*instance.value(i)/sum > 0.1){
+					expl.add(i);
+				}
+			}
 		}
 		return expl;
 	}
