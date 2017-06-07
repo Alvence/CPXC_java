@@ -111,7 +111,7 @@ public class CPExplainer {
 				ps = pm.minePattern(headerInfo, 0.4);
 			}
 //			System.out.println(ps.size());
-			sampler = new PatternSpacePerturbationSampler(ps, 3);
+			sampler = new PatternSpacePerturbationSampler(ps, ps.size()/100>3?ps.size()/100:3);
 			break;
 		default:
 			break;
@@ -182,7 +182,7 @@ public class CPExplainer {
 		
 		PatternSet tmp = new PatternSet();
 		for(IPattern p:patternSet){
-			if(predictionByRemovingPattern(cl, instance, p, headerInfo).classIndex!=classLabel){
+			if(predictionByRemovingPattern(cl, instance, p, headerInfo).prob  < cl.distributionForInstance(instance)[classLabel]){
 				tmp.add(p);
 			}
 		}
@@ -220,8 +220,14 @@ public class CPExplainer {
 		case OBJECTIVE_FUNCTION_LP:
 			selector = new ProbDiffPatternSelectionLP();
 			patternSet = filterBySubset(patternSet, cl, instance, headerInfo);
+			if(DEBUG){
+				System.out.println("size of contrast patterns before LP= "+patternSet.size());
+			}
 			if(patternSet.size()>K)
 				patternSet = selector.select(instance, patternSet, cl, K, samples, headerInfo);
+			if(DEBUG){
+				System.out.println("size of contrast patterns after LP= "+patternSet.size());
+			}
 			break;
 		default:
 			break;
@@ -257,7 +263,7 @@ public class CPExplainer {
 			IPattern p = it.next();
 			for (IPattern q:tmp){
 //				System.out.println(p+"    q="+q+"   subset?"+p.subset(q));
-				if(!p.equals(q)&&p.subset(q) && (predictionByRemovingPattern(cl, x, p, header).prob < predictionByRemovingPattern(cl, x, q, header).prob )){
+				if(!p.equals(q)&&p.subset(q) && (predictionByRemovingPattern(cl, x, p, header).prob >= predictionByRemovingPattern(cl, x, q, header).prob )){
 //					System.out.println(q +"  is subset of  "+p);
 					it.remove();
 					break;
@@ -345,7 +351,7 @@ public class CPExplainer {
 					}
 				}
 			}
-			int num_sample = 10;
+			int num_sample = 100;
 			double max = 0;
 			double sum = 0;
 			Prediction ret = null;
@@ -362,13 +368,21 @@ public class CPExplainer {
 					}
 				}
 				Prediction pred = prediction(cl,ins);
-				if(ret ==null || (pred.classIndex!=label && pred.prob>max)){
+				/*if(ret ==null || (pred.classIndex!=label && pred.prob>max)){
 					ret = pred;
 					if (pred.classIndex!=label){
 						max = pred.prob;
 					}
+				}*/
+				if (pred.classIndex != label){
+					sum += (1-pred.prob);
+				}else{
+					sum+= pred.prob;
 				}
 			}
+			ret = new Prediction();
+			ret.classIndex = label;
+			ret.prob = sum/num_sample;
 			/*
 			Instances tmp = new Instances(data,0);
 			int[] caps = new int[values.size()];

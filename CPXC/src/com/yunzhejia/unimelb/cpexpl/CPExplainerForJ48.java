@@ -38,8 +38,8 @@ public class CPExplainerForJ48 {
 		
 		int[] ratios = {2,3};
 		
-		String[] files = {"balloon","blood","breast-cancer","diabetes","glass","iris","labor","titanic","vote"};
-//		String[] files = {"anneal"};
+		String[] files = {"balloon","blood","breast-cancer","diabetes","iris","labor","titanic","vote"};
+//		String[] files = {"blood"};
 //		String[] files = {"chess","adult","crx","sonar","ILPD"};
 //		String[] files = {"diabetes.arff"};
 //		String[] files = {"iris.arff"};
@@ -95,7 +95,7 @@ public class CPExplainerForJ48 {
 			double probMin = 0;
 			int numExpl = 0;
 			int count=0;
-//			Instance ins = test.get(10);
+//			Instance ins = test.get(1);
 //			ins.setValue(0, "1");
 //			ins.setValue(1, 0.1);
 //			ins.setValue(2, 0.1);

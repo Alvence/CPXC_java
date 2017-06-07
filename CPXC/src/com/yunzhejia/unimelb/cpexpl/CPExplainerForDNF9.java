@@ -163,15 +163,19 @@ public class CPExplainerForDNF9 {
 	public static Set<Integer> getGoldFeature(Instance instance){
 		Set<Integer> ret = new HashSet<>();
 		if (instance.stringValue(0).equals("1")){ // act == STRETCH, age = ADULT
+			ret.add(0);
 			ret.add(1);
 			ret.add(2);
 		}else if (instance.stringValue(0).equals("2")){
+			ret.add(0);
 			ret.add(3);
 			ret.add(4);
 		}else if (instance.stringValue(0).equals("3")){
+			ret.add(0);
 			ret.add(5);
 			ret.add(6);
 		}else if (instance.stringValue(0).equals("4")){
+			ret.add(0);
 			ret.add(7);
 			ret.add(8);
 		}
