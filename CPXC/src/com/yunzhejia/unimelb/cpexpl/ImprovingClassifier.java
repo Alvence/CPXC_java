@@ -58,9 +58,10 @@ public class ImprovingClassifier {
 			DataUtils.save(data,"tmp/newwData.arff");
 			
 			//split the data into train and test
-			Instances train = DataUtils.load("data/synthetic/balloon_synthetic.arff");
-			Instances test = DataUtils.load("data/synthetic/balloon_synthetic.arff");
-			
+//			Instances train = DataUtils.load("data/synthetic/balloon_synthetic.arff");
+//			Instances test = DataUtils.load("data/synthetic/balloon_synthetic.arff");
+			Instances train = DataUtils.load("data/synthetic/DNF3G_train.arff");
+			Instances test = DataUtils.load("data/synthetic/DNF3G_test.arff");
 			
 			for(CPStrategy miningStrategy : miningStrategies){
 			for(SamplingStrategy samplingStrategy:samplingStrategies){
@@ -71,7 +72,7 @@ public class ImprovingClassifier {
 						try{
 
 			
-			AbstractClassifier cl = ClassifierGenerator.getClassifier(ClassifierType.RANDOM_FOREST);
+			AbstractClassifier cl = ClassifierGenerator.getClassifier(ClassifierType.LOGISTIC);
 			cl.buildClassifier(train);
 			Instances newTrain = new Instances(train,0);
 			for(Instance ins:train){
@@ -104,7 +105,7 @@ public class ImprovingClassifier {
 			System.out.println(output);
 			
 			
-			AbstractClassifier cl2 = ClassifierGenerator.getClassifier(ClassifierType.RANDOM_FOREST);
+			AbstractClassifier cl2 = ClassifierGenerator.getClassifier(ClassifierType.LOGISTIC);
 			cl2.buildClassifier(train);
 			Evaluation eval2 = new Evaluation(train);
 			eval2.evaluateModel(cl2, test);
@@ -126,18 +127,89 @@ public class ImprovingClassifier {
 			e.printStackTrace();
 		}		
 	}
-	
 	public static Set<Integer> getGoldFeature(Instance instance){
 		Set<Integer> ret = new HashSet<>();
-		if (instance.stringValue(0).equals("1")){ // act == STRETCH, age = ADULT
-			ret.add(0);
-			ret.add(3);
-			ret.add(4);
-		}else if (instance.stringValue(0).equals("2")){
+		 
+		if (instance.stringValue(0).equals("0") && instance.stringValue(1).equals("0")&& instance.stringValue(2).equals("0")){
 			ret.add(0);
 			ret.add(1);
 			ret.add(2);
+			ret.add(3);
+			ret.add(4);
+			
+		}else if (instance.stringValue(0).equals("0") && instance.stringValue(1).equals("0")&& instance.stringValue(2).equals("1")){
+			ret.add(0);
+			ret.add(1);
+			ret.add(2);
+			ret.add(5);
+			ret.add(6);
+		}else if (instance.stringValue(0).equals("0") && instance.stringValue(1).equals("1")&& instance.stringValue(2).equals("0")){
+			ret.add(0);
+			ret.add(1);
+			ret.add(2);
+			ret.add(7);
+			ret.add(8);
+		}else if (instance.stringValue(0).equals("0") && instance.stringValue(1).equals("1")&& instance.stringValue(2).equals("1")){
+			ret.add(0);
+			ret.add(1);
+			ret.add(2);
+			ret.add(9);
+			ret.add(10);
+		} else if (instance.stringValue(0).equals("1") && instance.stringValue(1).equals("0")&& instance.stringValue(2).equals("0")){
+			ret.add(0);
+			ret.add(1);
+			ret.add(2);
+			ret.add(11);
+			ret.add(12);
+		}else if (instance.stringValue(0).equals("1") && instance.stringValue(1).equals("0")&& instance.stringValue(2).equals("1")){
+			ret.add(0);
+			ret.add(1);
+			ret.add(2);
+			ret.add(13);
+			ret.add(14);
+		}else if (instance.stringValue(0).equals("1") && instance.stringValue(1).equals("1")&& instance.stringValue(2).equals("0")){
+			ret.add(0);
+			ret.add(1);
+			ret.add(2);
+			ret.add(15);
+			ret.add(16);
+		}else {
+			ret.add(0);
+			ret.add(1);
+			ret.add(2);
+			ret.add(17);
+			ret.add(18);
 		}
+		
 		return ret;
 	}
+//	public static Set<Integer> getGoldFeature(Instance instance){
+//		Set<Integer> ret = new HashSet<>();
+//		if(instance.stringValue(0).equals("1") && instance.stringValue(1).equals("1")){
+//			ret.add(0);
+//			ret.add(2);
+//			ret.add(3);
+//			ret.add(4);
+//		}
+//		else if(instance.stringValue(0).equals("0") && instance.stringValue(1).equals("1")){
+//			ret.add(0);
+//			ret.add(5);
+//			ret.add(6);
+//			ret.add(7);
+//		}
+//		return ret;
+//	}
+//	public static Set<Integer> getGoldFeature(Instance instance){
+//		Set<Integer> ret = new HashSet<>();
+//		if (instance.stringValue(0).equals("1")){ // act == STRETCH, age = ADULT
+//			ret.add(0);
+//			ret.add(3);
+//			ret.add(4);
+//		}else if (instance.stringValue(0).equals("2")){
+//			ret.add(0);
+//			ret.add(1);
+//			ret.add(2);
+//		}
+//		return ret;
+//	}
 }
