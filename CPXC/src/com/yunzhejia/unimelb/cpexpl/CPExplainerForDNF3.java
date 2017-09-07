@@ -2,6 +2,7 @@ package com.yunzhejia.unimelb.cpexpl;
 
 import java.io.File;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
@@ -21,7 +22,7 @@ import weka.classifiers.Evaluation;
 import weka.core.Instance;
 import weka.core.Instances;
 
-public class CPExplainerForDNF2G {
+public class CPExplainerForDNF3 {
 	public static void main(String[] args){
 //		String[] files = {"balloon.arff","banana.arff", "blood.arff", 
 //				"diabetes.arff","haberman.arff","hepatitis.arff","iris.arff","labor.arff",
@@ -35,44 +36,34 @@ public class CPExplainerForDNF2G {
 		
 		
 		
-//		String[] files = {"breast-cancer","glass","soybean","vote"};
-		String[] files = {"blood.arff"};
+		String[] files = {"synthetic/balloon_synthetic.arff"};
+//		String[] files = {"blood.arff"};
 //		String[] files = {"iris.arff"};
 		int[] numsOfExpl = {5};
 		CPStrategy[] miningStrategies = {CPStrategy.APRIORI};
 //		SamplingStrategy[] samplingStrategies = {SamplingStrategy.PATTERN_BASED_PERTURBATION};
 		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.LOGISTIC};
-		int[] numsOfSamples={2000};
+		int[] numsOfSamples={1000};
 		CPExplainer app = new CPExplainer();
 //		RandomExplainer app = new RandomExplainer();
 		try {
 			PrintWriter writer = new PrintWriter(new File("tmp/stats.txt"));
 			for(String file:files){
 //			Instances data = DataUtils.load("data/synthetic2.arff");
-			
+			Instances data = DataUtils.load("data/"+file);
+			int numGoldFeature = data.numAttributes();
+			Set<Integer> goldFeatures = new HashSet<>();
 //			for(int i = 0; i < numGoldFeature-1; i++){
 //				goldFeatures.add(i);
 //			}
 			
 //			Instances data = DataUtils.load("tmp/newData.arff");
 //			data = AddNoisyFeatureToData.generateNoisyData(data);
-//			DataUtils.save(data,"tmp/newwData.arff");
-//			Random ran = new Random(0);
-//			data.randomize(ran);
-//			Instances train = data.trainCV(5, 0);
-//			Instances test = data.testCV(5, 0);
-//			DataUtils.save(train, "data/icdm2017Data/"+file+"_train.arff");
-//			DataUtils.save(test, "data/icdm2017Data/"+file+"_test.arff");
-//			if(true){
-//				continue;
-//			}
-			//split the data into train and test
-			Instances train = DataUtils.load("data/synthetic/DNF2G_train.arff");
-			Instances test = DataUtils.load("data/synthetic/DNF2G_test.arff");
+			DataUtils.save(data,"tmp/newwData.arff");
 			
-			Instances data =train;
-			int numGoldFeature = data.numAttributes();
-			Set<Integer> goldFeatures = new HashSet<>();
+			//split the data into train and test
+			Instances train = DataUtils.load("data/synthetic/DNF3.arff");
+			Instances test = DataUtils.load("data/synthetic/DNF3.arff");
 			
 			
 			for(CPStrategy miningStrategy : miningStrategies){
@@ -84,7 +75,7 @@ public class CPExplainerForDNF2G {
 						try{
 
 			
-			AbstractClassifier cl = new DNF2GClassifier();
+			AbstractClassifier cl = new DNF3Classifier();
 			cl.buildClassifier(train);
 			double precision = 0;
 			double recall = 0;
@@ -93,8 +84,8 @@ public class CPExplainerForDNF2G {
 			double probMin = 0;
 			int numExpl = 0;
 			int count=0;
-//			Instance ins = test.get(1);
-//			ins.setValue(0, "1");
+			Instance ins = test.get(1);
+			ins.setValue(3, "0");
 //			ins.setValue(1, 0.1);
 //			ins.setValue(2, 0.1);
 //			ins.setValue(1, "YELLOW");
@@ -106,20 +97,16 @@ public class CPExplainerForDNF2G {
 //			goldFeatures = InterpretableModels.getGoldenFeature(type, cl, train);
 //			System.out.println(goldFeatures);
 			
-			double f1 = 0;
-			
-			for(Instance ins:test){
-				
+//			for(Instance ins:test){
 				goldFeatures = getGoldFeature(ins);
 				try{
 				List<IPattern> expls = app.getExplanations(FPStrategy.APRIORI, samplingStrategy, 
-						miningStrategy, PatternSortingStrategy.OBJECTIVE_FUNCTION_LP,
-						cl, ins, train, numOfSamples, 0.15, 3, numOfExpl, false);
+						miningStrategy, PatternSortingStrategy.SUPPORT,
+						cl, ins, train, numOfSamples, 0.1, 2, numOfExpl, true);
 				if (expls.size()!=0){
 					System.out.println(expls);
 					precision += ExplEvaluation.evalPrecisionBest(expls, goldFeatures);
 					recall += ExplEvaluation.evalRecallBest(expls, goldFeatures);
-					f1 += ExplEvaluation.evalF1Best(expls, goldFeatures);
 					probAvg+= ExplEvaluation.evalProbDiffAvg(expls, cl, train, ins);
 					probMax+= ExplEvaluation.evalProbDiffMax(expls, cl, train, ins);
 					probMin+= ExplEvaluation.evalProbDiffMin(expls, cl, train, ins);
@@ -133,12 +120,11 @@ public class CPExplainerForDNF2G {
 					throw e;
 //					e.printStackTrace();
 				}
-			}
+//			}
 			Evaluation eval = new Evaluation(train);
 			eval.evaluateModel(cl, test);
 			
-			String output = "mining="+miningStrategy+" sampling="+samplingStrategy+" numOfSample="+numOfSamples+"   "+file+"  cl="+type+"  NumExpl="+numOfExpl+"  precision = "+(count==0?0:precision/count)+"  recall = "+(count==0?0:recall/count)
-					+"  f1 = "+(count==0?0:f1/count)+"   acc="+eval.correct()*1.0/test.numInstances()
+			String output = "mining="+miningStrategy+" sampling="+samplingStrategy+" numOfSample="+numOfSamples+"   "+file+"  cl="+type+"  NumExpl="+numOfExpl+"  precision = "+(count==0?0:precision/count)+"  recall = "+(count==0?0:recall/count)+"   acc="+eval.correct()*1.0/test.numInstances()
 					+" numExpl="+numExpl*1.0/test.size() + " probAvg= "+probAvg/count+" probMax="+probMax/count+" probMin="+probMin/count;
 			System.out.println(output);
 			writer.println(output);
@@ -176,15 +162,18 @@ public class CPExplainerForDNF2G {
 	
 	public static Set<Integer> getGoldFeature(Instance instance){
 		Set<Integer> ret = new HashSet<>();
-		if(instance.stringValue(0).equals("1") && instance.stringValue(1).equals("1")){
+		if (instance.stringValue(0).equals("1")){ // act == STRETCH, age = ADULT
+			ret.add(1);
 			ret.add(2);
+		}else if (instance.stringValue(0).equals("2")){
 			ret.add(3);
 			ret.add(4);
-		}
-		else if(instance.stringValue(0).equals("0") && instance.stringValue(1).equals("1")){
+		}else if (instance.stringValue(0).equals("3")){
 			ret.add(5);
 			ret.add(6);
+		}else if (instance.stringValue(0).equals("4")){
 			ret.add(7);
+			ret.add(8);
 		}
 		return ret;
 	}

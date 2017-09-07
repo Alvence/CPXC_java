@@ -65,6 +65,8 @@ public class ProbDiffPatternSelectionLP implements IPatternSelection {
 			}
 		}
 		
+//		System.out.println(scores);
+//		System.out.println(overlaps);
 		
 		try {
 		      // Create a problem with variables and constraints
@@ -146,7 +148,7 @@ public class ProbDiffPatternSelectionLP implements IPatternSelection {
 	
 	//Get the prediction without features appearing in the pattern
 	public double predictionByRemovingPattern(AbstractClassifier cl, Instance instance, IPattern pattern, Instances headerInfo) throws Exception{
-				
+		int classIndex = (int)cl.classifyInstance(instance);		
 		
 		List<List<String>> values = new ArrayList<>();
 		for(int i = 0; i < instance.numAttributes();i++){
@@ -185,9 +187,10 @@ public class ProbDiffPatternSelectionLP implements IPatternSelection {
 			}
 		}
 		
-		int classIndex = (int)cl.classifyInstance(instance);
-		int num_sample = 10;
+		
+		int num_sample = 100;
 		double max = 0;
+		double sum = 0;
 		for(int index = 0; index < num_sample; index++){
 			Instance ins = (Instance)instance.copy();
 			for(int i = 0; i < values.size();i++){
@@ -201,9 +204,7 @@ public class ProbDiffPatternSelectionLP implements IPatternSelection {
 				}
 			}
 			double pred = prediction(cl,ins,classIndex);
-			if(pred > max){
-					max = pred;
-			}
+			sum+= pred;
 		}
 		
 		/*

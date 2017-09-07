@@ -22,7 +22,7 @@ import weka.classifiers.Evaluation;
 import weka.core.Instance;
 import weka.core.Instances;
 
-public class CPExplainerForBalloon {
+public class ExampleBalloon {
 	public static void main(String[] args){
 //		String[] files = {"balloon.arff","banana.arff", "blood.arff", 
 //				"diabetes.arff","haberman.arff","hepatitis.arff","iris.arff","labor.arff",
@@ -79,7 +79,7 @@ public class CPExplainerForBalloon {
 						try{
 
 			
-			AbstractClassifier cl = new BalloonClassifier();
+			AbstractClassifier cl = new ExampleBalloonClassifier();
 //			AbstractClassifier cl = ClassifierGenerator.getClassifier(type);
 			
 			cl.buildClassifier(train);
@@ -91,22 +91,22 @@ public class CPExplainerForBalloon {
 			double probMin = 0;
 			int numExpl = 0;
 			int count=0;
-//			Instance ins = test.get(1);
-//			ins.setValue(0, "1");
+			Instance ins = test.get(1);
+			ins.setValue(0, "1");
 //			ins.setValue(1, 0.1);
 //			ins.setValue(2, 0.1);
-//			ins.setValue(1, "YELLOW");
-//			ins.setValue(2, "SMALL");
-//			ins.setValue(3, "STRETCH");
-//			ins.setValue(4, "CHILD");
-//			ins.setClassValue(0);
+			ins.setValue(1, "YELLOW");
+			ins.setValue(2, "SMALL");
+			ins.setValue(3, "STRETCH");
+			ins.setValue(4, "CHILD");
+			ins.setClassValue(0);
 			
 //			goldFeatures = InterpretableModels.getGoldenFeature(type, cl, train);
 //			System.out.println(goldFeatures);
 			
 			
 			
-			for(Instance ins:test){
+//			for(Instance ins:test){
 				
 				goldFeatures = getGoldFeature(ins);
 				System.out.println(goldFeatures);
@@ -131,7 +131,7 @@ public class CPExplainerForBalloon {
 					throw e;
 //					e.printStackTrace();
 				}
-			}
+//			}
 			Evaluation eval = new Evaluation(train);
 			eval.evaluateModel(cl, test);
 			

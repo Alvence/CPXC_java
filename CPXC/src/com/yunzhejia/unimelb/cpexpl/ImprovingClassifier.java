@@ -1,16 +1,13 @@
 package com.yunzhejia.unimelb.cpexpl;
 
-import java.io.File;
-import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Random;
 import java.util.Set;
 
 import com.yunzhejia.cpxc.util.ClassifierGenerator;
 import com.yunzhejia.cpxc.util.ClassifierGenerator.ClassifierType;
 import com.yunzhejia.cpxc.util.DataUtils;
+import com.yunzhejia.pattern.ICondition;
 import com.yunzhejia.pattern.IPattern;
 import com.yunzhejia.unimelb.cpexpl.CPExplainer.CPStrategy;
 import com.yunzhejia.unimelb.cpexpl.CPExplainer.FPStrategy;
@@ -22,7 +19,7 @@ import weka.classifiers.Evaluation;
 import weka.core.Instance;
 import weka.core.Instances;
 
-public class CPExplainerForDNF9 {
+public class ImprovingClassifier {
 	public static void main(String[] args){
 //		String[] files = {"balloon.arff","banana.arff", "blood.arff", 
 //				"diabetes.arff","haberman.arff","hepatitis.arff","iris.arff","labor.arff",
@@ -39,7 +36,7 @@ public class CPExplainerForDNF9 {
 		String[] files = {"synthetic/balloon_synthetic.arff"};
 //		String[] files = {"blood.arff"};
 //		String[] files = {"iris.arff"};
-		int[] numsOfExpl = {5};
+		int[] numsOfExpl = {1};
 		CPStrategy[] miningStrategies = {CPStrategy.APRIORI};
 //		SamplingStrategy[] samplingStrategies = {SamplingStrategy.PATTERN_BASED_PERTURBATION};
 		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.LOGISTIC};
@@ -47,7 +44,6 @@ public class CPExplainerForDNF9 {
 		CPExplainer app = new CPExplainer();
 //		RandomExplainer app = new RandomExplainer();
 		try {
-			PrintWriter writer = new PrintWriter(new File("tmp/stats.txt"));
 			for(String file:files){
 //			Instances data = DataUtils.load("data/synthetic2.arff");
 			Instances data = DataUtils.load("data/"+file);
@@ -62,9 +58,10 @@ public class CPExplainerForDNF9 {
 			DataUtils.save(data,"tmp/newwData.arff");
 			
 			//split the data into train and test
-			Instances train = DataUtils.load("data/synthetic/DNF9_train.arff");
-			Instances test = DataUtils.load("data/synthetic/DNF9_test.arff");
-			
+//			Instances train = DataUtils.load("data/synthetic/balloon_synthetic.arff");
+//			Instances test = DataUtils.load("data/synthetic/balloon_synthetic.arff");
+			Instances train = DataUtils.load("data/synthetic/DNF3G_train.arff");
+			Instances test = DataUtils.load("data/synthetic/DNF3G_test.arff");
 			
 			for(CPStrategy miningStrategy : miningStrategies){
 			for(SamplingStrategy samplingStrategy:samplingStrategies){
@@ -75,83 +72,54 @@ public class CPExplainerForDNF9 {
 						try{
 
 			
-			AbstractClassifier cl = new DNF9Classifier();
+			AbstractClassifier cl = ClassifierGenerator.getClassifier(ClassifierType.LOGISTIC);
 			cl.buildClassifier(train);
-			double precision = 0;
-			double recall = 0;
-			double probAvg = 0;
-			double probMax = 0;
-			double probMin = 0;
-			int numExpl = 0;
-			int count=0;
-			Instance ins = test.get(1);
-//			ins.setValue(0, "1");
-//			ins.setValue(1, 0.1);
-//			ins.setValue(2, 0.1);
-//			ins.setValue(1, "YELLOW");
-//			ins.setValue(2, "SMALL");
-//			ins.setValue(3, "STRETCH");
-//			ins.setValue(4, "ADULT");
-//			ins.setClassValue(0);
-			
-//			goldFeatures = InterpretableModels.getGoldenFeature(type, cl, train);
-//			System.out.println(goldFeatures);
-			
-//			for(Instance ins:test){
+			Instances newTrain = new Instances(train,0);
+			for(Instance ins:train){
 				goldFeatures = getGoldFeature(ins);
 				try{
 				List<IPattern> expls = app.getExplanations(FPStrategy.APRIORI, samplingStrategy, 
-						miningStrategy, PatternSortingStrategy.OBJECTIVE_FUNCTION_LP,
-						cl, ins, train, numOfSamples, 0.15, 3, numOfExpl, true);
+						miningStrategy, PatternSortingStrategy.PROBDIFF_AND_SUPP,
+						cl, ins, train, numOfSamples, 0.15, 3, numOfExpl, false);
+				Instance newIns = (Instance)ins.copy();
 				if (expls.size()!=0){
-					System.out.println(expls);
-					precision += ExplEvaluation.evalPrecisionBest(expls, goldFeatures);
-					recall += ExplEvaluation.evalRecallBest(expls, goldFeatures);
-					probAvg+= ExplEvaluation.evalProbDiffAvg(expls, cl, train, ins);
-					probMax+= ExplEvaluation.evalProbDiffMax(expls, cl, train, ins);
-					probMin+= ExplEvaluation.evalProbDiffMin(expls, cl, train, ins);
-//					System.out.println(expls.size()+"  precision="+precision);
-					numExpl+=expls.size();
-					count++;
+					IPattern p = expls.get(0);
+					for (ICondition c:p.getConditions()){
+						if(!goldFeatures.contains(c.getAttrIndex())){
+							ins.setMissing(c.getAttrIndex());
+						}
+					}
 				}else{
 //					System.err.println("No explanations!");
 				}
+				newTrain.add(newIns);
 				}catch(Exception e){
 					throw e;
 //					e.printStackTrace();
 				}
-//			}
+			}
 			Evaluation eval = new Evaluation(train);
 			eval.evaluateModel(cl, test);
 			
-			String output = "mining="+miningStrategy+" sampling="+samplingStrategy+" numOfSample="+numOfSamples+"   "+file+"  cl="+type+"  NumExpl="+numOfExpl+"  precision = "+(count==0?0:precision/count)+"  recall = "+(count==0?0:recall/count)+"   acc="+eval.correct()*1.0/test.numInstances()
-					+" numExpl="+numExpl*1.0/test.size() + " probAvg= "+probAvg/count+" probMax="+probMax/count+" probMin="+probMin/count;
+			String output = "   acc="+eval.correct()*1.0/test.numInstances();
 			System.out.println(output);
-			writer.println(output);
-			writer.flush();
+			
+			
+			AbstractClassifier cl2 = ClassifierGenerator.getClassifier(ClassifierType.LOGISTIC);
+			cl2.buildClassifier(train);
+			Evaluation eval2 = new Evaluation(train);
+			eval2.evaluateModel(cl2, test);
+			
+			output = "   acc="+eval2.correct()*1.0/test.numInstances();
+			System.out.println(output);
 			}catch(Exception e){
 //				throw e;
 				e.printStackTrace();
 //				continue;
 			}
-						
-			
-			/*
-			Instance ins = test.get(12);
-//			ins.setValue(0, 15.634462);
-//			ins.setValue(1, 16.646118);
-//			ins.setValue(2, 3);
-//			ins.setClassValue(1);
-			List<IPattern> expls = app.getExplanations(FPStrategy.RF, SamplingStrategy.PATTERN_BASED_RANDOM, 
-					CPStrategy.RF, PatternSortingStrategy.PROBDIFF_AND_SUPP,
-					cl, ins, data, 2000, 0.01, 10, 5, true);
-			precision += ExplEvaluation.eval(expls, goldFeatures);
-			System.out.println(expls.size()+"  precision="+precision);
-			*/
 			
 			
 					}}}}}}
-			writer.close();
 			
 			
 		} catch (Exception e) {
@@ -159,26 +127,89 @@ public class CPExplainerForDNF9 {
 			e.printStackTrace();
 		}		
 	}
-	
 	public static Set<Integer> getGoldFeature(Instance instance){
 		Set<Integer> ret = new HashSet<>();
-		if (instance.stringValue(0).equals("1")){ // act == STRETCH, age = ADULT
+		 
+		if (instance.stringValue(0).equals("0") && instance.stringValue(1).equals("0")&& instance.stringValue(2).equals("0")){
 			ret.add(0);
 			ret.add(1);
 			ret.add(2);
-		}else if (instance.stringValue(0).equals("2")){
-			ret.add(0);
 			ret.add(3);
 			ret.add(4);
-		}else if (instance.stringValue(0).equals("3")){
+			
+		}else if (instance.stringValue(0).equals("0") && instance.stringValue(1).equals("0")&& instance.stringValue(2).equals("1")){
 			ret.add(0);
+			ret.add(1);
+			ret.add(2);
 			ret.add(5);
 			ret.add(6);
-		}else if (instance.stringValue(0).equals("4")){
+		}else if (instance.stringValue(0).equals("0") && instance.stringValue(1).equals("1")&& instance.stringValue(2).equals("0")){
 			ret.add(0);
+			ret.add(1);
+			ret.add(2);
 			ret.add(7);
 			ret.add(8);
+		}else if (instance.stringValue(0).equals("0") && instance.stringValue(1).equals("1")&& instance.stringValue(2).equals("1")){
+			ret.add(0);
+			ret.add(1);
+			ret.add(2);
+			ret.add(9);
+			ret.add(10);
+		} else if (instance.stringValue(0).equals("1") && instance.stringValue(1).equals("0")&& instance.stringValue(2).equals("0")){
+			ret.add(0);
+			ret.add(1);
+			ret.add(2);
+			ret.add(11);
+			ret.add(12);
+		}else if (instance.stringValue(0).equals("1") && instance.stringValue(1).equals("0")&& instance.stringValue(2).equals("1")){
+			ret.add(0);
+			ret.add(1);
+			ret.add(2);
+			ret.add(13);
+			ret.add(14);
+		}else if (instance.stringValue(0).equals("1") && instance.stringValue(1).equals("1")&& instance.stringValue(2).equals("0")){
+			ret.add(0);
+			ret.add(1);
+			ret.add(2);
+			ret.add(15);
+			ret.add(16);
+		}else {
+			ret.add(0);
+			ret.add(1);
+			ret.add(2);
+			ret.add(17);
+			ret.add(18);
 		}
+		
 		return ret;
 	}
+//	public static Set<Integer> getGoldFeature(Instance instance){
+//		Set<Integer> ret = new HashSet<>();
+//		if(instance.stringValue(0).equals("1") && instance.stringValue(1).equals("1")){
+//			ret.add(0);
+//			ret.add(2);
+//			ret.add(3);
+//			ret.add(4);
+//		}
+//		else if(instance.stringValue(0).equals("0") && instance.stringValue(1).equals("1")){
+//			ret.add(0);
+//			ret.add(5);
+//			ret.add(6);
+//			ret.add(7);
+//		}
+//		return ret;
+//	}
+//	public static Set<Integer> getGoldFeature(Instance instance){
+//		Set<Integer> ret = new HashSet<>();
+//		if (instance.stringValue(0).equals("1")){ // act == STRETCH, age = ADULT
+//			ret.add(0);
+//			ret.add(3);
+//			ret.add(4);
+//		}else if (instance.stringValue(0).equals("2")){
+//			ret.add(0);
+//			ret.add(1);
+//			ret.add(2);
+//		}
+//		return ret;
+//	}
 }

@@ -33,13 +33,13 @@ public class CPExplainerForJ48 {
 //		int[] numsOfExpl = {1,5,10};
 //		int[] numsOfSamples={10,200,500,1000};
 //		CPStrategy[] miningStrategies = {CPStrategy.APRIORI,CPStrategy.RF};
-		SamplingStrategy[] samplingStrategies = {SamplingStrategy.RANDOM};
+		SamplingStrategy[] samplingStrategies = {SamplingStrategy.PATTERN_BASED_PERTURBATION};
 //		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.LOGISTIC, ClassifierType.DECISION_TREE};
 		
 		int[] ratios = {2,3};
 		
-//		String[] files = {"balloon","blood","breast-cancer","diabetes","glass","iris","labor","titanic","vote"};
-		String[] files = {"anneal"};
+		String[] files = {"balloon","blood","breast-cancer","diabetes","iris","labor","titanic","vote"};
+//		String[] files = {"blood"};
 //		String[] files = {"chess","adult","crx","sonar","ILPD"};
 //		String[] files = {"diabetes.arff"};
 //		String[] files = {"iris.arff"};
@@ -47,7 +47,7 @@ public class CPExplainerForJ48 {
 		CPStrategy[] miningStrategies = {CPStrategy.APRIORI};
 //		SamplingStrategy[] samplingStrategies = {SamplingStrategy.PATTERN_BASED_PERTURBATION};
 		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.DECISION_TREE};
-		int[] numsOfSamples={1000};
+		int[] numsOfSamples={2000};
 //		RandomExplainer app = new RandomExplainer();
 		try {
 			PrintWriter writer = new PrintWriter(new File("tmp/stats.txt"));
@@ -95,7 +95,7 @@ public class CPExplainerForJ48 {
 			double probMin = 0;
 			int numExpl = 0;
 			int count=0;
-//			Instance ins = test.get(10);
+//			Instance ins = test.get(1);
 //			ins.setValue(0, "1");
 //			ins.setValue(1, 0.1);
 //			ins.setValue(2, 0.1);
@@ -114,7 +114,7 @@ public class CPExplainerForJ48 {
 				goldFeatures = DTTruth.getGoldFeature(cl,ins);
 				try{
 				List<IPattern> expls = app.getExplanations(FPStrategy.APRIORI, samplingStrategy, 
-						miningStrategy, PatternSortingStrategy.SUPPORT,
+						miningStrategy, PatternSortingStrategy.OBJECTIVE_FUNCTION_LP,
 						cl, ins, train, numOfSamples, 0.15, 3, numOfExpl, false);
 				if (expls.size()!=0){
 //					System.out.println(expls);
