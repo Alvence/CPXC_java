@@ -36,7 +36,7 @@ public class CPExplainerForS2 {
 		
 		
 //		String[] files = {"breast-cancer","glass","soybean","vote"};
-		String[] files = {"blood.arff"};
+		String[] files = {"ionosphere"};
 //		String[] files = {"iris.arff"};
 		int[] numsOfExpl = {5};
 		CPStrategy[] miningStrategies = {CPStrategy.APRIORI};
@@ -47,7 +47,7 @@ public class CPExplainerForS2 {
 //		RandomExplainer app = new RandomExplainer();
 		try {
 			for(String file:files){
-//			Instances data = DataUtils.load("data/synthetic2.arff");
+			Instances data = DataUtils.load("data/ionosphere.arff");
 			
 //			for(int i = 0; i < numGoldFeature-1; i++){
 //				goldFeatures.add(i);
@@ -56,18 +56,18 @@ public class CPExplainerForS2 {
 //			Instances data = DataUtils.load("tmp/newData.arff");
 //			data = AddNoisyFeatureToData.generateNoisyData(data);
 //			DataUtils.save(data,"tmp/newwData.arff");
-//			Random ran = new Random(0);
-//			data.randomize(ran);
-//			Instances train = data.trainCV(5, 0);
-//			Instances test = data.testCV(5, 0);
-//			DataUtils.save(train, "data/icdm2017Data/"+file+"_train.arff");
-//			DataUtils.save(test, "data/icdm2017Data/"+file+"_test.arff");
-//			if(true){
-//				continue;
-//			}
+			Random ran = new Random(0);
+			data.randomize(ran);
+			Instances train = data.trainCV(5, 0);
+			Instances test = data.testCV(5, 0);
+			DataUtils.save(train, "data/icdm2017Data/"+file+"_train.arff");
+			DataUtils.save(test, "data/icdm2017Data/"+file+"_test.arff");
+			if(true){
+				continue;
+			}
 			//split the data into train and test
-			Instances train = DataUtils.load("data/icdm2017Data/synthetic2_train.arff");
-			Instances test = DataUtils.load("data/icdm2017Data/synthetic2_test.arff");
+//			Instances train = DataUtils.load("data/icdm2017Data/synthetic2_train.arff");
+//			Instances test = DataUtils.load("data/icdm2017Data/synthetic2_test.arff");
 			
 			Set<Integer> goldFeatures = new HashSet<>();
 			

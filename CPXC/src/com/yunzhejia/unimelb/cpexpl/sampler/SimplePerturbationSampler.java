@@ -5,6 +5,7 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Random;
 
+import weka.classifiers.AbstractClassifier;
 import weka.core.Instance;
 import weka.core.Instances;
 
@@ -62,5 +63,10 @@ public class SimplePerturbationSampler implements Sampler {
 		double val = (instance.isMissing(attrIndex)?mean:instance.value(attrIndex))+ rand.nextGaussian()*std;
 		val = ((int)(val*100))/100.00;
 		return val;
+	}
+
+	@Override
+	public Instances samplingFromInstance(AbstractClassifier cl, Instances headerInfo, Instance instance, int N) {
+		return samplingFromInstance(headerInfo,instance,N);
 	}
 }

@@ -33,21 +33,22 @@ public class CPExplainerForJ48 {
 //		int[] numsOfExpl = {1,5,10};
 //		int[] numsOfSamples={10,200,500,1000};
 //		CPStrategy[] miningStrategies = {CPStrategy.APRIORI,CPStrategy.RF};
-		SamplingStrategy[] samplingStrategies = {SamplingStrategy.PATTERN_BASED_PERTURBATION};
+//		SamplingStrategy[] samplingStrategies = {SamplingStrategy.GRADIENT_BASED_SAMPLING};
+		SamplingStrategy[] samplingStrategies = {SamplingStrategy.PATTERN_BASED_PERTURBATION, SamplingStrategy.GRADIENT_BASED_SAMPLING};
 //		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.LOGISTIC, ClassifierType.DECISION_TREE};
 		
 		int[] ratios = {2,3};
 		
-		String[] files = {"balloon","blood","breast-cancer","diabetes","iris","labor","titanic","vote"};
-//		String[] files = {"blood"};
+//		String[] files = {"balloon","blood","breast-cancer","diabetes","iris","labor","titanic","vote"};
+		String[] files = {"ionosphere"};
 //		String[] files = {"chess","adult","crx","sonar","ILPD"};
 //		String[] files = {"diabetes.arff"};
 //		String[] files = {"iris.arff"};
 		int[] numsOfExpl = {5};
-		CPStrategy[] miningStrategies = {CPStrategy.APRIORI};
+		CPStrategy[] miningStrategies = {CPStrategy.RF};
 //		SamplingStrategy[] samplingStrategies = {SamplingStrategy.PATTERN_BASED_PERTURBATION};
 		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.DECISION_TREE};
-		int[] numsOfSamples={2000};
+		int[] numsOfSamples={50,100,200,500,2000};
 //		RandomExplainer app = new RandomExplainer();
 		try {
 			PrintWriter writer = new PrintWriter(new File("tmp/stats.txt"));
@@ -114,9 +115,9 @@ public class CPExplainerForJ48 {
 				goldFeatures = DTTruth.getGoldFeature(cl,ins);
 				try{
 				List<IPattern> expls = app.getExplanations(FPStrategy.APRIORI, samplingStrategy, 
-						miningStrategy, PatternSortingStrategy.OBJECTIVE_FUNCTION_LP,
+						miningStrategy, PatternSortingStrategy.SUPPORT,
 						cl, ins, train, numOfSamples, 0.15, 3, numOfExpl, false);
-				if (expls.size()!=0){
+				if (expls!=null&&expls.size()!=0){
 //					System.out.println(expls);
 					precision += ExplEvaluation.evalPrecisionBest(expls, goldFeatures);
 					recall += ExplEvaluation.evalRecallBest(expls, goldFeatures);

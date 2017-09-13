@@ -10,6 +10,7 @@ import com.yunzhejia.pattern.IPattern;
 import com.yunzhejia.pattern.NumericCondition;
 import com.yunzhejia.pattern.PatternSet;
 
+import weka.classifiers.AbstractClassifier;
 import weka.core.Instance;
 import weka.core.Instances;
 
@@ -151,6 +152,11 @@ public class PatternSpacePerturbationSampler implements Sampler {
 		val = ((int)(val*100))/100.00;
 		return val;
 //		return (rand.nextDouble() * (max - min)) + min;
+	}
+
+	@Override
+	public Instances samplingFromInstance(AbstractClassifier cl, Instances headerInfo, Instance instance, int N) {
+		return samplingFromInstance(headerInfo,instance,N);
 	}
 
 }

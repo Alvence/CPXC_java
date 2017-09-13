@@ -31,6 +31,7 @@ import com.yunzhejia.pattern.patternmining.RFPatternMiner;
 import com.yunzhejia.unimelb.cpexpl.patternselection.IPatternSelection;
 import com.yunzhejia.unimelb.cpexpl.patternselection.ProbDiffPatternSelection;
 import com.yunzhejia.unimelb.cpexpl.patternselection.ProbDiffPatternSelectionLP;
+import com.yunzhejia.unimelb.cpexpl.sampler.GradientBasedSampler;
 import com.yunzhejia.unimelb.cpexpl.sampler.PatternBasedSampler;
 import com.yunzhejia.unimelb.cpexpl.sampler.PatternSpacePerturbationSampler;
 import com.yunzhejia.unimelb.cpexpl.sampler.Sampler;
@@ -44,7 +45,7 @@ import weka.core.Instances;
 public class CPExplainer {
 	public enum FPStrategy{RF,GCGROWTH,APRIORI,APRIORI_OPT};
 	public enum CPStrategy{RF,GCGROWTH,APRIORI};
-	public enum SamplingStrategy{RANDOM,PATTERN_BASED_RANDOM,PATTERN_BASED_PERTURBATION};
+	public enum SamplingStrategy{RANDOM,PATTERN_BASED_RANDOM,PATTERN_BASED_PERTURBATION, GRADIENT_BASED_SAMPLING};
 	public enum PatternSortingStrategy{SUPPORT, PROBDIFF_AND_SUPP, OBJECTIVE_FUNCTION, OBJECTIVE_FUNCTION_LP,NONE};
 	public static boolean DEBUG= false;
 	PatternSet ps = null;
@@ -67,6 +68,9 @@ public class CPExplainer {
 		IPatternMiner pm = null;
 		Discretizer discretizer0 = new Discretizer();
 		switch(samplingStrategy){
+		case GRADIENT_BASED_SAMPLING:
+			sampler = new GradientBasedSampler();
+			break;
 		case RANDOM:
 			sampler = new SimplePerturbationSampler();
 			break;
@@ -116,7 +120,7 @@ public class CPExplainer {
 		default:
 			break;
 		}
-		Instances samples = sampler.samplingFromInstance(headerInfo, instance, N);
+		Instances samples = sampler.samplingFromInstance(cl,headerInfo, instance, N);
 //		System.out.println(samples);
 		
 //		Sampler sampler1 = new SimplePerturbationSampler();
@@ -169,6 +173,9 @@ public class CPExplainer {
 		while(patternSet.isEmpty()){
 			patternSet = patternMiner.minePattern(samples, minSupp, minRatio, classLabel, true);
 			minRatio/=2;
+			if(minRatio<1){
+				return null;
+			}
 		}
 //		if(patternSet.size() == 0){
 //			System.out.println(instance + " class="+cl.classifyInstance(instance));
