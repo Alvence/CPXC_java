@@ -59,7 +59,7 @@ public class CPExplainerForDNF3 {
 			
 //			Instances data = DataUtils.load("tmp/newData.arff");
 //			data = AddNoisyFeatureToData.generateNoisyData(data);
-			DataUtils.save(data,"tmp/newwData.arff");
+//			DataUtils.save(data,"tmp/newwData.arff");
 			
 			//split the data into train and test
 			Instances train = DataUtils.load("data/synthetic/DNF3.arff");
@@ -82,10 +82,11 @@ public class CPExplainerForDNF3 {
 			double probAvg = 0;
 			double probMax = 0;
 			double probMin = 0;
+			double f1=0;
 			int numExpl = 0;
 			int count=0;
-			Instance ins = test.get(1);
-			ins.setValue(3, "0");
+//			Instance ins = test.get(1);
+//			ins.setValue(3, "0");
 //			ins.setValue(1, 0.1);
 //			ins.setValue(2, 0.1);
 //			ins.setValue(1, "YELLOW");
@@ -97,16 +98,17 @@ public class CPExplainerForDNF3 {
 //			goldFeatures = InterpretableModels.getGoldenFeature(type, cl, train);
 //			System.out.println(goldFeatures);
 			
-//			for(Instance ins:test){
-				goldFeatures = getGoldFeature(ins);
+			for(Instance ins:test){
+				goldFeatures =  getGoldFeature(ins);
 				try{
 				List<IPattern> expls = app.getExplanations(FPStrategy.APRIORI, samplingStrategy, 
 						miningStrategy, PatternSortingStrategy.SUPPORT,
-						cl, ins, train, numOfSamples, 0.1, 2, numOfExpl, true);
+						cl, ins, train, numOfSamples, 0.1, 2, numOfExpl, false);
 				if (expls.size()!=0){
-					System.out.println(expls);
+//					System.out.println(expls);
 					precision += ExplEvaluation.evalPrecisionBest(expls, goldFeatures);
 					recall += ExplEvaluation.evalRecallBest(expls, goldFeatures);
+					f1 += ExplEvaluation.evalF1Best(expls, goldFeatures);
 					probAvg+= ExplEvaluation.evalProbDiffAvg(expls, cl, train, ins);
 					probMax+= ExplEvaluation.evalProbDiffMax(expls, cl, train, ins);
 					probMin+= ExplEvaluation.evalProbDiffMin(expls, cl, train, ins);
@@ -120,12 +122,14 @@ public class CPExplainerForDNF3 {
 					throw e;
 //					e.printStackTrace();
 				}
-//			}
+			}
 			Evaluation eval = new Evaluation(train);
 			eval.evaluateModel(cl, test);
 			
-			String output = "mining="+miningStrategy+" sampling="+samplingStrategy+" numOfSample="+numOfSamples+"   "+file+"  cl="+type+"  NumExpl="+numOfExpl+"  precision = "+(count==0?0:precision/count)+"  recall = "+(count==0?0:recall/count)+"   acc="+eval.correct()*1.0/test.numInstances()
-					+" numExpl="+numExpl*1.0/test.size() + " probAvg= "+probAvg/count+" probMax="+probMax/count+" probMin="+probMin/count;
+			String output = "mining="+miningStrategy+" sampling="+samplingStrategy+" numOfSample="+numOfSamples+"   "+file+"  cl="+type+"  NumExpl="+numOfExpl+"  precision = "+(count==0?0:precision/count)+"  recall = "+(count==0?0:recall/count)
+					+"  f1 = "+(count==0?0:f1/count)+"   acc="+eval.correct()*1.0/test.numInstances()
+					+" numExpl="+numExpl*1.0/count + " probAvg= "+probAvg/count+" probMax="+probMax/count+" probMin="+probMin/count
+					+"ExplRate="+count*1.0/test.size();
 			System.out.println(output);
 			writer.println(output);
 			writer.flush();
@@ -162,6 +166,7 @@ public class CPExplainerForDNF3 {
 	
 	public static Set<Integer> getGoldFeature(Instance instance){
 		Set<Integer> ret = new HashSet<>();
+		ret.add(0);
 		if (instance.stringValue(0).equals("1")){ // act == STRETCH, age = ADULT
 			ret.add(1);
 			ret.add(2);

@@ -24,6 +24,7 @@ public class BalloonExpl {
 	
 	public static Set<Integer> getBalloonGoldFeature(Instance instance){
 		Set<Integer> ret = new HashSet<>();
+		ret.add(0);
 		if (instance.stringValue(0).equals("1")){ // act == STRETCH, age = ADULT
 			ret.add(3);
 			ret.add(4);
@@ -36,6 +37,7 @@ public class BalloonExpl {
 	
 	public static Set<Integer> getDNF9GoldFeature(Instance instance){
 		Set<Integer> ret = new HashSet<>();
+		ret.add(0);
 		if (instance.stringValue(0).equals("1")){ // act == STRETCH, age = ADULT
 			ret.add(1);
 			ret.add(2);
@@ -55,6 +57,8 @@ public class BalloonExpl {
 	
 	public static Set<Integer> getDNF2GGoldFeature(Instance instance){
 		Set<Integer> ret = new HashSet<>();
+		ret.add(0);
+		ret.add(1);
 		if(instance.stringValue(0).equals("1") && instance.stringValue(1).equals("1")){
 			ret.add(2);
 			ret.add(3);
@@ -70,7 +74,9 @@ public class BalloonExpl {
 	
 	public static Set<Integer> getDNF3GGoldFeature(Instance instance){
 		Set<Integer> ret = new HashSet<>();
-		 
+		ret.add(0);
+		ret.add(1);
+		ret.add(2);
 		if (instance.stringValue(0).equals("0") && instance.stringValue(1).equals("0")&& instance.stringValue(2).equals("0")){
 			ret.add(3);
 			ret.add(4);
