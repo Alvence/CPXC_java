@@ -33,8 +33,8 @@ public class CPExplainerForJ48 {
 //		int[] numsOfExpl = {1,5,10};
 //		int[] numsOfSamples={10,200,500,1000};
 		CPStrategy[] miningStrategies = {CPStrategy.RF};
-//		SamplingStrategy[] samplingStrategies = {SamplingStrategy.GRADIENT_BASED_SAMPLING};
-		SamplingStrategy[] samplingStrategies = {SamplingStrategy.PATTERN_BASED_PERTURBATION, SamplingStrategy.GRADIENT_BASED_SAMPLING};
+		SamplingStrategy[] samplingStrategies = {SamplingStrategy.PATTERN_BASED_PERTURBATION};
+//		SamplingStrategy[] samplingStrategies = {SamplingStrategy.PATTERN_BASED_PERTURBATION, SamplingStrategy.GRADIENT_BASED_SAMPLING};
 //		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.LOGISTIC, ClassifierType.DECISION_TREE};
 		
 		int[] ratios = {2,3};
@@ -50,7 +50,7 @@ public class CPExplainerForJ48 {
 //		SamplingStrategy[] samplingStrategies = {SamplingStrategy.PATTERN_BASED_PERTURBATION};
 		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.DECISION_TREE};
 //		int[] numsOfSamples={50,100,200,500,2000};
-		int[] numsOfSamples={500};
+		int[] numsOfSamples={50, 100, 500, 1000, 2000};
 //		RandomExplainer app = new RandomExplainer();
 		try {
 			PrintWriter writer = new PrintWriter(new File("tmp/stats.txt"));

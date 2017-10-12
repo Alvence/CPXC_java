@@ -227,6 +227,15 @@ public class CPExplainer {
 		case OBJECTIVE_FUNCTION_LP:
 			selector = new ProbDiffPatternSelectionLP();
 			patternSet = filterBySubset(patternSet, cl, instance, headerInfo);
+			patternSet=sortBySupport(patternSet);
+			if(patternSet.size()>100){
+				PatternSet temp = new PatternSet();
+				for(int i = 0; i < 100;i++){
+					temp.add(patternSet.get(i));
+				}
+				patternSet = temp;
+			}
+			
 			if(DEBUG){
 				System.out.println("size of contrast patterns before LP= "+patternSet.size());
 			}
