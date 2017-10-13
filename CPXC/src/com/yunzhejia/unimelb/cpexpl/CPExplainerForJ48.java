@@ -118,7 +118,7 @@ public class CPExplainerForJ48 {
 				try{
 				List<IPattern> expls = app.getExplanations(FPStrategy.APRIORI, samplingStrategy, 
 						miningStrategy, PatternSortingStrategy.OBJECTIVE_FUNCTION_LP,
-						cl, ins, train, numOfSamples, 0.15, 3, numOfExpl, false);
+						cl, ins, train, numOfSamples, 0.15, 3, numOfExpl, true);
 				if (expls!=null&&expls.size()!=0){
 //					System.out.println(expls);
 					precision += ExplEvaluation.evalPrecisionBest(expls, goldFeatures);
