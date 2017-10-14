@@ -1,28 +1,29 @@
-package com.yunzhejia.unimelb.cpexpl;
+package com.yunzhejia.unimelb.ExplDT;
 
 import java.io.File;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Random;
 import java.util.Set;
 
 import com.yunzhejia.cpxc.util.ClassifierGenerator;
 import com.yunzhejia.cpxc.util.ClassifierGenerator.ClassifierType;
 import com.yunzhejia.cpxc.util.DataUtils;
 import com.yunzhejia.pattern.IPattern;
+import com.yunzhejia.unimelb.cpexpl.CPExplainer;
 import com.yunzhejia.unimelb.cpexpl.CPExplainer.CPStrategy;
 import com.yunzhejia.unimelb.cpexpl.CPExplainer.FPStrategy;
 import com.yunzhejia.unimelb.cpexpl.CPExplainer.PatternSortingStrategy;
 import com.yunzhejia.unimelb.cpexpl.CPExplainer.SamplingStrategy;
+import com.yunzhejia.unimelb.cpexpl.DNF9Classifier;
+import com.yunzhejia.unimelb.cpexpl.ExplEvaluation;
 
 import weka.classifiers.AbstractClassifier;
 import weka.classifiers.Evaluation;
 import weka.core.Instance;
 import weka.core.Instances;
 
-public class CPExplainerForDNF3 {
+public class ExplDT {
 	public static void main(String[] args){
 //		String[] files = {"balloon.arff","banana.arff", "blood.arff", 
 //				"diabetes.arff","haberman.arff","hepatitis.arff","iris.arff","labor.arff",
@@ -62,9 +63,14 @@ public class CPExplainerForDNF3 {
 //			DataUtils.save(data,"tmp/newwData.arff");
 			
 			//split the data into train and test
-			Instances train = DataUtils.load("data/synthetic/DNF3.arff");
-			Instances test = DataUtils.load("data/synthetic/DNF3.arff");
-			
+			Instances train = DataUtils.load("data/synthetic/DNF9_train.arff");
+			Instances test = new Instances(train,0);
+			for(Instance ins:train){
+				if(ins.classValue() == 1){
+					test.add((Instance)ins.copy());
+				}
+			}
+			System.out.println(test.numInstances());
 			
 			for(CPStrategy miningStrategy : miningStrategies){
 			for(SamplingStrategy samplingStrategy:samplingStrategies){
@@ -75,7 +81,20 @@ public class CPExplainerForDNF3 {
 						try{
 
 			
-			AbstractClassifier cl = new DNF3Classifier();
+//			AbstractClassifier cl = new DNF9Classifier();
+			AbstractClassifier cl = ClassifierGenerator.getClassifier(ClassifierType.DECISION_TREE);
+			Instances newTrain = new Instances(train);
+			for(Instance ins:newTrain){
+				Set<Integer> si = getGoldFeature(ins);
+				if(ins.classValue() == 1){
+				for(int i =0; i < ins.numAttributes()-1;i++){
+					if(!si.contains(i)){
+						ins.setMissing(i);
+					}
+				}
+				}
+			}
+//			System.out.println(newTrain);
 			cl.buildClassifier(train);
 			double precision = 0;
 			double recall = 0;
@@ -163,20 +182,22 @@ public class CPExplainerForDNF3 {
 			e.printStackTrace();
 		}		
 	}
-	
 	public static Set<Integer> getGoldFeature(Instance instance){
 		Set<Integer> ret = new HashSet<>();
-		ret.add(0);
 		if (instance.stringValue(0).equals("1")){ // act == STRETCH, age = ADULT
+			ret.add(0);
 			ret.add(1);
 			ret.add(2);
 		}else if (instance.stringValue(0).equals("2")){
+			ret.add(0);
 			ret.add(3);
 			ret.add(4);
 		}else if (instance.stringValue(0).equals("3")){
+			ret.add(0);
 			ret.add(5);
 			ret.add(6);
 		}else if (instance.stringValue(0).equals("4")){
+			ret.add(0);
 			ret.add(7);
 			ret.add(8);
 		}

@@ -22,7 +22,7 @@ import weka.classifiers.Evaluation;
 import weka.core.Instance;
 import weka.core.Instances;
 
-public class CPExplainerForDNF3 {
+public class CPExplainerForSynthetic3 {
 	public static void main(String[] args){
 //		String[] files = {"balloon.arff","banana.arff", "blood.arff", 
 //				"diabetes.arff","haberman.arff","hepatitis.arff","iris.arff","labor.arff",
@@ -31,40 +31,46 @@ public class CPExplainerForDNF3 {
 //		int[] numsOfExpl = {1,5,10};
 //		int[] numsOfSamples={10,200,500,1000};
 //		CPStrategy[] miningStrategies = {CPStrategy.APRIORI,CPStrategy.RF};
-		SamplingStrategy[] samplingStrategies = {SamplingStrategy.PATTERN_BASED_PERTURBATION};
+//		SamplingStrategy[] samplingStrategies = {SamplingStrategy.RANDOM,SamplingStrategy.PATTERN_BASED_RANDOM,SamplingStrategy.PATTERN_BASED_PERTURBATION};
 //		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.LOGISTIC, ClassifierType.DECISION_TREE};
 		
 		
 		
-		String[] files = {"synthetic/balloon_synthetic.arff"};
+		String[] files = {"synthetic3.arff"};
 //		String[] files = {"blood.arff"};
 //		String[] files = {"iris.arff"};
 		int[] numsOfExpl = {5};
-		CPStrategy[] miningStrategies = {CPStrategy.APRIORI};
-//		SamplingStrategy[] samplingStrategies = {SamplingStrategy.PATTERN_BASED_PERTURBATION};
-		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.LOGISTIC};
-		int[] numsOfSamples={1000};
+		CPStrategy[] miningStrategies = {CPStrategy.RF};
+		SamplingStrategy[] samplingStrategies = {SamplingStrategy.PATTERN_BASED_PERTURBATION};
+		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.DECISION_TREE};
+		int[] numsOfSamples={50};
 		CPExplainer app = new CPExplainer();
 //		RandomExplainer app = new RandomExplainer();
 		try {
 			PrintWriter writer = new PrintWriter(new File("tmp/stats.txt"));
 			for(String file:files){
 //			Instances data = DataUtils.load("data/synthetic2.arff");
-//			Instances data = DataUtils.load("data/"+file);
-//			int numGoldFeature = data.numAttributes();
-			Set<Integer> goldFeatures = new HashSet<>();
+			Instances data = DataUtils.load("data/"+file);
+			int numGoldFeature = data.numAttributes();
+			Set<Set<Integer>> goldFeatureSet = new HashSet<>();
 //			for(int i = 0; i < numGoldFeature-1; i++){
 //				goldFeatures.add(i);
 //			}
 			
 //			Instances data = DataUtils.load("tmp/newData.arff");
 //			data = AddNoisyFeatureToData.generateNoisyData(data);
-//			DataUtils.save(data,"tmp/newwData.arff");
+			DataUtils.save(data,"tmp/newwData.arff");
 			
 			//split the data into train and test
-			Instances train = DataUtils.load("data/synthetic/DNF3.arff");
-			Instances test = DataUtils.load("data/synthetic/DNF3.arff");
+//			Instances train = DataUtils.load("data/synthetic/balloon_noisy_train.arff");
+//			Instances test = DataUtils.load("data/synthetic/balloon_noisy_test.arff");
 			
+//			Instances train = DataUtils.load("data/synthetic/balloon_noisy_train.arff");
+//			Instances test = DataUtils.load("data/synthetic/balloon_noisy_test.arff");
+//			train.setClassIndex(train.numAttributes()-1);
+//			test.setClassIndex(train.numAttributes()-1);
+			Instances train  = data;
+			Instances test = data;
 			
 			for(CPStrategy miningStrategy : miningStrategies){
 			for(SamplingStrategy samplingStrategy:samplingStrategies){
@@ -72,11 +78,15 @@ public class CPExplainerForDNF3 {
 			
 				for(ClassifierType type:typesOfClassifier){
 					for(int numOfExpl:numsOfExpl){
+			
 						try{
 
 			
-			AbstractClassifier cl = new DNF3Classifier();
+			AbstractClassifier cl = new Synthetic3Classifier();
+//			AbstractClassifier cl = ClassifierGenerator.getClassifier(type);
+			
 			cl.buildClassifier(train);
+			System.out.println(cl);
 			double precision = 0;
 			double recall = 0;
 			double probAvg = 0;
@@ -85,33 +95,52 @@ public class CPExplainerForDNF3 {
 			double f1=0;
 			int numExpl = 0;
 			int count=0;
-//			Instance ins = test.get(1);
-//			ins.setValue(3, "0");
+//			Instance ins = test.get(9);
+//			ins.setValue(0, "1");
 //			ins.setValue(1, 0.1);
 //			ins.setValue(2, 0.1);
-//			ins.setValue(1, "YELLOW");
-//			ins.setValue(2, "SMALL");
-//			ins.setValue(3, "STRETCH");
-//			ins.setValue(4, "ADULT");
+//			ins.setValue(1, "PURPLE");
+//			ins.setValue(2, "LARGE");
+//			ins.setValue(3, "DIP");
+//			ins.setValue(4, "CHILD");
 //			ins.setClassValue(0);
 			
 //			goldFeatures = InterpretableModels.getGoldenFeature(type, cl, train);
 //			System.out.println(goldFeatures);
 			
+			
+			
 			for(Instance ins:test){
-				goldFeatures =  getGoldFeature(ins);
+				
+				goldFeatureSet = getGoldFeature(ins);
+				System.out.println(goldFeatureSet);
 				try{
 				List<IPattern> expls = app.getExplanations(FPStrategy.APRIORI, samplingStrategy, 
-						miningStrategy, PatternSortingStrategy.SUPPORT,
-						cl, ins, train, numOfSamples, 0.1, 2, numOfExpl, false);
-				if (expls.size()!=0){
-//					System.out.println(expls);
-					precision += ExplEvaluation.evalPrecisionBest(expls, goldFeatures);
-					recall += ExplEvaluation.evalRecallBest(expls, goldFeatures);
-					f1 += ExplEvaluation.evalF1Best(expls, goldFeatures);
-					probAvg+= ExplEvaluation.evalProbDiffAvg(expls, cl, train, ins);
-					probMax+= ExplEvaluation.evalProbDiffMax(expls, cl, train, ins);
-					probMin+= ExplEvaluation.evalProbDiffMin(expls, cl, train, ins);
+						miningStrategy, PatternSortingStrategy.OBJECTIVE_FUNCTION_LP,
+						cl, ins, train, numOfSamples, 0.15, 2, numOfExpl, true);
+				if (expls!=null&&expls.size()!=0){
+					System.out.println(expls);
+					double tmpprecision = 0.0;
+					double tmprecall = 0;
+					double tmpprobAvg = 0;
+					double tmpprobMax = 0;
+					double tmpprobMin = 0;
+					double tmpf1 = 0.0;
+					for(Set<Integer> goldFeatures:goldFeatureSet){
+						tmpprecision += ExplEvaluation.evalPrecisionBest(expls, goldFeatures);
+						tmprecall += ExplEvaluation.evalRecallBest(expls, goldFeatures);
+						tmpprobAvg += ExplEvaluation.evalProbDiffAvg(expls, cl, train, ins);
+						tmpprobMax += ExplEvaluation.evalProbDiffMax(expls, cl, train, ins);
+						tmpprobMin += ExplEvaluation.evalProbDiffMin(expls, cl, train, ins);
+						tmpf1 += ExplEvaluation.evalF1Best(expls, goldFeatures);
+					}
+					
+					precision += tmpprecision/goldFeatureSet.size();
+					recall += tmprecall/goldFeatureSet.size();
+					probAvg+= tmpprobAvg/goldFeatureSet.size();
+					probMax+= tmpprobMax/goldFeatureSet.size();
+					probMin+= tmpprobMin/goldFeatureSet.size();
+					f1 += tmpf1/goldFeatureSet.size();
 //					System.out.println(expls.size()+"  precision="+precision);
 					numExpl+=expls.size();
 					count++;
@@ -164,21 +193,28 @@ public class CPExplainerForDNF3 {
 		}		
 	}
 	
-	public static Set<Integer> getGoldFeature(Instance instance){
-		Set<Integer> ret = new HashSet<>();
-		ret.add(0);
-		if (instance.stringValue(0).equals("1")){ // act == STRETCH, age = ADULT
-			ret.add(1);
-			ret.add(2);
-		}else if (instance.stringValue(0).equals("2")){
-			ret.add(3);
-			ret.add(4);
-		}else if (instance.stringValue(0).equals("3")){
-			ret.add(5);
-			ret.add(6);
-		}else if (instance.stringValue(0).equals("4")){
-			ret.add(7);
-			ret.add(8);
+	public static Set<Set<Integer>> getGoldFeature(Instance instance){
+		Set<Set<Integer>> ret = new HashSet<>();
+		if ((instance.stringValue(0).equals("1") && instance.stringValue(1).equals("1"))){
+			Set<Integer> temp = new HashSet<>();
+			temp.add(0);
+			temp.add(1);
+			ret.add(temp);
+		} if ((instance.stringValue(2).equals("1") && instance.stringValue(3).equals("1"))){
+			Set<Integer> temp = new HashSet<>();
+					temp.add(2);
+					temp.add(3);
+					ret.add(temp);
+		} if ((instance.stringValue(4).equals("1") && instance.stringValue(5).equals("1"))){
+			Set<Integer> temp = new HashSet<>();
+					temp.add(4);
+					temp.add(5);
+					ret.add(temp);
+		} if ((instance.stringValue(6).equals("1") && instance.stringValue(7).equals("1"))){
+			Set<Integer> temp = new HashSet<>();
+					temp.add(6);
+					temp.add(7);
+					ret.add(temp);
 		}
 		return ret;
 	}

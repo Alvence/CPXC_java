@@ -78,6 +78,48 @@ public class SyntheticDataGenerator {
 		}
 	}
 	
+	public static void synthetic3(int N){
+		Random random = new Random(1);
+		int numFeature = 8;
+		for(int i = 0; i < N; i++){
+			boolean vals[]=new boolean[numFeature];
+			for(int a = 0; a< numFeature; a++){
+				boolean val = random.nextBoolean();
+				vals[a] = val;
+				
+			}
+			
+			boolean result = (vals[0]&&vals[1])||(vals[2]&vals[3])||(vals[4]&vals[5])||(vals[6]&vals[7]);
+			if(result){
+			for(int a = 0; a< numFeature; a++){
+				System.out.print((vals[a]?"1":"0")+",");	
+			}
+			System.out.println(result?"1":"0");
+			}
+		}
+	}
+	
+	public static void synthetic4(int N){
+		Random random = new Random(1);
+		int numFeature = 9;
+		for(int i = 0; i < N; i++){
+			boolean vals[]=new boolean[numFeature];
+			for(int a = 0; a< numFeature; a++){
+				boolean val = random.nextBoolean();
+				vals[a] = val;
+				
+			}
+			
+			boolean result = (vals[0]&&vals[1]&vals[2])||(vals[3]&&vals[4]&vals[5])||(vals[6]&&vals[7]&vals[8]);
+			if(result){
+			for(int a = 0; a< numFeature; a++){
+				System.out.print((vals[a]?"1":"0")+",");	
+			}
+			System.out.println(result?"1":"0");
+			}
+		}
+	}
+	
 	
 	public static void DNF(int N){
 		Random random = new Random(1);
@@ -202,7 +244,7 @@ public class SyntheticDataGenerator {
 //		LOG(1000);
 //		DNF2G(200);
 //		DNF3G(500);
-		rules(100);
+		synthetic4(100);
 		/*try {
 			Instances data = DataUtils.load("data/synthetic3.arff");
 			List<Instances> datas = new ArrayList<>();
