@@ -37,10 +37,11 @@ public class CPExplainerForJ48 {
 //		SamplingStrategy[] samplingStrategies = {SamplingStrategy.PATTERN_BASED_PERTURBATION, SamplingStrategy.GRADIENT_BASED_SAMPLING};
 //		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.LOGISTIC, ClassifierType.DECISION_TREE};
 		
-		int[] ratios = {2,3};
+		int[] ratios = {2,3,5,10,50};
+		double[] supps = {0.1,0.15,0.2,0.3,0.4,0.5};
 		
-//		String[] files = {"balloon","blood","breast-cancer","diabetes","iris","labor","titanic","vote"};
-		String[] files = {"census-income"};
+		String[] files = {"balloon","blood","breast-cancer"/*,"diabetes"*/,"iris","labor","titanic","vote"};
+//		String[] files = {"ionosphere"};
 //		String[] files = {"blood","diabetes","iris","ionosphere"};
 //		String[] files = {"chess","adult","crx","sonar","ILPD"};
 //		String[] files = {"diabetes.arff"};
@@ -49,8 +50,8 @@ public class CPExplainerForJ48 {
 //		CPStrategy[] miningStrategies = {CPStrategy.RF};
 //		SamplingStrategy[] samplingStrategies = {SamplingStrategy.PATTERN_BASED_PERTURBATION};
 		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.DECISION_TREE};
-//		int[] numsOfSamples={50,100,200,500,2000};
-		int[] numsOfSamples={50, 100, 500, 1000};
+		int[] numsOfSamples={10,50,100,200,500,2000};
+//		int[] numsOfSamples={500};
 //		RandomExplainer app = new RandomExplainer();
 		try {
 			PrintWriter writer = new PrintWriter(new File("tmp/stats.txt"));
@@ -65,8 +66,8 @@ public class CPExplainerForJ48 {
 //			data = AddNoisyFeatureToData.generateNoisyData(data);
 			
 			//split the data into train and test
-			Instances train = DataUtils.load("data/icdm2017Data/"+file+"_train.arff");
-			Instances test = DataUtils.load("data/icdm2017Data/"+file+"_test.arff");
+			Instances train = DataUtils.load("data/sdm2018Data/"+file+"_train.arff");
+			Instances test = DataUtils.load("data/sdm2018Data/"+file+"_test.arff");
 			
 			//split the data into train and test
 //			Instances train= DataUtils.load("data/icdm2017/"+file+".arff");
@@ -76,7 +77,8 @@ public class CPExplainerForJ48 {
 			int numGoldFeature = data.numAttributes();
 			Set<Integer> goldFeatures = new HashSet<>();
 			
-//			for(int ratio:ratios)
+			for(int ratio:ratios)
+			for(double supp:supps)
 			for(CPStrategy miningStrategy : miningStrategies){
 			for(SamplingStrategy samplingStrategy:samplingStrategies){
 			for(int numOfSamples:numsOfSamples){
@@ -118,7 +120,7 @@ public class CPExplainerForJ48 {
 				try{
 				List<IPattern> expls = app.getExplanations(FPStrategy.RF, samplingStrategy, 
 						miningStrategy, PatternSortingStrategy.OBJECTIVE_FUNCTION_LP,
-						cl, ins, train, numOfSamples, 0.15, 3, numOfExpl, true);
+						cl, ins, train, numOfSamples, supp, ratio, numOfExpl, false);
 				if (expls!=null&&expls.size()!=0){
 //					System.out.println(expls);
 					precision += ExplEvaluation.evalPrecisionBest(expls, goldFeatures);

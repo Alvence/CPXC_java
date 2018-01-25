@@ -124,7 +124,8 @@ public class SyntheticDataGenerator {
 	public static void DNF(int N){
 		Random random = new Random(1);
 		int numFeature = 9;
-		for(int i = 0; i < N; i++){
+		int count = 0;
+		while(count<N){
 			int region = random.nextInt(4)+1;
 			boolean vals[]=new boolean[numFeature];
 			for(int a = 0; a< numFeature; a++){
@@ -158,6 +159,7 @@ public class SyntheticDataGenerator {
 					System.out.print((val?"1":"0")+",");
 				}
 				System.out.println(result?"1":"0");
+				count++;
 			}
 		}
 		
@@ -244,7 +246,7 @@ public class SyntheticDataGenerator {
 //		LOG(1000);
 //		DNF2G(200);
 //		DNF3G(500);
-		synthetic4(100);
+		DNF(100);
 		/*try {
 			Instances data = DataUtils.load("data/synthetic3.arff");
 			List<Instances> datas = new ArrayList<>();

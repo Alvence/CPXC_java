@@ -114,7 +114,7 @@ public class CPExplainer {
 			if(ps==null){
 				ps = pm.minePattern(headerInfo, 0.4);
 			}
-			System.out.println(ps.size());
+//			System.out.println(ps.size());
 			sampler = new PatternSpacePerturbationSampler(ps, ps.size()/100>3?ps.size()/100:3);
 			break;
 		default:

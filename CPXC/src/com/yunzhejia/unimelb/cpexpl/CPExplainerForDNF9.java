@@ -40,7 +40,7 @@ public class CPExplainerForDNF9 {
 //		String[] files = {"blood.arff"};
 //		String[] files = {"iris.arff"};
 		int[] numsOfExpl = {5};
-		CPStrategy[] miningStrategies = {CPStrategy.APRIORI};
+		CPStrategy[] miningStrategies = {CPStrategy.RF};
 //		SamplingStrategy[] samplingStrategies = {SamplingStrategy.PATTERN_BASED_PERTURBATION};
 		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.LOGISTIC};
 		int[] numsOfSamples={500};
@@ -62,8 +62,8 @@ public class CPExplainerForDNF9 {
 			DataUtils.save(data,"tmp/newwData.arff");
 			
 			//split the data into train and test
-			Instances train = DataUtils.load("data/synthetic/DNF9_train.arff");
-			Instances test = DataUtils.load("data/synthetic/DNF9_test.arff");
+			Instances train = DataUtils.load("data/synthetic2.arff");
+			Instances test = DataUtils.load("data/synthetic2.arff");
 			
 			
 			for(CPStrategy miningStrategy : miningStrategies){
@@ -75,7 +75,7 @@ public class CPExplainerForDNF9 {
 						try{
 
 			
-			AbstractClassifier cl = new DNF9Classifier();
+			AbstractClassifier cl = new Synthetic2Classifier();
 			cl.buildClassifier(train);
 			double precision = 0;
 			double recall = 0;
@@ -83,8 +83,9 @@ public class CPExplainerForDNF9 {
 			double probMax = 0;
 			double probMin = 0;
 			int numExpl = 0;
+			double f1=0;
 			int count=0;
-			Instance ins = test.get(1);
+//			Instance ins = test.get(1);
 //			ins.setValue(0, "1");
 //			ins.setValue(1, 0.1);
 //			ins.setValue(2, 0.1);
@@ -97,16 +98,17 @@ public class CPExplainerForDNF9 {
 //			goldFeatures = InterpretableModels.getGoldenFeature(type, cl, train);
 //			System.out.println(goldFeatures);
 			
-//			for(Instance ins:test){
+			for(Instance ins:test){
 				goldFeatures = getGoldFeature(ins);
 				try{
 				List<IPattern> expls = app.getExplanations(FPStrategy.APRIORI, samplingStrategy, 
 						miningStrategy, PatternSortingStrategy.OBJECTIVE_FUNCTION_LP,
-						cl, ins, train, numOfSamples, 0.15, 3, numOfExpl, true);
+						cl, ins, train, numOfSamples, 0.15, 5, numOfExpl, true);
 				if (expls.size()!=0){
 					System.out.println(expls);
 					precision += ExplEvaluation.evalPrecisionBest(expls, goldFeatures);
 					recall += ExplEvaluation.evalRecallBest(expls, goldFeatures);
+					f1 += ExplEvaluation.evalF1Best(expls, goldFeatures);
 					probAvg+= ExplEvaluation.evalProbDiffAvg(expls, cl, train, ins);
 					probMax+= ExplEvaluation.evalProbDiffMax(expls, cl, train, ins);
 					probMin+= ExplEvaluation.evalProbDiffMin(expls, cl, train, ins);
@@ -120,12 +122,14 @@ public class CPExplainerForDNF9 {
 					throw e;
 //					e.printStackTrace();
 				}
-//			}
+			}
 			Evaluation eval = new Evaluation(train);
 			eval.evaluateModel(cl, test);
 			
-			String output = "mining="+miningStrategy+" sampling="+samplingStrategy+" numOfSample="+numOfSamples+"   "+file+"  cl="+type+"  NumExpl="+numOfExpl+"  precision = "+(count==0?0:precision/count)+"  recall = "+(count==0?0:recall/count)+"   acc="+eval.correct()*1.0/test.numInstances()
-					+" numExpl="+numExpl*1.0/test.size() + " probAvg= "+probAvg/count+" probMax="+probMax/count+" probMin="+probMin/count;
+			String output = "mining="+miningStrategy+" sampling="+samplingStrategy+" numOfSample="+numOfSamples+"   "+file+"  cl="+type+"  NumExpl="+numOfExpl+"  precision = "+(count==0?0:precision/count)+"  recall = "+(count==0?0:recall/count)
+					+"  f1 = "+(count==0?0:f1/count)+"   acc="+eval.correct()*1.0/test.numInstances()
+					+" numExpl="+numExpl*1.0/count + " probAvg= "+probAvg/count+" probMax="+probMax/count+" probMin="+probMin/count
+					+"ExplRate="+count*1.0/test.size();
 			System.out.println(output);
 			writer.println(output);
 			writer.flush();

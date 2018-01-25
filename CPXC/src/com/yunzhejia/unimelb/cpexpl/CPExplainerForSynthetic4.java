@@ -43,7 +43,7 @@ public class CPExplainerForSynthetic4 {
 		CPStrategy[] miningStrategies = {CPStrategy.RF};
 		SamplingStrategy[] samplingStrategies = {SamplingStrategy.PATTERN_BASED_PERTURBATION};
 		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.DECISION_TREE};
-		int[] numsOfSamples={50};
+		int[] numsOfSamples={100};
 		CPExplainer app = new CPExplainer();
 //		RandomExplainer app = new RandomExplainer();
 		try {

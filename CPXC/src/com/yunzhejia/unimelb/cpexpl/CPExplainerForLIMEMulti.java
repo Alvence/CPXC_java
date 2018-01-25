@@ -13,7 +13,7 @@ import com.yunzhejia.cpxc.util.DataUtils;
 import com.yunzhejia.pattern.IPattern;
 import com.yunzhejia.unimelb.cpexpl.CPExplainer.CPStrategy;
 import com.yunzhejia.unimelb.cpexpl.CPExplainer.SamplingStrategy;
-import com.yunzhejia.unimelb.cpexpl.truth.DTTruth;
+import com.yunzhejia.unimelb.cpexpl.truth.LRTruth;
 
 import weka.classifiers.AbstractClassifier;
 import weka.classifiers.Evaluation;
@@ -23,7 +23,7 @@ import weka.classifiers.trees.j48.ClassifierTree;
 import weka.core.Instance;
 import weka.core.Instances;
 
-public class CPExplainerForLIME {
+public class CPExplainerForLIMEMulti {
 	public static void main(String[] args){
 		
 		
@@ -32,12 +32,12 @@ public class CPExplainerForLIME {
 		
 		
 //		String[] files = {"balloon","blood","breast-cancer","diabetes","glass","iris","labor","titanic","vote"};
-		String[] files = {"ionosphere"};
+		String[] files = {"Synthetic4"};
 //		String[] files = {"iris.arff"};
 		int[] numsOfExpl = {100};
 		CPStrategy[] miningStrategies = {CPStrategy.APRIORI};
 //		SamplingStrategy[] samplingStrategies = {SamplingStrategy.PATTERN_BASED_PERTURBATION};
-		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.DECISION_TREE};
+		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.LOGISTIC};
 		int[] numsOfSamples={2000};
 		CPExplainer app = new CPExplainer();
 //		RandomExplainer app = new RandomExplainer();
@@ -54,11 +54,12 @@ public class CPExplainerForLIME {
 //			data = AddNoisyFeatureToData.generateNoisyData(data);
 			
 			//split the data into train and test
-			Instances train = DataUtils.load("data/sdm2018Data/"+file+"_train.arff");
-			Instances test = DataUtils.load("data/sdm2018Data/"+file+"_test.arff");
+			Instances train = DataUtils.load("data/sdm2018Data/"+file+".arff");
+			Instances test = DataUtils.load("data/sdm2018Data/"+file+".arff");
 			Instances data = train;
 			int numGoldFeature = data.numAttributes();
-			Set<Integer> goldFeatures = new HashSet<>();
+//			Set<Integer> goldFeatures = new HashSet<>();
+			Set<Set<Integer>> goldFeatureSet = new HashSet<>();
 			for(CPStrategy miningStrategy : miningStrategies){
 			for(SamplingStrategy samplingStrategy:samplingStrategies){
 			for(int numOfSamples:numsOfSamples){
@@ -98,8 +99,8 @@ public class CPExplainerForLIME {
 				Instance ins = test.get(i);
 				IPattern ex = exList.get(i);
 				
-				goldFeatures = DTTruth.getGoldFeature(cl, test.get(i));
-//				goldFeatures = getSynthetic2GoldFeature(test.get(i));
+//				goldFeatures = LRTruth.getGoldFeature(cl, test.get(i));
+				goldFeatureSet = getGoldFeature4(test.get(i));
 //				System.out.println(test.get(i));
 //				System.out.println(goldFeatures);
 				try{
@@ -107,12 +108,27 @@ public class CPExplainerForLIME {
 				expls.add(ex);
 				if (ex!=null){
 //					System.out.println(expls);
-					precision += ExplEvaluation.evalPrecisionBest(expls, goldFeatures);
-					recall += ExplEvaluation.evalRecallBest(expls, goldFeatures);
-					f1 += ExplEvaluation.evalF1Best(expls, goldFeatures);
-					probAvg+= ExplEvaluation.evalProbDiffAvg(expls, cl, train, ins);
-					probMax+= ExplEvaluation.evalProbDiffMax(expls, cl, train, ins);
-					probMin+= ExplEvaluation.evalProbDiffMin(expls, cl, train, ins);
+					double tmpprecision = 0.0;
+					double tmprecall = 0;
+					double tmpprobAvg = 0;
+					double tmpprobMax = 0;
+					double tmpprobMin = 0;
+					double tmpf1 = 0.0;
+					for(Set<Integer> goldFeatures:goldFeatureSet){
+						tmpprecision += ExplEvaluation.evalPrecisionBest(expls, goldFeatures);
+						tmprecall += ExplEvaluation.evalRecallBest(expls, goldFeatures);
+						tmpprobAvg += ExplEvaluation.evalProbDiffAvg(expls, cl, train, ins);
+						tmpprobMax += ExplEvaluation.evalProbDiffMax(expls, cl, train, ins);
+						tmpprobMin += ExplEvaluation.evalProbDiffMin(expls, cl, train, ins);
+						tmpf1 += ExplEvaluation.evalF1Best(expls, goldFeatures);
+					}
+					
+					precision += tmpprecision/goldFeatureSet.size();
+					recall += tmprecall/goldFeatureSet.size();
+					probAvg+= tmpprobAvg/goldFeatureSet.size();
+					probMax+= tmpprobMax/goldFeatureSet.size();
+					probMin+= tmpprobMin/goldFeatureSet.size();
+					f1 += tmpf1/goldFeatureSet.size();
 //					System.out.println(expls.size()+"  precision="+precision);
 					numExpl+=expls.size();
 					count++;
@@ -163,7 +179,56 @@ public class CPExplainerForLIME {
 			e.printStackTrace();
 		}		
 	}
-	
+	public static Set<Set<Integer>> getGoldFeature4(Instance instance){
+		Set<Set<Integer>> ret = new HashSet<>();
+		if ((instance.stringValue(0).equals("1") && instance.stringValue(1).equals("1") && instance.stringValue(2).equals("1"))){
+			Set<Integer> temp = new HashSet<>();
+			temp.add(0);
+			temp.add(1);
+			temp.add(2);
+			ret.add(temp);
+		}
+		if ((instance.stringValue(3).equals("1") && instance.stringValue(4).equals("1") && instance.stringValue(5).equals("1"))){
+			Set<Integer> temp = new HashSet<>();
+					temp.add(3);
+					temp.add(4);
+					temp.add(5);
+					ret.add(temp);
+		} 
+		if ((instance.stringValue(6).equals("1") && instance.stringValue(7).equals("1") && instance.stringValue(8).equals("1"))){
+			Set<Integer> temp = new HashSet<>();
+					temp.add(6);
+					temp.add(7);
+					temp.add(8);
+					ret.add(temp);
+		} 
+		return ret;
+	}
+	public static Set<Set<Integer>> getGoldFeature3(Instance instance){
+		Set<Set<Integer>> ret = new HashSet<>();
+		if ((instance.stringValue(0).equals("1") && instance.stringValue(1).equals("1"))){
+			Set<Integer> temp = new HashSet<>();
+			temp.add(0);
+			temp.add(1);
+			ret.add(temp);
+		} if ((instance.stringValue(2).equals("1") && instance.stringValue(3).equals("1"))){
+			Set<Integer> temp = new HashSet<>();
+					temp.add(2);
+					temp.add(3);
+					ret.add(temp);
+		} if ((instance.stringValue(4).equals("1") && instance.stringValue(5).equals("1"))){
+			Set<Integer> temp = new HashSet<>();
+					temp.add(4);
+					temp.add(5);
+					ret.add(temp);
+		} if ((instance.stringValue(6).equals("1") && instance.stringValue(7).equals("1"))){
+			Set<Integer> temp = new HashSet<>();
+					temp.add(6);
+					temp.add(7);
+					ret.add(temp);
+		}
+		return ret;
+	}
 	public static Set<Integer> getSynthetic2GoldFeature(Instance instance){
 		Set<Integer> ret = new HashSet<>();
 		ret.add(0);

@@ -40,7 +40,7 @@ public class CPExplainerForDNF3 {
 //		String[] files = {"blood.arff"};
 //		String[] files = {"iris.arff"};
 		int[] numsOfExpl = {5};
-		CPStrategy[] miningStrategies = {CPStrategy.APRIORI};
+		CPStrategy[] miningStrategies = {CPStrategy.RF};
 //		SamplingStrategy[] samplingStrategies = {SamplingStrategy.PATTERN_BASED_PERTURBATION};
 		ClassifierGenerator.ClassifierType[] typesOfClassifier = {ClassifierType.LOGISTIC};
 		int[] numsOfSamples={1000};
@@ -62,8 +62,8 @@ public class CPExplainerForDNF3 {
 //			DataUtils.save(data,"tmp/newwData.arff");
 			
 			//split the data into train and test
-			Instances train = DataUtils.load("data/synthetic/DNF3.arff");
-			Instances test = DataUtils.load("data/synthetic/DNF3.arff");
+			Instances train = DataUtils.load("data/synthetic2.arff");
+			Instances test = DataUtils.load("data/synthetic2.arff");
 			
 			
 			for(CPStrategy miningStrategy : miningStrategies){
@@ -102,7 +102,7 @@ public class CPExplainerForDNF3 {
 				goldFeatures =  getGoldFeature(ins);
 				try{
 				List<IPattern> expls = app.getExplanations(FPStrategy.APRIORI, samplingStrategy, 
-						miningStrategy, PatternSortingStrategy.SUPPORT,
+						miningStrategy, PatternSortingStrategy.OBJECTIVE_FUNCTION_LP,
 						cl, ins, train, numOfSamples, 0.1, 2, numOfExpl, false);
 				if (expls.size()!=0){
 //					System.out.println(expls);

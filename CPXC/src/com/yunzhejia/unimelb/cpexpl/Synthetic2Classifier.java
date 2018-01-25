@@ -4,7 +4,7 @@ import weka.classifiers.AbstractClassifier;
 import weka.core.Instance;
 import weka.core.Instances;
 
-public class DNF9Classifier extends AbstractClassifier {
+public class Synthetic2Classifier extends AbstractClassifier {
 
 	@Override
 	public void buildClassifier(Instances data) throws Exception {

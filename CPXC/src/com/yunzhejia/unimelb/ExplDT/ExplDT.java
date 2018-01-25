@@ -15,7 +15,7 @@ import com.yunzhejia.unimelb.cpexpl.CPExplainer.CPStrategy;
 import com.yunzhejia.unimelb.cpexpl.CPExplainer.FPStrategy;
 import com.yunzhejia.unimelb.cpexpl.CPExplainer.PatternSortingStrategy;
 import com.yunzhejia.unimelb.cpexpl.CPExplainer.SamplingStrategy;
-import com.yunzhejia.unimelb.cpexpl.DNF9Classifier;
+import com.yunzhejia.unimelb.cpexpl.Synthetic2Classifier;
 import com.yunzhejia.unimelb.cpexpl.ExplEvaluation;
 
 import weka.classifiers.AbstractClassifier;

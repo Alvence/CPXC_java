@@ -116,7 +116,7 @@ public class CPExplainerForSynthetic3 {
 				System.out.println(goldFeatureSet);
 				try{
 				List<IPattern> expls = app.getExplanations(FPStrategy.APRIORI, samplingStrategy, 
-						miningStrategy, PatternSortingStrategy.OBJECTIVE_FUNCTION_LP,
+						miningStrategy, PatternSortingStrategy.SUPPORT,
 						cl, ins, train, numOfSamples, 0.15, 2, numOfExpl, true);
 				if (expls!=null&&expls.size()!=0){
 					System.out.println(expls);
