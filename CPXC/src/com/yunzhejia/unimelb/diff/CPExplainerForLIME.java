@@ -1,4 +1,4 @@
-package com.yunzhejia.unimelb.cpexpl;
+package com.yunzhejia.unimelb.diff;
 
 import java.io.File;
 import java.io.PrintWriter;
@@ -11,8 +11,11 @@ import com.yunzhejia.cpxc.util.ClassifierGenerator;
 import com.yunzhejia.cpxc.util.ClassifierGenerator.ClassifierType;
 import com.yunzhejia.cpxc.util.DataUtils;
 import com.yunzhejia.pattern.IPattern;
+import com.yunzhejia.unimelb.cpexpl.CPExplainer;
 import com.yunzhejia.unimelb.cpexpl.CPExplainer.CPStrategy;
 import com.yunzhejia.unimelb.cpexpl.CPExplainer.SamplingStrategy;
+import com.yunzhejia.unimelb.cpexpl.ExplEvaluation;
+import com.yunzhejia.unimelb.cpexpl.LIMEConverter;
 import com.yunzhejia.unimelb.cpexpl.truth.LRTruth;
 
 import weka.classifiers.AbstractClassifier;
@@ -32,7 +35,7 @@ public class CPExplainerForLIME {
 		
 		
 //		String[] files = {"balloon","blood","breast-cancer","diabetes","glass","iris","labor","titanic","vote"};
-		String[] files = {"blood"};
+		String[] files = {"titanic"};
 //		String[] files = {"iris.arff"};
 		int[] numsOfExpl = {100};
 		CPStrategy[] miningStrategies = {CPStrategy.APRIORI};

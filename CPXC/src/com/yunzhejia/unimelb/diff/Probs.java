@@ -1,8 +1,7 @@
-package com.yunzhejia.unimelb.cpexpl;
+package com.yunzhejia.unimelb.diff;
 
 import java.io.File;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -11,9 +10,10 @@ import com.yunzhejia.cpxc.util.ClassifierGenerator;
 import com.yunzhejia.cpxc.util.ClassifierGenerator.ClassifierType;
 import com.yunzhejia.cpxc.util.DataUtils;
 import com.yunzhejia.pattern.IPattern;
+import com.yunzhejia.unimelb.cpexpl.CPExplainer;
 import com.yunzhejia.unimelb.cpexpl.CPExplainer.CPStrategy;
 import com.yunzhejia.unimelb.cpexpl.CPExplainer.SamplingStrategy;
-import com.yunzhejia.unimelb.cpexpl.truth.LRTruth;
+import com.yunzhejia.unimelb.cpexpl.LIMEConverter;
 
 import weka.classifiers.AbstractClassifier;
 import weka.classifiers.Evaluation;
@@ -23,7 +23,7 @@ import weka.classifiers.trees.j48.ClassifierTree;
 import weka.core.Instance;
 import weka.core.Instances;
 
-public class CPExplainerForLIME {
+public class Probs {
 	public static void main(String[] args){
 		
 		
@@ -32,7 +32,7 @@ public class CPExplainerForLIME {
 		
 		
 //		String[] files = {"balloon","blood","breast-cancer","diabetes","glass","iris","labor","titanic","vote"};
-		String[] files = {"blood"};
+		String[] files = {"vote"};
 //		String[] files = {"iris.arff"};
 		int[] numsOfExpl = {100};
 		CPStrategy[] miningStrategies = {CPStrategy.APRIORI};
@@ -98,44 +98,18 @@ public class CPExplainerForLIME {
 				Instance ins = test.get(i);
 				IPattern ex = exList.get(i);
 				
-				goldFeatures = LRTruth.getGoldFeature(cl, test.get(i));
 //				goldFeatures = getDTGoldFeature(cl,test.get(i));
 //				System.out.println(test.get(i));
 //				System.out.println(goldFeatures);
-				try{
-				List<IPattern> expls = new ArrayList<>();
-				expls.add(ex);
-				if (ex!=null){
-//					System.out.println(expls);
-					precision += ExplEvaluation.evalPrecisionBest(expls, goldFeatures);
-					recall += ExplEvaluation.evalRecallBest(expls, goldFeatures);
-					f1 += ExplEvaluation.evalF1Best(expls, goldFeatures);
-					probAvg+= ExplEvaluation.evalProbDiffAvg(expls, cl, train, ins);
-					probMax+= ExplEvaluation.evalProbDiffMax(expls, cl, train, ins);
-					probMin+= ExplEvaluation.evalProbDiffMin(expls, cl, train, ins);
-//					System.out.println(expls.size()+"  precision="+precision);
-					numExpl+=expls.size();
-					count++;
-					
-					System.out.println(ExplEvaluation.evalF1Best(expls, goldFeatures));
-				}else{
-//					System.err.println("No explanations!");
-					System.err.println(0);
-				}
-				}catch(Exception e){
-					throw e;
-//					e.printStackTrace();
-				}
+				int pred = (int)cl.classifyInstance(ins);
+				double prob = cl.distributionForInstance(ins)[pred];
+				System.out.println(prob);
+				
 			}
 			Evaluation eval = new Evaluation(train);
 			eval.evaluateModel(cl, test);
 			
-			String output = "mining="+miningStrategy+" sampling="+samplingStrategy+" numOfSample="+numOfSamples+"   "+file+"  cl="+type+"  NumExpl="+numOfExpl+"  precision = "+(count==0?0:precision/count)+"  recall = "+(count==0?0:recall/count)
-					+"  f1 = "+(count==0?0:f1/count)+"   acc="+eval.correct()*1.0/test.numInstances()
-					+" numExpl="+numExpl*1.0/test.size() + " probAvg= "+probAvg/count+" probMax="+probMax/count+" probMin="+probMin/count;
-			System.out.println(output);
-			writer.println(output);
-			writer.flush();
+			
 			}catch(Exception e){
 //				throw e;
 				e.printStackTrace();
